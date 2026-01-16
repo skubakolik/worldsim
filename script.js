@@ -3103,6 +3103,7 @@ window.addEventListener('load', () => {
     updateStartScreenProgress();
     const introMusic = document.getElementById('intro-music');
     if (introMusic) {
+        introMusic.volume = 0.5; // Set volume to 50%
         // Try to play immediately (might be blocked by browser policy)
         introMusic.play().catch(e => {
             console.log("Auto-play blocked, waiting for interaction", e);
