@@ -698,7 +698,9 @@ let state = {
     chats: {}, // friendName: [messages]
     lastRead: {}, // friendName: timestamp
     lastTick: Date.now(),
-    challengeTimer: 600
+    lastTick: Date.now(),
+    challengeTimer: 600,
+    sanitationMultiplier: 1 // Increases when asteroid hits
 };
 
 let map;
@@ -1107,7 +1109,7 @@ function getDestroyedIncome() {
         }
     });
     const multiplier = getGlobalIncomeMultiplier();
-    return Math.floor(total * multiplier);
+    return Math.floor(total * multiplier * state.sanitationMultiplier);
 }
 
 // Helper functions for level-based calculations
@@ -1296,6 +1298,10 @@ function processAsteroidHits() {
                 country.level = 0;
                 country.inStock = false;
                 state.ownedCountries.delete(id);
+
+                // Double the sanitation cost/penalty globally
+                state.sanitationMultiplier *= 2;
+
                 logEvent(`Asteroid je uničil ${country.name}! (Lvl.${oldLevel} → Lvl.0)`, 'bad');
 
                 geoJsonLayer.resetStyle();
@@ -1569,6 +1575,7 @@ function saveGameData() {
         ownedCountries: Array.from(state.ownedCountries),
         everOwned: Array.from(state.everOwned),
         ownedUpgrades: Array.from(state.ownedUpgrades),
+        sanitationMultiplier: state.sanitationMultiplier,
         countries: {}
     };
 
@@ -1627,6 +1634,7 @@ function loadGame(username) {
         state.ownedCountries = new Set(data.ownedCountries || []);
         state.everOwned = new Set(data.everOwned || []);
         state.ownedUpgrades = new Set(data.ownedUpgrades || []);
+        state.sanitationMultiplier = data.sanitationMultiplier || 1;
 
         if (data.countries) {
             Object.keys(data.countries).forEach(id => {
@@ -1667,8 +1675,10 @@ document.getElementById('play-button').addEventListener('click', () => {
         state.everOwned = new Set();
         state.ownedUpgrades = new Set();
         state.countries = {};
+        state.countries = {};
         state.challengeTimer = 600;
         state.stockProgress = 0;
+        state.sanitationMultiplier = 1;
         // Reset shop stock
         Object.values(state.countries).forEach(c => c.inStock = false);
         logEvent(`Začenjam nov 10-minutni izziv!`, 'good');
