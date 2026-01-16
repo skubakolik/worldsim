@@ -89,37 +89,60 @@ const RARITIES = {
 };
 
 const GAME_RANKS = [
-    { name: 'Bronasti I', minPoints: 0, color: '#cd7f32', reward: 0 },
-    { name: 'Bronasti II', minPoints: 5000, color: '#cd7f32', reward: 10 },
-    { name: 'Bronasti III', minPoints: 15000, color: '#cd7f32', reward: 15 },
-    { name: 'Srebrni I', minPoints: 50000, color: '#c0c0c0', reward: 25 },
-    { name: 'Srebrni II', minPoints: 125000, color: '#c0c0c0', reward: 35 },
-    { name: 'Srebrni III', minPoints: 300000, color: '#c0c0c0', reward: 50 },
-    { name: 'Zlati I', minPoints: 750000, color: '#ffd700', reward: 75 },
-    { name: 'Zlati II', minPoints: 1800000, color: '#ffd700', reward: 100 },
-    { name: 'Zlati III', minPoints: 4500000, color: '#ffd700', reward: 150 },
-    { name: 'Diamantni I', minPoints: 12000000, color: '#b9f2ff', reward: 250 },
-    { name: 'Diamantni II', minPoints: 30000000, color: '#b9f2ff', reward: 350 },
-    { name: 'Diamantni III', minPoints: 75000000, color: '#b9f2ff', reward: 500 },
-    { name: 'Legendarni I', minPoints: 200000000, color: '#ff4500', reward: 1000 },
-    { name: 'Legendarni II', minPoints: 500000000, color: '#ff4500', reward: 1500 },
-    { name: 'Legendarni III', minPoints: 1200000000, color: '#ff4500', reward: 2500 },
-    { name: 'Neresnični I', minPoints: 4000000000, color: '#a855f7', reward: 5000 },
-    { name: 'Neresnični II', minPoints: 10000000000, color: '#a855f7', reward: 10000 },
-    { name: 'Neresnični III', minPoints: 25000000000, color: '#a855f7', reward: 25000 },
-    { name: 'Kralj', minPoints: 100000000000, color: '#eab308', reward: 100000 }
+    { name: 'Bronasti I', minPoints: 0, color: '#cd7f32', reward: 0, icon: '🥉' },
+    { name: 'Bronasti II', minPoints: 5000, color: '#cd7f32', reward: 10, icon: '🥉' },
+    { name: 'Bronasti III', minPoints: 15000, color: '#cd7f32', reward: 15, icon: '🥉' },
+    { name: 'Srebrni I', minPoints: 50000, color: '#c0c0c0', reward: 25, icon: '🥈' },
+    { name: 'Srebrni II', minPoints: 125000, color: '#c0c0c0', reward: 35, icon: '🥈' },
+    { name: 'Srebrni III', minPoints: 300000, color: '#c0c0c0', reward: 50, icon: '🥈' },
+    { name: 'Zlati I', minPoints: 750000, color: '#ffd700', reward: 75, icon: '🥇' },
+    { name: 'Zlati II', minPoints: 1800000, color: '#ffd700', reward: 100, icon: '🥇' },
+    { name: 'Zlati III', minPoints: 4500000, color: '#ffd700', reward: 150, icon: '🥇' },
+    { name: 'Diamantni I', minPoints: 12000000, color: '#b9f2ff', reward: 250, icon: '💎' },
+    { name: 'Diamantni II', minPoints: 30000000, color: '#b9f2ff', reward: 350, icon: '💎' },
+    { name: 'Diamantni III', minPoints: 75000000, color: '#b9f2ff', reward: 500, icon: '💎' },
+    { name: 'Legendarni I', minPoints: 200000000, color: '#ff4500', reward: 1000, icon: '🔥' },
+    { name: 'Legendarni II', minPoints: 500000000, color: '#ff4500', reward: 1500, icon: '🔥' },
+    { name: 'Legendarni III', minPoints: 1200000000, color: '#ff4500', reward: 2500, icon: '🔥' },
+    { name: 'Neresnični I', minPoints: 4000000000, color: '#a855f7', reward: 5000, icon: '✨' },
+    { name: 'Neresnični II', minPoints: 10000000000, color: '#a855f7', reward: 10000, icon: '✨' },
+    { name: 'Neresnični III', minPoints: 25000000000, color: '#a855f7', reward: 25000, icon: '✨' },
+    { name: 'Kralj', minPoints: 100000000000, color: '#eab308', reward: 100000, icon: '👑' }
 ];
 
 const SKIN_ITEMS = {
-    'classic': { id: 'classic', name: 'Klasično', desc: 'Standardne barve glede na redkost.', cost: 0, type: 'skin' },
+    'classic': { id: 'classic', name: 'Standardno', desc: 'Standardne barve glede na redkost.', cost: 0, type: 'skin' },
     'neon': { id: 'neon', name: 'Neon Mesto', desc: 'Svetleče in močne futuristične barve.', cost: 50, type: 'skin' },
     'gold': { id: 'gold', name: 'Zlati Imperij', desc: 'Vse države postanejo prestižno zlate.', cost: 250, type: 'skin' },
     'cyber': { id: 'cyber', name: 'Cyberpunk', desc: 'Temno vijolične in modre barve.', cost: 100, type: 'skin' },
     'lava': { id: 'lava', name: 'Lava', desc: 'Države prekrite z vročo magmo.', cost: 300, type: 'skin' },
     'matrix': { id: 'matrix', name: 'Matrica', desc: 'Hekerski videz v zeleni kodi.', cost: 200, type: 'skin' },
-    'flags': { id: 'flags', name: 'Zastave Sveta', desc: 'Uporabi barvne sheme nacionalnih zastav.', cost: 500, type: 'skin' },
+    'flags': { id: 'flags', name: 'Zastave Sveta', desc: 'Barve nacionalnih zastav.', cost: 500, type: 'skin' },
     'ghost': { id: 'ghost', name: 'Duh', desc: 'Prosojne in srhljivo modre države.', cost: 150, type: 'skin' },
-    'nature': { id: 'nature', name: 'Narava', desc: 'Zeleni in rjavi barvni toni divjine.', cost: 100, type: 'skin' }
+    'nature': { id: 'nature', name: 'Narava', desc: 'Zeleni in rjavi toni divjine.', cost: 100, type: 'skin' },
+    'ocean_skin': { id: 'ocean_skin', name: 'Morski Svet', desc: 'Svetlo modre in turkizne barve.', cost: 250, type: 'skin' },
+    'sky_skin': { id: 'sky_skin', name: 'Nebesna Svoboda', desc: 'Barve neba ob sončnem zahodu.', cost: 350, type: 'skin' },
+    'diamond_skin': { id: 'diamond_skin', name: 'Diamantni Sij', desc: 'Države sijejo kot diamant.', cost: 1000, type: 'skin' },
+    'retro_skin': { id: 'retro_skin', name: 'Retro 80s', desc: 'Roza in turkizna arkadna estetika.', cost: 400, type: 'skin' },
+    'fire': { id: 'fire', name: 'Ognjeni Pekel', desc: 'Žareče rdeče in oranžne barve ognja.', cost: 450, type: 'skin' },
+    'ice': { id: 'ice', name: 'Ledena Doba', desc: 'Zamrznjene modre in bele države.', cost: 350, type: 'skin' },
+    'toxic': { id: 'toxic', name: 'Strupeni Odpadki', desc: 'Radioaktivno zelena in rumena.', cost: 300, type: 'skin' },
+    'royal': { id: 'royal', name: 'Kraljevska Vijolična', desc: 'Prestižna vijolična z zlatimi robovi.', cost: 500, type: 'skin' },
+    'shadow': { id: 'shadow', name: 'Senca', desc: 'Popolnoma črne države z belo obrobo.', cost: 600, type: 'skin' },
+    'rainbow': { id: 'rainbow', name: 'Mavrica', desc: 'Vesela igra vseh barv hkrati.', cost: 800, type: 'skin' },
+    'emerald': { id: 'emerald', name: 'Smaragd', desc: 'Globoki zeleni kristalni odtenki.', cost: 700, type: 'skin' },
+    'ruby': { id: 'ruby', name: 'Rubin', desc: 'Veličastni rdeči kristalni toni.', cost: 700, type: 'skin' },
+    'sapphire': { id: 'sapphire', name: 'Safir', desc: 'Globoko modri kristalni toni.', cost: 700, type: 'skin' },
+    'blood_moon': { id: 'blood_moon', name: 'Krvava Luna', desc: 'Temno rdeče z črnimi robovi.', cost: 550, type: 'skin' },
+    'spirit': { id: 'spirit', name: 'Duhovni Svet', desc: 'Svetlo modre mistične barve.', cost: 600, type: 'skin' },
+    'void': { id: 'void', name: 'Praznina', desc: 'Popolna tema s temno vijolično obrobo.', cost: 900, type: 'skin' },
+    'cyber_glow': { id: 'cyber_glow', name: 'Cyber Sij', desc: 'Neon turkizna s svetlečim učinkom.', cost: 450, type: 'skin' },
+    'obsidian': { id: 'obsidian', name: 'Obsidijan', desc: 'Popolna črnina s škrlatnim sije.', cost: 1500, type: 'skin' },
+    'crystal': { id: 'crystal', name: 'Kristalna Čistost', desc: 'Prosojne države z mavričnim odsevom.', cost: 2000, type: 'skin' },
+    'sun_god': { id: 'sun_god', name: 'Sončni Bog', desc: 'Žareča bela in rumena energija.', cost: 3000, type: 'skin' },
+    'galaxy_skin': { id: 'galaxy_skin', name: 'Galaktična Koža', desc: 'Premikajoče se barve vesolja.', cost: 5000, type: 'skin' },
+    'ethereal': { id: 'ethereal', name: 'Eterični Duh', desc: 'Skoraj nevidne, a sijoče države.', cost: 7500, type: 'skin' },
+    'warlord': { id: 'warlord', name: 'Gospodar Vojne', desc: 'Krvavo rdeče z debelo črno obrobo.', cost: 10000, type: 'skin' }
 };
 
 const BACKGROUND_ITEMS = {
@@ -127,9 +150,25 @@ const BACKGROUND_ITEMS = {
     'space': { id: 'space', name: 'Vesolje', desc: 'Zvezdnato nebo in galaksije.', cost: 150, type: 'background' },
     'ocean': { id: 'ocean', name: 'Globok Ocean', desc: 'Temno modre globine morja.', cost: 100, type: 'background' },
     'magma': { id: 'magma', name: 'Vulkansko', desc: 'Vroče podzemlje polno lave.', cost: 250, type: 'background' },
-    'matrix_bg': { id: 'matrix_bg', name: 'Digitalni Svet', desc: 'Zelena hakerska koda v ozadju.', cost: 300, type: 'background' },
+    'matrix_bg': { id: 'matrix_bg', name: 'Digitalni Svet', desc: 'Zelena hakerska koda.', cost: 300, type: 'background' },
     'desert': { id: 'desert', name: 'Puščava', desc: 'Suhi pesek in vroče sipine.', cost: 120, type: 'background' },
-    'arctic': { id: 'arctic', name: 'Arktika', desc: 'Snežno bela in ledeno modra.', cost: 140, type: 'background' }
+    'arctic': { id: 'arctic', name: 'Arktika', desc: 'Snežno bela in ledeno modra.', cost: 140, type: 'background' },
+    'forest': { id: 'forest', name: 'Gosta Divjina', desc: 'Mirni zeleni gozdovi.', cost: 180, type: 'background' },
+    'city': { id: 'city', name: 'Nočno Mesto', desc: 'Silhuete nebotičnikov.', cost: 350, type: 'background' },
+    'retro_bg': { id: 'retro_bg', name: 'Synthwave', desc: 'Mreža in sončni zahod.', cost: 450, type: 'background' },
+    'clouds': { id: 'clouds', name: 'Oblaki', desc: 'Svetlo modro nebo s puhastimi oblaki.', cost: 200, type: 'background' },
+    'sunset': { id: 'sunset', name: 'Sončni Zahod', desc: 'Tople oranžne in vijolične barve.', cost: 250, type: 'background' },
+    'aurora': { id: 'aurora', name: 'Polarni Sij', desc: 'Čarobno zeleno in modro valovanje.', cost: 500, type: 'background' },
+    'hell': { id: 'hell', name: 'Pekelski Ogenj', desc: 'Globoko rdeče in goreče ozadje.', cost: 600, type: 'background' },
+    'galaxy': { id: 'galaxy', name: 'Galaksija', desc: 'Mistična vijolična galaksija.', cost: 550, type: 'background' },
+    'moonlight': { id: 'moonlight', name: 'Mesečina', desc: 'Mirna modra noč.', cost: 300, type: 'background' },
+    'retro_grid': { id: 'retro_grid', name: 'Retro Mreža', desc: '3D mreža v stilu 80-ih.', cost: 400, type: 'background' },
+    'deep_sea': { id: 'deep_sea', name: 'Globoko Morje', desc: 'Temni ocean z mehurčki.', cost: 350, type: 'background' },
+    'supernova': { id: 'supernova', name: 'Supernova', desc: 'Eksplozija neonskih barv.', cost: 1500, type: 'background' },
+    'dimension_x': { id: 'dimension_x', name: 'Dimenzija X', desc: 'Neznani portalni svet.', cost: 2500, type: 'background' },
+    'godly_realm': { id: 'godly_realm', name: 'Božansko Kraljestvo', desc: 'Čista svetloba in zlati sij.', cost: 5000, type: 'background' },
+    'cyber_core': { id: 'cyber_core', name: 'Cyber Jedro', desc: 'Animirano neonsko jedro.', cost: 8000, type: 'background' },
+    'infinite_nothing': { id: 'infinite_nothing', name: 'Neskončni Nič', desc: 'Globoka črnina s srebrnimi pikami.', cost: 15000, type: 'background' }
 };
 const GLOBAL_UPGRADES = {
     // COMMON
@@ -749,7 +788,11 @@ let state = {
     ownedSkins: ['classic'],
     equippedSkin: 'classic',
     ownedBackgrounds: ['default'],
-    equippedBackground: 'default'
+    equippedBackground: 'default',
+    uncollectedRewards: 0,
+    newlyReachedRanks: [], // IDs of ranks reached but rewards not yet collected
+    paused: false,
+    asteroidTimeRemaining: 0
 };
 
 let map;
@@ -794,15 +837,37 @@ function addRankPoints(amount) {
     const newRank = getCurrentRank();
 
     if (newRank.minPoints > oldRank.minPoints) {
-        // Promoted!
-        const reward = newRank.reward || 0;
-        state.rankCoins += reward;
-        logEvent(`NAPREDOVAL SI: ${newRank.name}! Prejel si ${reward} rank kovančkov.`, 'good');
-        // Visual feedback for coins could be added here
+        // Promoted! Find all ranks reached in between
+        let foundOld = false;
+        GAME_RANKS.forEach(r => {
+            if (foundOld && state.rankPoints >= r.minPoints) {
+                if (!state.newlyReachedRanks.includes(r.name)) {
+                    state.newlyReachedRanks.push(r.name);
+                    state.uncollectedRewards += (r.reward || 0);
+                }
+            }
+            if (r.name === oldRank.name) foundOld = true;
+        });
+
+        // Silently update notifications but DON'T log if in game (or according to "nemoreš videti")
+        // If we want it HIDDEN during game, we avoid LOGGING it too.
+        // logEvent(`DOSEGEL SI NOV RANK: ${newRank.name}! Odpri 'Pregled Rankov', da prevzameš nagrado.`, 'good'); 
+        updateRankNotifications();
     }
 
-    updateRankDisplay();
+    // updateRankDisplay(); // DISABLED during game as requested: "ga ne vidiš"
     updateUI();
+}
+
+function updateRankNotifications() {
+    const dot = document.getElementById('rank-notification');
+    if (!dot) return;
+
+    if (state.uncollectedRewards > 0) {
+        dot.classList.remove('hidden');
+    } else {
+        dot.classList.add('hidden');
+    }
 }
 
 async function initGame() {
@@ -814,6 +879,11 @@ async function initGame() {
     startGameLoop();
     scheduleAsteroidShower();
     updateUI();
+
+    // Auto-pause on resume
+    if (state.challengeTimer > 0 && state.challengeTimer < 600) {
+        if (!state.paused) togglePause();
+    }
 }
 
 function initMap() {
@@ -1042,6 +1112,102 @@ function styleFeature(feature) {
         } else if (state.equippedSkin === 'nature') {
             const natureColors = ['#166534', '#15803d', '#3f6212', '#4d7c0f', '#854d0e'];
             fillColor = natureColors[country.rarity.rank % natureColors.length];
+        } else if (state.equippedSkin === 'ocean_skin') {
+            const oceanSkinColors = ['#0284c7', '#0ea5e9', '#38bdf8', '#7dd3fc', '#bae6fd'];
+            fillColor = oceanSkinColors[country.rarity.rank % oceanSkinColors.length];
+        } else if (state.equippedSkin === 'sky_skin') {
+            const skySkinColors = ['#818cf8', '#6366f1', '#4f46e5', '#4338ca', '#3730a3'];
+            fillColor = skySkinColors[country.rarity.rank % skySkinColors.length];
+        } else if (state.equippedSkin === 'diamond_skin') {
+            const diamondColors = ['#b9f2ff', '#e0f2fe', '#f0f9ff', '#d1d5db', '#ffffff'];
+            fillColor = diamondColors[country.rarity.rank % diamondColors.length];
+        } else if (state.equippedSkin === 'retro_skin') {
+            const retroColors = ['#f472b6', '#db2777', '#9333ea', '#7c3aed', '#2563eb'];
+            fillColor = retroColors[country.rarity.rank % retroColors.length];
+        } else if (state.equippedSkin === 'fire') {
+            const fireColors = ['#991b1b', '#b91c1c', '#ea580c', '#f97316', '#fbbf24'];
+            fillColor = fireColors[country.rarity.rank % fireColors.length];
+        } else if (state.equippedSkin === 'ice') {
+            const iceColors = ['#0891b2', '#06b6d4', '#67e8f9', '#cffafe', '#ffffff'];
+            fillColor = iceColors[country.rarity.rank % iceColors.length];
+        } else if (state.equippedSkin === 'toxic') {
+            const toxicColors = ['#14532d', '#166534', '#65a30d', '#a3e635', '#bef264'];
+            fillColor = toxicColors[country.rarity.rank % toxicColors.length];
+        } else if (state.equippedSkin === 'royal') {
+            const royalColors = ['#4c1d95', '#5b21b6', '#7c3aed', '#8b5cf6', '#a78bfa'];
+            fillColor = royalColors[country.rarity.rank % royalColors.length];
+            return { fillColor: fillColor, weight: 2, opacity: 1, color: '#ffd700', fillOpacity: 0.9 };
+        } else if (state.equippedSkin === 'rainbow') {
+            const rainbowColors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8b00ff'];
+            fillColor = rainbowColors[country.rarity.rank % rainbowColors.length];
+        } else if (state.equippedSkin === 'blood_moon') {
+            fillColor = '#450a0a';
+            return { fillColor: fillColor, weight: 1, opacity: 1, color: '#000000', fillOpacity: 1 };
+        } else if (state.equippedSkin === 'spirit') {
+            fillColor = '#ffffff';
+            return { fillColor: fillColor, weight: 1.5, opacity: 0.8, color: '#60a5fa', fillOpacity: 0.6, dashArray: '5,5' };
+        } else if (state.equippedSkin === 'silver') {
+            fillColor = '#d1d5db';
+            return { fillColor: fillColor, weight: 1, opacity: 1, color: '#9ca3af', fillOpacity: 0.9 };
+        } else if (state.equippedSkin === 'fire') {
+            const fireColors = ['#991b1b', '#b91c1c', '#ea580c', '#f97316', '#fbbf24'];
+            fillColor = fireColors[country.rarity.rank % fireColors.length];
+        } else if (state.equippedSkin === 'ice') {
+            const iceColors = ['#0891b2', '#06b6d4', '#67e8f9', '#cffafe', '#ffffff'];
+            fillColor = iceColors[country.rarity.rank % iceColors.length];
+        } else if (state.equippedSkin === 'toxic') {
+            const toxicColors = ['#14532d', '#166534', '#65a30d', '#a3e635', '#bef264'];
+            fillColor = toxicColors[country.rarity.rank % toxicColors.length];
+        } else if (state.equippedSkin === 'royal') {
+            const royalColors = ['#4c1d95', '#5b21b6', '#7c3aed', '#8b5cf6', '#a78bfa'];
+            fillColor = royalColors[country.rarity.rank % royalColors.length];
+            return { fillColor: fillColor, weight: 2, opacity: 1, color: '#ffd700', fillOpacity: 0.9 };
+        } else if (state.equippedSkin === 'shadow') {
+            fillColor = '#000000';
+            return { fillColor: fillColor, weight: 1, opacity: 1, color: '#ffffff', fillOpacity: 1 };
+        } else if (state.equippedSkin === 'rainbow') {
+            const rainbowColors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8b00ff'];
+            fillColor = rainbowColors[country.rarity.rank % rainbowColors.length];
+        } else if (state.equippedSkin === 'emerald') {
+            const emeraldColors = ['#064e3b', '#065f46', '#047857', '#059669', '#10b981'];
+            fillColor = emeraldColors[country.rarity.rank % emeraldColors.length];
+        } else if (state.equippedSkin === 'ruby') {
+            const rubyColors = ['#7f1d1d', '#991b1b', '#b91c1c', '#dc2626', '#ef4444'];
+            fillColor = rubyColors[country.rarity.rank % rubyColors.length];
+        } else if (state.equippedSkin === 'sapphire') {
+            const sapphireColors = ['#1e3a8a', '#1e40af', '#1d4ed8', '#2563eb', '#3b82f6'];
+            fillColor = sapphireColors[country.rarity.rank % sapphireColors.length];
+        } else if (state.equippedSkin === 'blood_moon') {
+            fillColor = '#450a0a';
+            return { fillColor: fillColor, weight: 1.5, opacity: 1, color: '#000', fillOpacity: 1 };
+        } else if (state.equippedSkin === 'spirit') {
+            fillColor = '#ffffff';
+            return { fillColor: fillColor, weight: 1, opacity: 0.6, color: '#60a5fa', fillOpacity: 0.5, dashArray: '5,5' };
+        } else if (state.equippedSkin === 'void') {
+            fillColor = '#000000';
+            return { fillColor: fillColor, weight: 2, opacity: 1, color: '#4c1d95', fillOpacity: 1 };
+        } else if (state.equippedSkin === 'cyber_glow') {
+            fillColor = '#06b6d4';
+            return { fillColor: fillColor, weight: 2, opacity: 1, color: '#22d3ee', fillOpacity: 0.9 };
+        } else if (state.equippedSkin === 'obsidian') {
+            fillColor = '#000000';
+            return { fillColor: fillColor, weight: 2, opacity: 1, color: '#a855f7', fillOpacity: 1 };
+        } else if (state.equippedSkin === 'crystal') {
+            fillColor = '#e0f2fe';
+            return { fillColor: fillColor, weight: 1, opacity: 0.5, color: '#f8fafc', fillOpacity: 0.3 };
+        } else if (state.equippedSkin === 'sun_god') {
+            fillColor = '#fef08a';
+            return { fillColor: fillColor, weight: 3, opacity: 1, color: '#fbbf24', fillOpacity: 1 };
+        } else if (state.equippedSkin === 'galaxy_skin') {
+            const galaxyColors = ['#2e1065', '#4c1d95', '#5b21b6', '#7c3aed', '#8b5cf6'];
+            fillColor = galaxyColors[country.rarity.rank % galaxyColors.length];
+            return { fillColor: fillColor, weight: 1, opacity: 1, color: '#f0f9ff', fillOpacity: 0.8 };
+        } else if (state.equippedSkin === 'ethereal') {
+            fillColor = '#f8fafc';
+            return { fillColor: fillColor, weight: 1.5, opacity: 0.3, color: '#fff', fillOpacity: 0.2, dashArray: '2,4' };
+        } else if (state.equippedSkin === 'warlord') {
+            fillColor = '#7f1d1d';
+            return { fillColor: fillColor, weight: 4, opacity: 1, color: '#000', fillOpacity: 1 };
         }
 
         return { fillColor: fillColor, weight: 1, opacity: 1, color: 'white', fillOpacity: 0.9 };
@@ -1100,6 +1266,13 @@ function setupEventListeners() {
             }
         });
     });
+
+    // Pause / Resume
+    const pauseBtn = document.getElementById('pause-btn');
+    if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
+
+    const resumeBtn = document.getElementById('resume-btn');
+    if (resumeBtn) resumeBtn.addEventListener('click', togglePause);
 }
 
 function addMoney(amount) {
@@ -1155,6 +1328,8 @@ function buyCountry(id) {
 function startGameLoop() {
     // 10Hz Smooth Loop
     window.gameLoopInterval = setInterval(() => {
+        if (state.paused) return;
+
         // Challenge Timer Logic
         if (state.challengeTimer > 0) {
             state.challengeTimer -= 0.1;
@@ -1199,12 +1374,11 @@ function startGameLoop() {
         // Update Restoration Display
         const restorationDisplay = document.getElementById('restoration-display');
         if (restorationDisplay) {
+            restorationDisplay.style.color = '#ef4444'; // Always red as requested
             if (sanitationCost > 0) {
                 restorationDisplay.textContent = `-${formatMoney(sanitationCost)}/s`;
-                restorationDisplay.style.color = '#ef4444';
             } else {
                 restorationDisplay.textContent = `0 €/s`;
-                restorationDisplay.style.color = 'var(--text-muted)';
             }
         }
 
@@ -1284,12 +1458,55 @@ function startAsteroidTimer() {
 }
 
 function handleAsteroidCycleEnd() {
+    if (state.paused) return; // Should not happen due to clearTimeout on pause
     triggerAsteroidShower();
+}
+
+function togglePause() {
+    const startScreen = document.getElementById('start-screen');
+    if (startScreen && !startScreen.classList.contains('hidden')) return; // No pause on main screen
+    if (state.challengeTimer <= 0) return; // Game not active or ended
+
+    state.paused = !state.paused;
+    const overlay = document.getElementById('pause-overlay');
+
+    if (state.paused) {
+        overlay.classList.remove('hidden');
+        // Stop asteroid timer
+        if (window.asteroidTransitionTimer) {
+            state.asteroidTimeRemaining = Math.max(0, nextAsteroidTime - Date.now());
+            clearTimeout(window.asteroidTransitionTimer);
+            window.asteroidTransitionTimer = null;
+        }
+        // Stop shower timer if active
+        if (window.asteroidShowerTimer) {
+            clearTimeout(window.asteroidShowerTimer);
+            window.asteroidShowerTimer = null;
+            asteroidOverlay.classList.remove('active');
+        }
+        // Stop music maybe? Optional, user didn't ask but "everything stops"
+        const bgMusic = document.getElementById('bg-music');
+        if (bgMusic) bgMusic.pause();
+    } else {
+        overlay.classList.add('hidden');
+        // Resume asteroid timer
+        if (state.asteroidTimeRemaining > 0) {
+            nextAsteroidTime = Date.now() + state.asteroidTimeRemaining;
+            window.asteroidTransitionTimer = setTimeout(handleAsteroidCycleEnd, state.asteroidTimeRemaining);
+        }
+        const bgMusic = document.getElementById('bg-music');
+        if (bgMusic) bgMusic.play().catch(() => { });
+    }
 }
 
 function updateAsteroidTimer() {
     const elem = document.getElementById('asteroid-timer');
     if (!elem) return;
+
+    if (state.paused) {
+        elem.textContent = "PAVZA";
+        return;
+    }
 
     if (asteroidOverlay.classList.contains('active')) {
         elem.textContent = "V TEKU";
@@ -1318,9 +1535,10 @@ function triggerAsteroidShower() {
     asteroidOverlay.classList.add('active');
     logEvent("ASTEROIDNI ROJ SE JE ZAČEL!", "bad");
 
-    setTimeout(() => {
+    window.asteroidShowerTimer = setTimeout(() => {
         asteroidOverlay.classList.remove('active');
-        processAsteroidHits();
+        window.asteroidShowerTimer = null;
+        if (!state.paused) processAsteroidHits();
         logEvent("Asteroidni roj se je končal.", "neutral");
 
         // Start new cycle
@@ -1403,6 +1621,8 @@ function createImpactRipple(latlng) {
 }
 
 function processAsteroidHits() {
+    if (state.paused) return; // SAFETY: Never hit anything while paused
+
     const destructionChance = getEffectiveAsteroidChance();
     const moneyLost = Math.floor(state.money / 10);
 
@@ -1428,11 +1648,13 @@ function processAsteroidHits() {
     // Staggered animations for countries
     victims.forEach((id, index) => {
         setTimeout(() => {
+            if (state.paused) return; // Stop if we paused during the animations
             const country = state.countries[id];
             // Get center coord of country
             const center = L.geoJSON(country.feature).getBounds().getCenter();
 
             animateAsteroid(center, () => {
+                if (state.paused) return; // Final check before destruction
                 const oldLevel = country.level;
                 country.owned = false;
                 country.destroyed = true; // Mark as destroyed
@@ -1732,6 +1954,9 @@ function saveGameData() {
         equippedSkin: state.equippedSkin,
         ownedBackgrounds: Array.from(state.ownedBackgrounds),
         equippedBackground: state.equippedBackground,
+        uncollectedRewards: state.uncollectedRewards || 0,
+        newlyReachedRanks: state.newlyReachedRanks || [],
+        paused: state.paused,
         countries: {}
     };
 
@@ -1796,6 +2021,10 @@ function loadGame(username) {
         state.equippedSkin = data.equippedSkin || 'classic';
         state.ownedBackgrounds = data.ownedBackgrounds || ['default'];
         state.equippedBackground = data.equippedBackground || 'default';
+        state.uncollectedRewards = data.uncollectedRewards || 0;
+        state.newlyReachedRanks = data.newlyReachedRanks || [];
+
+        updateRankNotifications();
 
         updateBackgroundEffect();
 
@@ -1863,10 +2092,9 @@ document.getElementById('play-button').addEventListener('click', () => {
         introMusic.currentTime = 0;
     }
 
-    // Play Background Music
     const bgMusic = document.getElementById('bg-music');
     if (bgMusic) {
-        bgMusic.volume = 0.4;
+        bgMusic.volume = 0.15;
         bgMusic.play().catch(e => console.log("Music play failed:", e));
     }
 
@@ -1895,30 +2123,37 @@ function renderLeaderboard() {
         players.sort((a, b) => b.rankPoints - a.rankPoints);
     }
 
-    // Limit to top 100
     const top100 = players.slice(0, 100);
-
     lbList.innerHTML = '';
+
     top100.forEach((p, index) => {
         const item = document.createElement('div');
         item.className = 'lb-item';
         if (p.name === state.username) item.classList.add('is-user');
 
-        const rankClass = index < 3 ? `top-${index + 1}` : '';
-        const rankObj = GAME_RANKS.find(r => r.name === p.gameRankName) || GAME_RANKS[0];
+        let rankObj = GAME_RANKS[0];
+        for (let r of GAME_RANKS) {
+            if (p.rankPoints >= r.minPoints) rankObj = r;
+            else break;
+        }
+
+        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
 
         item.innerHTML = `
-            <div class="lb-rank ${rankClass}">${index + 1}</div>
-            <div class="friend-name-container">
+            <div class="lb-left">
+                <div class="lb-medal">${medal}</div>
+                <div class="lb-avatar">${rankObj.icon}</div>
                 <div class="lb-info">
-                    <div class="lb-name">${p.name}</div>
-                    <div class="lb-stats">
-                        <span class="lb-money">${formatMoney(p.money)}</span>
-                        <span class="lb-game-rank" style="color:${rankObj.color}">${p.gameRankName || 'Bronasti I'}</span>
+                    <div class="lb-name-row">
+                        <span class="lb-name">${p.name}</span>
+                        ${p.name === state.username ? '<span class="lb-badge">Ti</span>' : ''}
                     </div>
+                    <div class="lb-rank-label" style="color:${rankObj.color}">${rankObj.name}</div>
                 </div>
             </div>
-            <div class="lb-points-val">${p.rankPoints} pts</div>
+            <div class="lb-right">
+                <div class="lb-value">${currentLbType === 'money' ? formatMoney(p.money) : p.rankPoints.toLocaleString() + ' pts'}</div>
+            </div>
         `;
         lbList.appendChild(item);
     });
@@ -1970,6 +2205,7 @@ function updateStartScreenProgress(e) {
     const coinsSumEl = document.getElementById('start-coins-summary');
     const progressFill = document.getElementById('start-progress-fill');
     const nextRankEl = document.getElementById('start-next-rank-text');
+    const rankIconEl = document.getElementById('rank-icon-display');
 
     if (!name) {
         progressOuter.classList.add('hidden');
@@ -2006,6 +2242,7 @@ function updateStartScreenProgress(e) {
     // Update UI
     curRankEl.textContent = currentRank.name;
     curRankEl.style.color = currentRank.color;
+    if (rankIconEl) rankIconEl.textContent = currentRank.icon;
     if (coinsSumEl) coinsSumEl.textContent = currentCoins.toLocaleString();
 
     // Top right badge
@@ -2142,6 +2379,78 @@ function showSkinShop() {
     updateSkinShopCoins();
 }
 
+function showRankRewards() {
+    const list = document.getElementById('rank-rewards-list');
+    list.innerHTML = '';
+
+    // Find player points
+    let playerPoints = 0;
+    const name = document.getElementById('username-input').value.trim();
+    if (name) {
+        const savedData = localStorage.getItem(`worldsim_save_${name}`);
+        if (savedData) {
+            try {
+                const data = JSON.parse(savedData);
+                playerPoints = data.rankPoints || 0;
+            } catch (e) { }
+        }
+    }
+
+    // Find player's current rank index
+    let currentPlayerRankIndex = -1;
+    for (let i = GAME_RANKS.length - 1; i >= 0; i--) {
+        if (playerPoints >= GAME_RANKS[i].minPoints) {
+            currentPlayerRankIndex = i;
+            break;
+        }
+    }
+
+    GAME_RANKS.forEach((rank, index) => {
+        const isReached = playerPoints >= rank.minPoints;
+        const isCurrent = index === currentPlayerRankIndex;
+
+        const div = document.createElement('div');
+        div.className = `rank-reward-item ${isReached ? 'current' : ''} ${isCurrent ? 'user-rank' : ''}`;
+
+        div.innerHTML = `
+            <div class="rank-reward-icon">${rank.icon}</div>
+            <div class="rank-reward-info">
+                <div class="rank-reward-name" style="color:${rank.color}">${rank.name}</div>
+                <div class="rank-reward-pts">${rank.minPoints.toLocaleString()} pts</div>
+            </div>
+            <div class="rank-reward-value">
+                +${rank.reward.toLocaleString()} 🪙
+            </div>
+            ${isCurrent ? '<div class="user-rank-tag">TI SI TUKAJ</div>' : ''}
+        `;
+        list.appendChild(div);
+
+        // Scroll into view if it's the current rank
+        if (isCurrent) {
+            setTimeout(() => div.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+        }
+    });
+
+    // COLLECT REWARDS if any
+    if (state.uncollectedRewards > 0) {
+        state.rankCoins += state.uncollectedRewards;
+        logEvent(`Prevzel si ${state.uncollectedRewards} kovančkov!`, 'good');
+        state.uncollectedRewards = 0;
+        state.newlyReachedRanks = [];
+        updateRankNotifications();
+        updateUI();
+        saveGame();
+    }
+
+    document.getElementById('rank-rewards-modal').classList.remove('hidden');
+}
+
+document.getElementById('rank-info-trigger').addEventListener('click', showRankRewards);
+document.getElementById('close-rank-rewards-btn').addEventListener('click', () => {
+    document.getElementById('rank-rewards-modal').classList.add('hidden');
+});
+
+
 function updateSkinShopCoins() {
     const coinDisplay = document.getElementById('skin-shop-coins');
     if (coinDisplay) coinDisplay.textContent = state.rankCoins.toLocaleString();
@@ -2166,28 +2475,65 @@ function renderSkinShopList() {
         let previewStyle = '';
         if (currentSkinTab === 'skins') {
             if (item.id === 'neon') previewStyle = 'background: magenta; box-shadow: 0 0 10px magenta;';
-            else if (item.id === 'gold') previewStyle = 'background: gold;';
-            else if (item.id === 'cyber') previewStyle = 'background: #2d004d;';
-            else if (item.id === 'lava') previewStyle = 'background: #dc2626; box-shadow: 0 0 5px #fbbf24;';
-            else if (item.id === 'matrix') previewStyle = 'background: #000; outline: 1px solid #0f0;';
-            else if (item.id === 'flags') previewStyle = 'background: linear-gradient(to right, red, white, blue);';
-            else if (item.id === 'ghost') previewStyle = 'background: rgba(96, 165, 250, 0.5); border: 1px dashed white;';
-            else if (item.id === 'nature') previewStyle = 'background: #166534;';
+            else if (item.id === 'gold') previewStyle = 'background: gold; box-shadow: inset 0 0 5px orange;';
+            else if (item.id === 'cyber') previewStyle = 'background: #2d004d; border: 1px solid #00ffff;';
+            else if (item.id === 'lava') previewStyle = 'background: radial-gradient(#dc2626, #7f1d1d); border: 1px solid #fbbf24;';
+            else if (item.id === 'matrix') previewStyle = 'background: #000; color: #0f0; border: 1px solid #0f0; display:flex; align-items:center; justify-content:center; font-size:10px; font-family:monospace;';
+            else if (item.id === 'flags') previewStyle = 'background: linear-gradient(45deg, #ff0000 33%, #ffffff 33%, #ffffff 66%, #0000ff 66%);';
+            else if (item.id === 'ghost') previewStyle = 'background: rgba(147, 197, 253, 0.3); border: 2px dashed #3b82f6;';
+            else if (item.id === 'nature') previewStyle = 'background: linear-gradient(#15803d, #3f6212);';
+            else if (item.id === 'fire') previewStyle = 'background: linear-gradient(#fbbf24, #b91c1c); box-shadow: 0 0 8px #f97316;';
+            else if (item.id === 'ice') previewStyle = 'background: linear-gradient(#ffffff, #06b6d4); box-shadow: 0 0 5px #cffafe;';
+            else if (item.id === 'toxic') previewStyle = 'background: linear-gradient(#bef264, #14532d); outline: 1px solid #a3e635;';
+            else if (item.id === 'royal') previewStyle = 'background: #7c3aed; border: 2px solid #ffd700;';
+            else if (item.id === 'shadow') previewStyle = 'background: #000; border: 1px solid #fff;';
+            else if (item.id === 'rainbow') previewStyle = 'background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);';
+            else if (item.id === 'emerald') previewStyle = 'background: #10b981; box-shadow: inset 0 0 10px #064e3b;';
+            else if (item.id === 'ruby') previewStyle = 'background: #ef4444; box-shadow: inset 0 0 10px #7f1d1d;';
+            else if (item.id === 'sapphire') previewStyle = 'background: #2563eb; box-shadow: inset 0 0 10px #1e3a8a;';
+            else if (item.id === 'blood_moon') previewStyle = 'background: #450a0a; border: 1px solid #000; box-shadow: 0 0 5px #ff0000;';
+            else if (item.id === 'spirit') previewStyle = 'background: #fff; border: 1px dashed #60a5fa; opacity: 0.8;';
+            else if (item.id === 'void') previewStyle = 'background: #000; border: 2px solid #4c1d95;';
+            else if (item.id === 'cyber_glow') previewStyle = 'background: #06b6d4; box-shadow: 0 0 10px #22d3ee;';
+            else if (item.id === 'obsidian') previewStyle = 'background: #000; border: 2px solid #a855f7; box-shadow: 0 0 10px #a855f7;';
+            else if (item.id === 'crystal') previewStyle = 'background: rgba(255,255,255,0.2); border: 1px solid #fff; box-shadow: inset 0 0 10px #fff;';
+            else if (item.id === 'sun_god') previewStyle = 'background: #fef08a; border: 2px solid #fbbf24; box-shadow: 0 0 15px #fbbf24, 0 0 30px #f59e0b;';
+            else if (item.id === 'galaxy_skin') previewStyle = 'background: radial-gradient(circle, #5b21b6, #1e1b4b); border: 1px solid #fff;';
+            else if (item.id === 'ethereal') previewStyle = 'background: rgba(255,255,255,0.1); border: 1.5px dashed #fff; box-shadow: 0 0 10px #fff;';
+            else if (item.id === 'warlord') previewStyle = 'background: #991b1b; border: 3px solid #000; box-shadow: inset 0 0 10px #000;';
             else previewStyle = 'background: #658d53;';
         } else {
             if (item.id === 'space') previewStyle = 'background: #090A0F; outline: 1px solid #fff;';
-            else if (item.id === 'ocean') previewStyle = 'background: #075985;';
-            else if (item.id === 'magma') previewStyle = 'background: #7f1d1d; box-shadow: inset 0 0 10px #000;';
-            else if (item.id === 'matrix_bg') previewStyle = 'background: #000; color: #0f0; font-family: monospace; font-size: 8px; overflow: hidden;';
-            else if (item.id === 'desert') previewStyle = 'background: #eab308;';
-            else if (item.id === 'arctic') previewStyle = 'background: #f1f5f9;';
+            else if (item.id === 'ocean') previewStyle = 'background: #075985; box-shadow: inset 0 0 10px #0c4a6e;';
+            else if (item.id === 'magma') previewStyle = 'background: #7f1d1d; border: 1px solid #fbbf24;';
+            else if (item.id === 'matrix_bg') previewStyle = 'background: #000; outline: 1px solid #0f0;';
+            else if (item.id === 'desert') previewStyle = 'background: #eab308; border-bottom: 4px solid #854d0e;';
+            else if (item.id === 'arctic') previewStyle = 'background: #f1f5f9; box-shadow: inset 0 0 10px #94a3b8;';
+            else if (item.id === 'forest') previewStyle = 'background: #14532d; border: 2px solid #064e3b;';
+            else if (item.id === 'city') previewStyle = 'background: #1f2937; position:relative; overflow:hidden;';
+            else if (item.id === 'retro_bg') previewStyle = 'background: #000; background-image: linear-gradient(#ff00ff 1px, transparent 1px), linear-gradient(90deg, #ff00ff 1px, transparent 1px); background-size: 5px 5px;';
+            else if (item.id === 'clouds') previewStyle = 'background: #0ea5e9; box-shadow: inset -5px -5px 10px #fff;';
+            else if (item.id === 'sunset') previewStyle = 'background: linear-gradient(#fb923c, #8b5cf6);';
+            else if (item.id === 'aurora') previewStyle = 'background: linear-gradient(to top, #1e1b4b, #22c55e);';
+            else if (item.id === 'hell') previewStyle = 'background: #450a0a; box-shadow: 0 0 15px #991b1b;';
+            else if (item.id === 'galaxy') previewStyle = 'background: #2e1065; box-shadow: inset 0 0 10px #000;';
+            else if (item.id === 'moonlight') previewStyle = 'background: #1e3a8a; border-top: 5px solid #fff;';
+            else if (item.id === 'retro_grid') previewStyle = 'background: #000; border: 1px solid #ff00ff;';
+            else if (item.id === 'deep_sea') previewStyle = 'background: #0c4a6e; border-bottom: 3px solid #082f49;';
+            else if (item.id === 'supernova') previewStyle = 'background: radial-gradient(#ef4444, #f59e0b, #3b82f6); border: 1px solid #fff;';
+            else if (item.id === 'dimension_x') previewStyle = 'background: repeating-conic-gradient(#000 0% 25%, #4c1d95 25% 50%);';
+            else if (item.id === 'godly_realm') previewStyle = 'background: #fff; box-shadow: 0 0 20px #fbbf24; border: 2px solid #fbbf24;';
+            else if (item.id === 'cyber_core') previewStyle = 'background: #000; box-shadow: 0 0 20px #06b6d4, inset 0 0 10px #22d3ee; border: 1px solid #06b6d4;';
+            else if (item.id === 'infinite_nothing') previewStyle = 'background: #000; box-shadow: inset 0 0 5px #fff, inset 0 0 10px rgba(0,0,0,1); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; content: "•";';
             else previewStyle = 'background: #1e293b;';
         }
+
+        const previewContent = item.id === 'matrix' ? '01' : '';
 
         div.innerHTML = `
             <div class="skin-info">
                 <div class="skin-title">
-                    <span class="skin-preview-circle" style="${previewStyle}"></span>
+                    <span class="skin-preview-circle" style="${previewStyle}">${previewContent}</span>
                     ${item.name}
                 </div>
                 <div class="skin-desc">${item.desc}</div>
@@ -2199,6 +2545,7 @@ function renderSkinShopList() {
                 ${isEquipped ? 'OPREMLJENO' : (isOwned ? 'OPREMI' : 'Kupi')}
             </button>
         `;
+
         list.appendChild(div);
     });
 }
@@ -2224,7 +2571,7 @@ function handleSkinAction(itemId, type) {
             logEvent(`Nakup uspešen: ${item.name}`, 'good');
             saveGame();
         } else {
-            alert("Nimaš dovolj rank kovančkov!");
+            alert("Nimaš dovolj kovančkov!");
             return;
         }
     }
@@ -2236,11 +2583,27 @@ function handleSkinAction(itemId, type) {
 
 function updateBackgroundEffect() {
     const body = document.body;
-    body.classList.remove('bg-space', 'bg-ocean', 'bg-lava', 'bg-matrix');
+    body.classList.remove('bg-space', 'bg-ocean', 'bg-lava', 'bg-matrix', 'bg-forest', 'bg-city', 'bg-retro', 'bg-clouds', 'bg-sunset', 'bg-aurora', 'bg-hell', 'bg-galaxy', 'bg-moonlight', 'bg-retro-grid', 'bg-deep-sea', 'bg-supernova', 'bg-dimension-x', 'bg-godly-realm', 'bg-cyber-core', 'bg-infinite-nothing');
     if (state.equippedBackground === 'space') body.classList.add('bg-space');
     else if (state.equippedBackground === 'ocean') body.classList.add('bg-ocean');
     else if (state.equippedBackground === 'magma') body.classList.add('bg-lava');
     else if (state.equippedBackground === 'matrix_bg') body.classList.add('bg-matrix');
+    else if (state.equippedBackground === 'forest') body.classList.add('bg-forest');
+    else if (state.equippedBackground === 'city') body.classList.add('bg-city');
+    else if (state.equippedBackground === 'retro_bg') body.classList.add('bg-retro');
+    else if (state.equippedBackground === 'clouds') body.classList.add('bg-clouds');
+    else if (state.equippedBackground === 'sunset') body.classList.add('bg-sunset');
+    else if (state.equippedBackground === 'aurora') body.classList.add('bg-aurora');
+    else if (state.equippedBackground === 'hell') body.classList.add('bg-hell');
+    else if (state.equippedBackground === 'galaxy') body.classList.add('bg-galaxy');
+    else if (state.equippedBackground === 'moonlight') body.classList.add('bg-moonlight');
+    else if (state.equippedBackground === 'retro_grid') body.classList.add('bg-retro-grid');
+    else if (state.equippedBackground === 'deep_sea') body.classList.add('bg-deep-sea');
+    else if (state.equippedBackground === 'supernova') body.classList.add('bg-supernova');
+    else if (state.equippedBackground === 'dimension_x') body.classList.add('bg-dimension-x');
+    else if (state.equippedBackground === 'godly_realm') body.classList.add('bg-godly-realm');
+    else if (state.equippedBackground === 'cyber_core') body.classList.add('bg-cyber-core');
+    else if (state.equippedBackground === 'infinite_nothing') body.classList.add('bg-infinite-nothing');
 }
 
 document.getElementById('skin-shop-btn').addEventListener('click', showSkinShop);
@@ -2610,3 +2973,15 @@ window.addEventListener('load', () => {
         });
     }
 });
+
+// Auto-pause when tab is hidden
+document.addEventListener('visibilitychange', () => {
+    const startScreen = document.getElementById('start-screen');
+    const isGameActive = startScreen && startScreen.classList.contains('hidden');
+
+    if (document.hidden && !state.paused && isGameActive && state.challengeTimer > 0 && state.challengeTimer < 600) {
+        togglePause();
+        saveGame();
+    }
+});
+

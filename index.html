@@ -25,11 +25,12 @@
 
         <!-- Progress section on main screen - hidden by default -->
         <div id="start-progress-outer" class="start-progress-outer hidden">
-            <div class="start-ranking-container">
+            <div class="start-ranking-container" id="rank-info-trigger" style="cursor: pointer; position: relative;">
+                <div id="rank-notification" class="notification-dot hidden">!</div>
                 <h3>🏆 TVOJ NAPREDEK (RANK) 🏆</h3>
                 <div id="start-progress-content">
                     <div class="rank-info-main">
-                        <div class="rank-icon-placeholder">🥈</div>
+                        <div id="rank-icon-display" class="rank-icon-placeholder">🥉</div>
                         <div class="rank-names">
                             <div id="start-current-rank" style="font-weight: 800; font-size: 1.2rem;">Bronasti I</div>
                             <div id="start-points-summary" style="font-size: 0.9rem; opacity: 0.8;">0 / 500 pts</div>
@@ -40,15 +41,11 @@
                     </div>
                     <div id="start-next-rank-text" style="font-size: 0.8rem; margin-bottom: 1rem;">Naslednji: Bronasti
                         II</div>
-
-                    <!-- Skin Shop Button -->
-                    <button id="skin-shop-btn">ODPRI TRGOVINO PREOBLEK 🎭</button>
-                    <div
-                        style="text-align: center; margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent); font-weight: 700;">
-                        Kovanci: <span id="start-coins-summary">0</span> 🪙
-                    </div>
                 </div>
             </div>
+            <!-- Skin Shop Button: logically separated but part of the progress visibility -->
+            <button id="skin-shop-btn" style="margin-top: 1.5rem; width: 100%; max-width: 450px;">ODPRI TRGOVINO
+                PREOBLEK 🎭</button>
         </div>
 
         <div class="start-content">
@@ -63,6 +60,7 @@
             </div>
             <button id="play-button">IGRAJ!</button>
         </div>
+        <!-- Closing start-screen -->
     </div>
 
     <!-- Skin Shop Modal -->
@@ -90,6 +88,19 @@
 
     <!-- Big Message Overlay -->
     <div id="big-message-overlay" class="hidden"></div>
+
+    <!-- Rank Rewards Modal -->
+    <div id="rank-rewards-modal" class="modal-overlay hidden">
+        <div class="modal-content rank-rewards-container">
+            <div class="modal-header">
+                <h2>🏆 Pregled Rankov</h2>
+                <button id="close-rank-rewards-btn" class="close-btn">&times;</button>
+            </div>
+            <div id="rank-rewards-list" class="rank-rewards-list">
+                <!-- Rank info will be injected here -->
+            </div>
+        </div>
+    </div>
 
     <!-- Leaderboard Modal -->
     <div id="leaderboard-modal" class="modal-overlay hidden">
@@ -147,8 +158,11 @@
             <div style="display:flex; align-items:center; gap:1rem;">
                 <h1>World Simulator</h1>
                 <div id="challenge-timer-display"
-                    style="font-family:'Courier New', monospace; font-weight:800; color:var(--text-main); font-size:1.1rem; border:1px solid var(--border); padding:0.2rem 0.5rem; border-radius:6px; background:rgba(255,255,255,0.05);">
-                    Osvoji svet: 10:00</div>
+                    style="font-family:'Courier New', monospace; font-weight:800; color:var(--text-main); font-size:1.1rem; border:1px solid var(--border); padding:0.2rem 0.5rem; border-radius:6px; background:rgba(255,255,255,0.05); display: flex; align-items: center; gap: 0.5rem;">
+                    <span>Osvoji svet: 10:00</span>
+                    <button id="pause-btn" title="Pavza"
+                        style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:white; padding:0.1rem 0.4rem; border-radius:4px; cursor:pointer; font-size:0.8rem; display:flex; align-items:center; justify-content:center;">⏸️</button>
+                </div>
             </div>
             <div id="stats">
                 <div class="stat-box">
@@ -261,6 +275,13 @@
     </div>
 
     <div id="asteroid-overlay" class="hidden">ASTEROIDNI DEŽ!</div>
+    <div id="pause-overlay" class="hidden"
+        style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <h1 id="pause-title">PAVZA</h1>
+        <button id="resume-btn"
+            style="margin-top:2rem; padding:1rem 3rem; font-size:1.5rem; font-weight:800; border-radius:12px; border:none; background:var(--success); color:white; cursor:pointer; box-shadow:0 4px 15px rgba(34,197,94,0.4);">NADALJUJ
+            ▶️</button>
+    </div>
 
     <audio id="sfx-fly" src="meteor_fly.mp3" preload="auto"></audio>
     <audio id="sfx-explode" src="explosion.mp3" preload="auto"></audio>
