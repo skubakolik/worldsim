@@ -17,9 +17,40 @@
 </head>
 
 <body>
-    <!-- Start Screen Overlay -->
     <div id="start-screen">
+        <!-- Rank Coins Badge -->
+        <div id="top-right-coins" class="coins-badge hidden">0 🪙</div>
+
         <h1 class="start-title">WORLD SIMULATOR</h1>
+
+        <!-- Progress section on main screen - hidden by default -->
+        <div id="start-progress-outer" class="start-progress-outer hidden">
+            <div class="start-ranking-container">
+                <h3>🏆 TVOJ NAPREDEK (RANK) 🏆</h3>
+                <div id="start-progress-content">
+                    <div class="rank-info-main">
+                        <div class="rank-icon-placeholder">🥈</div>
+                        <div class="rank-names">
+                            <div id="start-current-rank" style="font-weight: 800; font-size: 1.2rem;">Bronasti I</div>
+                            <div id="start-points-summary" style="font-size: 0.9rem; opacity: 0.8;">0 / 500 pts</div>
+                        </div>
+                    </div>
+                    <div class="start-progress-bar">
+                        <div id="start-progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div id="start-next-rank-text" style="font-size: 0.8rem; margin-bottom: 1rem;">Naslednji: Bronasti
+                        II</div>
+
+                    <!-- Skin Shop Button -->
+                    <button id="skin-shop-btn">ODPRI TRGOVINO PREOBLEK 🎭</button>
+                    <div
+                        style="text-align: center; margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent); font-weight: 700;">
+                        Kovanci: <span id="start-coins-summary">0</span> 🪙
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="start-content">
             <label for="username-input">Vnesi svoje ime:</label>
             <div style="display: flex; gap: 0.5rem; width: 100%;">
@@ -34,8 +65,48 @@
         </div>
     </div>
 
+    <!-- Skin Shop Modal -->
+    <div id="skin-shop-modal" class="modal-overlay hidden">
+        <div class="modal-content skin-container">
+            <div class="modal-header">
+                <h2>🎭 Trgovina Preoblek</h2>
+                <button id="close-skin-shop-btn" class="close-btn">&times;</button>
+            </div>
+
+            <div class="skin-tabs">
+                <button class="skin-tab-btn active" data-tab="skins">Države</button>
+                <button class="skin-tab-btn" data-tab="backgrounds">Ozadja</button>
+            </div>
+
+            <div id="skin-shop-list" class="skin-list">
+                <!-- Skins will be injected here -->
+            </div>
+
+            <div class="skin-footer">
+                <div class="rank-coins-status">Stanje: <span id="skin-shop-coins">0</span> 🪙</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Big Message Overlay -->
     <div id="big-message-overlay" class="hidden"></div>
+
+    <!-- Leaderboard Modal -->
+    <div id="leaderboard-modal" class="modal-overlay hidden">
+        <div class="modal-content leaderboard-modal-content">
+            <div class="modal-header">
+                <h2>Lestvica Najboljših</h2>
+                <button id="close-leaderboard-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="leaderboard-tabs">
+                <button class="lb-tab-btn" data-lb-type="money">💰 Po Denarju</button>
+                <button class="lb-tab-btn active" data-lb-type="rank">🎖️ Po Ranku</button>
+            </div>
+            <div id="leaderboard-list-container" class="leaderboard-list">
+                <!-- Players will be injected here -->
+            </div>
+        </div>
+    </div>
 
     <!-- Friends Modal -->
     <div id="friends-modal" class="modal-overlay hidden">

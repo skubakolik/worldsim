@@ -88,6 +88,49 @@ const RARITIES = {
     OG: { id: 'og', name: 'OG', multiplier: 10000000000, color: '#b45309', rank: 7, weight: 0.3 }
 };
 
+const GAME_RANKS = [
+    { name: 'Bronasti I', minPoints: 0, color: '#cd7f32', reward: 0 },
+    { name: 'Bronasti II', minPoints: 5000, color: '#cd7f32', reward: 10 },
+    { name: 'Bronasti III', minPoints: 15000, color: '#cd7f32', reward: 15 },
+    { name: 'Srebrni I', minPoints: 50000, color: '#c0c0c0', reward: 25 },
+    { name: 'Srebrni II', minPoints: 125000, color: '#c0c0c0', reward: 35 },
+    { name: 'Srebrni III', minPoints: 300000, color: '#c0c0c0', reward: 50 },
+    { name: 'Zlati I', minPoints: 750000, color: '#ffd700', reward: 75 },
+    { name: 'Zlati II', minPoints: 1800000, color: '#ffd700', reward: 100 },
+    { name: 'Zlati III', minPoints: 4500000, color: '#ffd700', reward: 150 },
+    { name: 'Diamantni I', minPoints: 12000000, color: '#b9f2ff', reward: 250 },
+    { name: 'Diamantni II', minPoints: 30000000, color: '#b9f2ff', reward: 350 },
+    { name: 'Diamantni III', minPoints: 75000000, color: '#b9f2ff', reward: 500 },
+    { name: 'Legendarni I', minPoints: 200000000, color: '#ff4500', reward: 1000 },
+    { name: 'Legendarni II', minPoints: 500000000, color: '#ff4500', reward: 1500 },
+    { name: 'Legendarni III', minPoints: 1200000000, color: '#ff4500', reward: 2500 },
+    { name: 'Neresnični I', minPoints: 4000000000, color: '#a855f7', reward: 5000 },
+    { name: 'Neresnični II', minPoints: 10000000000, color: '#a855f7', reward: 10000 },
+    { name: 'Neresnični III', minPoints: 25000000000, color: '#a855f7', reward: 25000 },
+    { name: 'Kralj', minPoints: 100000000000, color: '#eab308', reward: 100000 }
+];
+
+const SKIN_ITEMS = {
+    'classic': { id: 'classic', name: 'Klasično', desc: 'Standardne barve glede na redkost.', cost: 0, type: 'skin' },
+    'neon': { id: 'neon', name: 'Neon Mesto', desc: 'Svetleče in močne futuristične barve.', cost: 50, type: 'skin' },
+    'gold': { id: 'gold', name: 'Zlati Imperij', desc: 'Vse države postanejo prestižno zlate.', cost: 250, type: 'skin' },
+    'cyber': { id: 'cyber', name: 'Cyberpunk', desc: 'Temno vijolične in modre barve.', cost: 100, type: 'skin' },
+    'lava': { id: 'lava', name: 'Lava', desc: 'Države prekrite z vročo magmo.', cost: 300, type: 'skin' },
+    'matrix': { id: 'matrix', name: 'Matrica', desc: 'Hekerski videz v zeleni kodi.', cost: 200, type: 'skin' },
+    'flags': { id: 'flags', name: 'Zastave Sveta', desc: 'Uporabi barvne sheme nacionalnih zastav.', cost: 500, type: 'skin' },
+    'ghost': { id: 'ghost', name: 'Duh', desc: 'Prosojne in srhljivo modre države.', cost: 150, type: 'skin' },
+    'nature': { id: 'nature', name: 'Narava', desc: 'Zeleni in rjavi barvni toni divjine.', cost: 100, type: 'skin' }
+};
+
+const BACKGROUND_ITEMS = {
+    'default': { id: 'default', name: 'Standardno', desc: 'Običajno temno modro ozadje.', cost: 0, type: 'background' },
+    'space': { id: 'space', name: 'Vesolje', desc: 'Zvezdnato nebo in galaksije.', cost: 150, type: 'background' },
+    'ocean': { id: 'ocean', name: 'Globok Ocean', desc: 'Temno modre globine morja.', cost: 100, type: 'background' },
+    'magma': { id: 'magma', name: 'Vulkansko', desc: 'Vroče podzemlje polno lave.', cost: 250, type: 'background' },
+    'matrix_bg': { id: 'matrix_bg', name: 'Digitalni Svet', desc: 'Zelena hakerska koda v ozadju.', cost: 300, type: 'background' },
+    'desert': { id: 'desert', name: 'Puščava', desc: 'Suhi pesek in vroče sipine.', cost: 120, type: 'background' },
+    'arctic': { id: 'arctic', name: 'Arktika', desc: 'Snežno bela in ledeno modra.', cost: 140, type: 'background' }
+};
 const GLOBAL_UPGRADES = {
     // COMMON
     STOCK_C: { id: 'STOCK_C', rarity: 'common', name: 'Hitrejša Zaloga I', cost: 25000, type: 'stock', value: 0.95, desc: 'Zaloga prihaja 5% hitreje' },
@@ -700,7 +743,13 @@ let state = {
     lastTick: Date.now(),
     lastTick: Date.now(),
     challengeTimer: 600,
-    sanitationMultiplier: 1 // Increases when asteroid hits
+    sanitationMultiplier: 1, // Increases when asteroid hits
+    rankPoints: 0,
+    rankCoins: 0,
+    ownedSkins: ['classic'],
+    equippedSkin: 'classic',
+    ownedBackgrounds: ['default'],
+    equippedBackground: 'default'
 };
 
 let map;
@@ -711,6 +760,50 @@ const cpsDisplay = document.getElementById('cps-display');
 const countryList = document.getElementById('country-list');
 const logList = document.getElementById('log-list');
 const asteroidOverlay = document.getElementById('asteroid-overlay');
+const rankDisplay = document.getElementById('rank-display');
+
+function getCurrentRank() {
+    let current = GAME_RANKS[0];
+    for (let r of GAME_RANKS) {
+        if (state.rankPoints >= r.minPoints) {
+            current = r;
+        } else {
+            break;
+        }
+    }
+    return current;
+}
+
+function updateRankDisplay() {
+    if (!rankDisplay) return;
+    const rank = getCurrentRank();
+    rankDisplay.textContent = rank.name;
+    rankDisplay.style.color = rank.color;
+
+    // Add special effect for King
+    if (rank.name === 'Kralj') {
+        rankDisplay.classList.add('text-rainbow');
+    } else {
+        rankDisplay.classList.remove('text-rainbow');
+    }
+}
+
+function addRankPoints(amount) {
+    const oldRank = getCurrentRank();
+    state.rankPoints += amount;
+    const newRank = getCurrentRank();
+
+    if (newRank.minPoints > oldRank.minPoints) {
+        // Promoted!
+        const reward = newRank.reward || 0;
+        state.rankCoins += reward;
+        logEvent(`NAPREDOVAL SI: ${newRank.name}! Prejel si ${reward} rank kovančkov.`, 'good');
+        // Visual feedback for coins could be added here
+    }
+
+    updateRankDisplay();
+    updateUI();
+}
 
 async function initGame() {
     initMap();
@@ -922,7 +1015,37 @@ function styleFeature(feature) {
         return { className: 'destroyed-country', weight: 1, opacity: 1, color: '#ef4444', fillOpacity: 0.8 };
     }
 
-    if (country && country.owned) return { fillColor: country.realColor, weight: 1, opacity: 1, color: 'white', fillOpacity: 0.9 };
+    if (country && country.owned) {
+        let fillColor = country.realColor;
+
+        // Apply Skin logic
+        if (state.equippedSkin === 'neon') {
+            const neonColors = ['#ff00ff', '#00ffff', '#39ff14', '#ffff00', '#ff0000'];
+            fillColor = neonColors[country.rarity.rank % neonColors.length];
+        } else if (state.equippedSkin === 'gold') {
+            fillColor = '#ffd700';
+        } else if (state.equippedSkin === 'cyber') {
+            const cyberColors = ['#2d004d', '#1a0033', '#004d4d', '#4d0026'];
+            fillColor = cyberColors[country.rarity.rank % cyberColors.length];
+        } else if (state.equippedSkin === 'lava') {
+            const lavaColors = ['#991b1b', '#b91c1c', '#dc2626', '#f87171', '#fbbf24'];
+            fillColor = lavaColors[country.rarity.rank % lavaColors.length];
+        } else if (state.equippedSkin === 'matrix') {
+            const greenTones = ['#052e16', '#14532d', '#166534', '#15803d', '#16a34a'];
+            fillColor = greenTones[country.rarity.rank % greenTones.length];
+        } else if (state.equippedSkin === 'flags') {
+            const flagColors = ['#ef4444', '#3b82f6', '#ffffff', '#22c55e', '#eab308', '#000000'];
+            fillColor = flagColors[country.id.length % flagColors.length];
+        } else if (state.equippedSkin === 'ghost') {
+            fillColor = '#60a5fa';
+            return { fillColor: fillColor, weight: 1, opacity: 0.4, color: '#93c5fd', fillOpacity: 0.3, dashArray: '3' };
+        } else if (state.equippedSkin === 'nature') {
+            const natureColors = ['#166534', '#15803d', '#3f6212', '#4d7c0f', '#854d0e'];
+            fillColor = natureColors[country.rarity.rank % natureColors.length];
+        }
+
+        return { fillColor: fillColor, weight: 1, opacity: 1, color: 'white', fillOpacity: 0.9 };
+    }
     return { fillColor: '#334155', weight: 1, opacity: 1, color: '#475569', fillOpacity: 0.5 };
 }
 
@@ -948,7 +1071,10 @@ function setupEventListeners() {
     // Click button
     const clickBtn = document.getElementById('click-btn');
     if (clickBtn) {
-        clickBtn.addEventListener('click', () => { addMoney(10); });
+        clickBtn.addEventListener('click', () => {
+            addMoney(10);
+            addRankPoints(1); // 1 point per click
+        });
         // Add minimal animation
         clickBtn.addEventListener('mousedown', () => clickBtn.style.transform = 'scale(0.95)');
         clickBtn.addEventListener('mouseup', () => clickBtn.style.transform = 'scale(1)');
@@ -1006,7 +1132,13 @@ function buyCountry(id) {
             state.ownedCountries.add(id);
             state.everOwned.add(id);
             logEvent(`Kupljeno: ${country.name} (Level ${country.level})`, 'good');
+
+            // Points based on rarity rank - nerfed to make it harder
+            addRankPoints(Math.floor(country.rarity.rank * 5));
         }
+
+        // Add points for any purchase/upgrade - nerfed
+        addRankPoints(levelsGain);
 
         // Remove from stock after purchase/upgrade
         country.inStock = false;
@@ -1035,8 +1167,17 @@ function startGameLoop() {
         }
 
         const totalIncome = getCurrentTotalIncome();
-        if (totalIncome > 0) {
-            state.money += totalIncome / 10;
+        const sanitationCost = getDestroyedIncome();
+        const netIncomeTick = (totalIncome - sanitationCost) / 10;
+
+        state.money += netIncomeTick;
+
+        if (state.money <= 0) {
+            state.money = 0;
+            updateUI();
+            alert("BANKROT! Stroški sanacije uničenih držav so presegli vaš proračun.");
+            endGame();
+            return;
         }
 
         // --- Stock Progress ---
@@ -1056,13 +1197,14 @@ function startGameLoop() {
         if (cpsDisplay) cpsDisplay.textContent = `${formatMoney(totalIncome)}/s`;
 
         // Update Restoration Display
-        const destroyedIncome = getDestroyedIncome();
         const restorationDisplay = document.getElementById('restoration-display');
         if (restorationDisplay) {
-            if (destroyedIncome > 0) {
-                restorationDisplay.textContent = `-${formatMoney(destroyedIncome)}/s`;
+            if (sanitationCost > 0) {
+                restorationDisplay.textContent = `-${formatMoney(sanitationCost)}/s`;
+                restorationDisplay.style.color = '#ef4444';
             } else {
                 restorationDisplay.textContent = `0 €/s`;
+                restorationDisplay.style.color = 'var(--text-muted)';
             }
         }
 
@@ -1104,12 +1246,11 @@ function getDestroyedIncome() {
     let total = 0;
     Object.values(state.countries).forEach(c => {
         if (c.destroyed) {
-            // Calculate potential income (Level 0 counts as Level 1 base income)
-            total += getCurrentIncome(c);
+            // "sanacija uničene države taka kot je država stala"
+            total += c.baseCost;
         }
     });
-    const multiplier = getGlobalIncomeMultiplier();
-    return Math.floor(total * multiplier * state.sanitationMultiplier);
+    return Math.floor(total * state.sanitationMultiplier);
 }
 
 // Helper functions for level-based calculations
@@ -1217,8 +1358,8 @@ function animateAsteroid(latlng, callback) {
     const angle = Math.atan2(finalY - startY, finalX - startX) * 180 / Math.PI;
 
     // Set initial state
-    asteroid.style.left = `${startX}px`;
-    asteroid.style.top = `${startY}px`;
+    asteroid.style.left = `${startX - 100}px`;
+    asteroid.style.top = `${startY - 2}px`;
     asteroid.style.transform = `rotate(${angle}deg)`;
     asteroid.style.opacity = '1';
 
@@ -1226,8 +1367,8 @@ function animateAsteroid(latlng, callback) {
     asteroid.offsetHeight;
 
     // Transition to target
-    asteroid.style.left = `${finalX}px`;
-    asteroid.style.top = `${finalY}px`;
+    asteroid.style.left = `${finalX - 100}px`;
+    asteroid.style.top = `${finalY - 2}px`;
 
     setTimeout(() => {
         // Impact
@@ -1327,6 +1468,11 @@ function processAsteroidHits() {
 
 function updateUI() {
     moneyDisplay.innerText = formatMoney(state.money);
+
+    // Update Rank Coins display
+    const rcDisplay = document.getElementById('rank-coins-display');
+    if (rcDisplay) rcDisplay.textContent = state.rankCoins.toLocaleString();
+
     updateShopState();
 }
 
@@ -1410,6 +1556,10 @@ function buyGlobalUpgrade(id) {
     state.ownedUpgrades.add(id);
 
     logEvent(`Kupljeno: ${upgrade.name}`, 'good');
+
+    // Points for global upgrades - nerfed
+    const rar = RARITIES[upgrade.rarity.toUpperCase()];
+    if (rar) addRankPoints(Math.floor(rar.rank * 10));
 
     if (upgrade.type === 'stock') {
         // startStockCycle(); // Removed - loop handles acceleration
@@ -1576,6 +1726,12 @@ function saveGameData() {
         everOwned: Array.from(state.everOwned),
         ownedUpgrades: Array.from(state.ownedUpgrades),
         sanitationMultiplier: state.sanitationMultiplier,
+        rankPoints: state.rankPoints,
+        rankCoins: state.rankCoins,
+        ownedSkins: Array.from(state.ownedSkins),
+        equippedSkin: state.equippedSkin,
+        ownedBackgrounds: Array.from(state.ownedBackgrounds),
+        equippedBackground: state.equippedBackground,
         countries: {}
     };
 
@@ -1628,13 +1784,22 @@ function loadGame(username) {
     try {
         const data = JSON.parse(raw);
         state.username = username;
-        state.username = username;
         state.money = data.money || 0;
         state.challengeTimer = (typeof data.challengeTimer === 'number') ? data.challengeTimer : 600;
         state.ownedCountries = new Set(data.ownedCountries || []);
         state.everOwned = new Set(data.everOwned || []);
         state.ownedUpgrades = new Set(data.ownedUpgrades || []);
         state.sanitationMultiplier = data.sanitationMultiplier || 1;
+        state.rankPoints = data.rankPoints || 0;
+        state.rankCoins = data.rankCoins || 0;
+        state.ownedSkins = data.ownedSkins || ['classic'];
+        state.equippedSkin = data.equippedSkin || 'classic';
+        state.ownedBackgrounds = data.ownedBackgrounds || ['default'];
+        state.equippedBackground = data.equippedBackground || 'default';
+
+        updateBackgroundEffect();
+
+        updateRankDisplay();
 
         if (data.countries) {
             Object.keys(data.countries).forEach(id => {
@@ -1652,6 +1817,7 @@ function loadGame(username) {
     }
 }
 
+// Initialize game when PLAY! is clicked
 // Initialize game when PLAY! is clicked
 document.getElementById('play-button').addEventListener('click', () => {
     const nameInput = document.getElementById('username-input');
@@ -1707,43 +1873,182 @@ document.getElementById('play-button').addEventListener('click', () => {
     initGame();
 });
 
-function showLeaderboard() {
-    let players = [];
+const lbModal = document.getElementById('leaderboard-modal');
+const lbList = document.getElementById('leaderboard-list-container');
+let currentLbType = 'rank';
 
+function showLeaderboard() {
+    lbModal.classList.remove('hidden');
+    renderLeaderboard();
+}
+
+function closeLeaderboard() {
+    lbModal.classList.add('hidden');
+}
+
+function renderLeaderboard() {
+    const players = getAllPlayers();
+
+    if (currentLbType === 'money') {
+        players.sort((a, b) => b.money - a.money);
+    } else {
+        players.sort((a, b) => b.rankPoints - a.rankPoints);
+    }
+
+    // Limit to top 100
+    const top100 = players.slice(0, 100);
+
+    lbList.innerHTML = '';
+    top100.forEach((p, index) => {
+        const item = document.createElement('div');
+        item.className = 'lb-item';
+        if (p.name === state.username) item.classList.add('is-user');
+
+        const rankClass = index < 3 ? `top-${index + 1}` : '';
+        const rankObj = GAME_RANKS.find(r => r.name === p.gameRankName) || GAME_RANKS[0];
+
+        item.innerHTML = `
+            <div class="lb-rank ${rankClass}">${index + 1}</div>
+            <div class="friend-name-container">
+                <div class="lb-info">
+                    <div class="lb-name">${p.name}</div>
+                    <div class="lb-stats">
+                        <span class="lb-money">${formatMoney(p.money)}</span>
+                        <span class="lb-game-rank" style="color:${rankObj.color}">${p.gameRankName || 'Bronasti I'}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="lb-points-val">${p.rankPoints} pts</div>
+        `;
+        lbList.appendChild(item);
+    });
+}
+
+function getAllPlayers() {
+    let players = [];
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key.startsWith('worldsim_save_')) {
             try {
                 const data = JSON.parse(localStorage.getItem(key));
                 const name = key.replace('worldsim_save_', '');
-                players.push({ name: name, money: data.money });
+
+                // Determine game rank name
+                let gameRankName = 'Bronasti I';
+                if (data.rankPoints !== undefined) {
+                    for (let r of GAME_RANKS) {
+                        if (data.rankPoints >= r.minPoints) gameRankName = r.name;
+                        else break;
+                    }
+                }
+
+                players.push({
+                    name: name,
+                    money: data.money || 0,
+                    rankPoints: data.rankPoints || 0,
+                    gameRankName: gameRankName
+                });
             } catch (e) {
-                console.error("Napaka pri branju lestvice:", e);
+                console.error("Error parsing save", e);
             }
         }
     }
-
-    if (players.length === 0) {
-        alert("Lestvica je trenutno prazna!");
-        return;
-    }
-
-    // Sort by money descending
-    players.sort((a, b) => b.money - a.money);
-
-    // Limit to 1000
-    const topPlayers = players.slice(0, 1000);
-
-    let message = "🏆 TOP 1000 IGRALCEV 🏆\n\n";
-    topPlayers.forEach((p, index) => {
-        message += `${index + 1}. ${p.name}: ${formatMoney(p.money)}\n`;
-    });
-
-    // Alert might be too small for 1000, but we follow the request. 
-    // Usually, 1000 entries won't fit well in an alert, but the logic is there.
-    alert(message);
+    return players;
 }
 
+function updateStartScreenProgress(e) {
+    const nameInput = document.getElementById('username-input');
+    const name = nameInput.value.trim();
+
+    // Only proceed if triggered by Enter
+    if (e && e.type === 'keydown' && e.key !== 'Enter') return;
+
+    // Elements
+    const progressOuter = document.getElementById('start-progress-outer');
+    const curRankEl = document.getElementById('start-current-rank');
+    const pointsSumEl = document.getElementById('start-points-summary');
+    const coinsSumEl = document.getElementById('start-coins-summary');
+    const progressFill = document.getElementById('start-progress-fill');
+    const nextRankEl = document.getElementById('start-next-rank-text');
+
+    if (!name) {
+        progressOuter.classList.add('hidden');
+        return;
+    } else {
+        progressOuter.classList.remove('hidden');
+    }
+
+    let currentPoints = 0;
+    let currentCoins = 0;
+
+    const savedData = localStorage.getItem(`worldsim_save_${name}`);
+    if (savedData) {
+        try {
+            const data = JSON.parse(savedData);
+            currentPoints = data.rankPoints || 0;
+            currentCoins = data.rankCoins || 0;
+        } catch (e) { }
+    }
+
+    // Find current and next rank
+    let currentRank = GAME_RANKS[0];
+    let nextRank = GAME_RANKS[1];
+
+    for (let i = 0; i < GAME_RANKS.length; i++) {
+        if (currentPoints >= GAME_RANKS[i].minPoints) {
+            currentRank = GAME_RANKS[i];
+            nextRank = GAME_RANKS[i + 1] || null;
+        } else {
+            break;
+        }
+    }
+
+    // Update UI
+    curRankEl.textContent = currentRank.name;
+    curRankEl.style.color = currentRank.color;
+    if (coinsSumEl) coinsSumEl.textContent = currentCoins.toLocaleString();
+
+    // Top right badge
+    const topRightCoins = document.getElementById('top-right-coins');
+    if (topRightCoins) {
+        topRightCoins.textContent = `${currentCoins.toLocaleString()} 🪙`;
+        topRightCoins.classList.remove('hidden');
+    }
+
+    if (nextRank) {
+        const needed = nextRank.minPoints - currentRank.minPoints;
+        const progress = currentPoints - currentRank.minPoints;
+        const percent = Math.min(100, Math.max(0, (progress / needed) * 100));
+
+        pointsSumEl.textContent = `${currentPoints.toLocaleString()} / ${nextRank.minPoints.toLocaleString()} pts`;
+        progressFill.style.width = `${percent}%`;
+        nextRankEl.textContent = `Naslednji: ${nextRank.name} (manjka še ${(nextRank.minPoints - currentPoints).toLocaleString()} točk)`;
+    } else {
+        // Max rank (King)
+        pointsSumEl.textContent = `${currentPoints.toLocaleString()} pts (MAX RANK)`;
+        progressFill.style.width = `100%`;
+        nextRankEl.textContent = `Dosegli ste najvišji naziv!`;
+    }
+}
+
+// Add event listeners for leaderboard tabs
+document.querySelectorAll('.lb-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.lb-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentLbType = btn.dataset.lbType;
+        renderLeaderboard();
+    });
+});
+
+document.getElementById('username-input').addEventListener('keydown', updateStartScreenProgress);
+document.getElementById('username-input').addEventListener('input', (e) => {
+    if (!e.target.value.trim()) {
+        document.getElementById('start-progress-outer').classList.add('hidden');
+    }
+});
+
+document.getElementById('close-leaderboard-btn').addEventListener('click', closeLeaderboard);
 document.getElementById('leaderboard-btn').addEventListener('click', showLeaderboard);
 document.getElementById('friends-btn').addEventListener('click', () => {
     const inputName = document.getElementById('username-input').value.trim();
@@ -1819,6 +2124,138 @@ function updateNotifications() {
         dot.classList.add('hidden');
     }
 }
+
+// Skin Shop Logic
+let currentSkinTab = 'skins';
+
+function showSkinShop() {
+    const inputName = document.getElementById('username-input').value.trim();
+    if (!inputName) {
+        alert("Prosim vnesi svoje ime najprej, da vidimo tvoje stanje kovančkov!");
+        return;
+    }
+    state.username = inputName;
+    const loaded = loadGame(inputName);
+
+    document.getElementById('skin-shop-modal').classList.remove('hidden');
+    renderSkinShopList();
+    updateSkinShopCoins();
+}
+
+function updateSkinShopCoins() {
+    const coinDisplay = document.getElementById('skin-shop-coins');
+    if (coinDisplay) coinDisplay.textContent = state.rankCoins.toLocaleString();
+}
+
+function renderSkinShopList() {
+    const list = document.getElementById('skin-shop-list');
+    list.innerHTML = '';
+
+    const items = currentSkinTab === 'skins' ? SKIN_ITEMS : BACKGROUND_ITEMS;
+    const owned = currentSkinTab === 'skins' ? state.ownedSkins : state.ownedBackgrounds;
+    const equipped = currentSkinTab === 'skins' ? state.equippedSkin : state.equippedBackground;
+
+    Object.values(items).forEach(item => {
+        const isOwned = owned.includes(item.id);
+        const isEquipped = equipped === item.id;
+
+        const div = document.createElement('div');
+        div.className = `skin-item ${isEquipped ? 'equipped' : ''}`;
+
+        // Preview Circle logic
+        let previewStyle = '';
+        if (currentSkinTab === 'skins') {
+            if (item.id === 'neon') previewStyle = 'background: magenta; box-shadow: 0 0 10px magenta;';
+            else if (item.id === 'gold') previewStyle = 'background: gold;';
+            else if (item.id === 'cyber') previewStyle = 'background: #2d004d;';
+            else if (item.id === 'lava') previewStyle = 'background: #dc2626; box-shadow: 0 0 5px #fbbf24;';
+            else if (item.id === 'matrix') previewStyle = 'background: #000; outline: 1px solid #0f0;';
+            else if (item.id === 'flags') previewStyle = 'background: linear-gradient(to right, red, white, blue);';
+            else if (item.id === 'ghost') previewStyle = 'background: rgba(96, 165, 250, 0.5); border: 1px dashed white;';
+            else if (item.id === 'nature') previewStyle = 'background: #166534;';
+            else previewStyle = 'background: #658d53;';
+        } else {
+            if (item.id === 'space') previewStyle = 'background: #090A0F; outline: 1px solid #fff;';
+            else if (item.id === 'ocean') previewStyle = 'background: #075985;';
+            else if (item.id === 'magma') previewStyle = 'background: #7f1d1d; box-shadow: inset 0 0 10px #000;';
+            else if (item.id === 'matrix_bg') previewStyle = 'background: #000; color: #0f0; font-family: monospace; font-size: 8px; overflow: hidden;';
+            else if (item.id === 'desert') previewStyle = 'background: #eab308;';
+            else if (item.id === 'arctic') previewStyle = 'background: #f1f5f9;';
+            else previewStyle = 'background: #1e293b;';
+        }
+
+        div.innerHTML = `
+            <div class="skin-info">
+                <div class="skin-title">
+                    <span class="skin-preview-circle" style="${previewStyle}"></span>
+                    ${item.name}
+                </div>
+                <div class="skin-desc">${item.desc}</div>
+                <div class="skin-price" style="font-size:0.8rem; color:var(--accent); font-weight:700;">
+                    ${isOwned ? '<span style="color:var(--success)">KUPLJENO</span>' : `Cena: ${item.cost} 🪙`}
+                </div>
+            </div>
+            <button class="skin-buy-btn ${isOwned ? 'owned' : ''}" onclick="handleSkinAction('${item.id}', '${item.type}')">
+                ${isEquipped ? 'OPREMLJENO' : (isOwned ? 'OPREMI' : 'Kupi')}
+            </button>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function handleSkinAction(itemId, type) {
+    const items = type === 'skin' ? SKIN_ITEMS : BACKGROUND_ITEMS;
+    const owned = type === 'skin' ? state.ownedSkins : state.ownedBackgrounds;
+    const item = items[itemId];
+
+    if (owned.includes(itemId)) {
+        // Equip
+        if (type === 'skin') state.equippedSkin = itemId;
+        else {
+            state.equippedBackground = itemId;
+            updateBackgroundEffect();
+        }
+        logEvent(`Opremljeno: ${item.name}`, 'good');
+    } else {
+        // Buy
+        if (state.rankCoins >= item.cost) {
+            state.rankCoins -= item.cost;
+            owned.push(itemId);
+            logEvent(`Nakup uspešen: ${item.name}`, 'good');
+            saveGame();
+        } else {
+            alert("Nimaš dovolj rank kovančkov!");
+            return;
+        }
+    }
+    renderSkinShopList();
+    updateSkinShopCoins();
+    updateUI(); // Updates currency displays
+    if (geoJsonLayer) geoJsonLayer.resetStyle(); // Re-render map if active
+}
+
+function updateBackgroundEffect() {
+    const body = document.body;
+    body.classList.remove('bg-space', 'bg-ocean', 'bg-lava', 'bg-matrix');
+    if (state.equippedBackground === 'space') body.classList.add('bg-space');
+    else if (state.equippedBackground === 'ocean') body.classList.add('bg-ocean');
+    else if (state.equippedBackground === 'magma') body.classList.add('bg-lava');
+    else if (state.equippedBackground === 'matrix_bg') body.classList.add('bg-matrix');
+}
+
+document.getElementById('skin-shop-btn').addEventListener('click', showSkinShop);
+document.getElementById('close-skin-shop-btn').addEventListener('click', () => {
+    document.getElementById('skin-shop-modal').classList.add('hidden');
+});
+
+document.querySelectorAll('.skin-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.skin-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentSkinTab = btn.dataset.tab;
+        renderSkinShopList();
+    });
+});
 
 document.getElementById('close-friends-btn').addEventListener('click', () => {
     document.getElementById('friends-modal').classList.add('hidden');
@@ -2059,10 +2496,13 @@ function endGame() {
         introMusic.play().catch(e => console.log("Intro music play failed:", e));
     }
 
+    // Award points based on performance - extremely nerfed
+    const performancePoints = Math.floor(state.money / 100000000); // 1 point per 100 million
+    addRankPoints(performancePoints);
     saveGame(); // Final save
 
     const gameOverScreen = document.getElementById('game-over-screen');
-    const rankDisplay = document.getElementById('user-rank-display');
+    const rankDisplayUI = document.getElementById('user-rank-display'); // Renamed to avoid confusion with globals
     const leaderboardDiv = document.getElementById('game-over-leaderboard');
 
     if (!gameOverScreen) return;
@@ -2086,9 +2526,12 @@ function endGame() {
 
     // Find user rank
     const userRankIndex = players.findIndex(p => p.name === state.username);
-    const userRank = userRankIndex + 1;
+    const userRankNum = userRankIndex + 1;
 
-    rankDisplay.innerHTML = `Tvoje mesto: <span style="color:var(--primary); font-size:1.5rem;">#${userRank}</span> <br> <span style="font-size:1rem; color:var(--text-muted);">Denar: ${formatMoney(state.money)}</span>`;
+    rankDisplayUI.innerHTML = `Tvoje mesto: <span style="color:var(--primary); font-size:1.5rem;">#${userRankNum}</span> <br> 
+    <span style="font-size:1rem; color:var(--text-muted);">Denar: ${formatMoney(state.money)}</span> <br>
+    <span style="font-size:1rem; color:var(--success);">Rank točke: +${performancePoints}</span><br>
+    <span style="font-size:1.1rem; color:${getCurrentRank().color}; font-weight:800;">${getCurrentRank().name}</span>`;
 
     // Render Top 10
     leaderboardDiv.innerHTML = '';
@@ -2147,6 +2590,7 @@ function endGame() {
 
 // Auto-start intro music on load
 window.addEventListener('load', () => {
+    updateStartScreenProgress();
     const introMusic = document.getElementById('intro-music');
     if (introMusic) {
         // Try to play immediately (might be blocked by browser policy)
