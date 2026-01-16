@@ -1679,6 +1679,14 @@ document.getElementById('play-button').addEventListener('click', () => {
     }
 
     document.getElementById('start-screen').classList.add('hidden');
+
+    // Play Background Music
+    const bgMusic = document.getElementById('bg-music');
+    if (bgMusic) {
+        bgMusic.volume = 0.4;
+        bgMusic.play().catch(e => console.log("Music play failed:", e));
+    }
+
     initGame();
 });
 
@@ -2019,6 +2027,14 @@ function updateChallengeTimerDisplay() {
 
 function endGame() {
     if (window.gameLoopInterval) clearInterval(window.gameLoopInterval);
+
+    // Stop Background Music
+    const bgMusic = document.getElementById('bg-music');
+    if (bgMusic) {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+    }
+
     saveGame(); // Final save
 
     const gameOverScreen = document.getElementById('game-over-screen');
