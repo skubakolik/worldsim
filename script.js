@@ -78,36 +78,84 @@ function getLevelsPerUpgrade() {
 
 // Rarity Definitions
 const RARITIES = {
-    COMMON: { id: 'common', name: 'NAVADNA', multiplier: 1, color: '#22c55e', rank: 1, weight: 100 },
-    RARE: { id: 'rare', name: 'REDKA', multiplier: 100, color: '#3b82f6', rank: 2, weight: 50 },
-    EPIC: { id: 'epic', name: 'EPSKA', multiplier: 2000, color: '#a855f7', rank: 3, weight: 25 },
-    LEGENDARY: { id: 'legendary', name: 'LEGENDARNA', multiplier: 50000, color: '#eab308', rank: 3.5, weight: 15 },
-    MYTHIC: { id: 'mythic', name: 'MITIČNA', multiplier: 1000000, color: '#ef4444', rank: 4, weight: 5 },
-    GODLY: { id: 'godly', name: 'BOŽANSKA', multiplier: 50000000, color: '#ff00ff', rank: 5, weight: 2 },
-    SECRET: { id: 'secret', name: 'SKRIVNA', multiplier: 500000000, color: '#000', rank: 6, weight: 0.8 },
-    OG: { id: 'og', name: 'OG', multiplier: 10000000000, color: '#b45309', rank: 7, weight: 0.3 }
+    COMMON: { id: 'common', name: 'REVNA', multiplier: 1, gdpThresh: 2000, color: '#22c55e', rank: 1, weight: 100 },
+    RARE: { id: 'rare', name: 'SKROMNA', multiplier: 1.2, gdpThresh: 10000, color: '#3b82f6', rank: 2, weight: 50 },
+    EPIC: { id: 'epic', name: 'V VZPONU', multiplier: 1.5, gdpThresh: 30000, color: '#a855f7', rank: 3, weight: 25 },
+    LEGENDARY: { id: 'legendary', name: 'RAZVITA', multiplier: 2, gdpThresh: 60000, color: '#eab308', rank: 3.5, weight: 15 },
+    MYTHIC: { id: 'mythic', name: 'BOGATA', multiplier: 3, gdpThresh: 120000, color: '#ef4444', rank: 4, weight: 5 },
+    GODLY: { id: 'godly', name: 'ELITNA', multiplier: 5, gdpThresh: Infinity, color: '#ff00ff', rank: 5, weight: 2 },
+    SECRET: { id: 'secret', name: 'SKRIVNA', multiplier: 8, color: '#000', rank: 6, weight: 0.8 },
+    OG: { id: 'og', name: 'OG', multiplier: 12, color: '#b45309', rank: 7, weight: 0.3 }
+};
+
+const GDP_DATA = {
+    // Exact Values from Database (Slovenian keys)
+    "Afganistan": 412.79, "Albanija": 11377.78, "Alžirija": 8792.88, "Andora": 40303.45, "Angola": 2885.87,
+    "Antigva in Barbuda": 23342.45, "Argentina": 14003.78, "Armenija": 8356.21, "Avstralija": 64805.55,
+    "Avstrija": 56268.88, "Azerbajdžan": 7283.89, "Bahami": 38655.45, "Bahrajn": 29855.87, "Bangladeš": 2362.87,
+    "Barbados": 20344.87, "Belorusija": 8302.83, "Belgija": 55624.57, "Belize": 7445.24, "Benin": 1483.24,
+    "Butan": 3483.24, "Bolivija": 4423.87, "Bosna in Hercegovina": 8154.78, "Bocvana": 7855.75,
+    "Brazilija": 11155.55, "Brunej": 33243.67, "Bolgarija": 17388.92, "Burkina Faso": 582.55, "Burundi": 233.42,
+    "Zelenortski otoki": 5202.48, "Kambodža": 2627.88, "Kamerun": 1833.87, "Kanada": 54143.25,
+    "Srednjeafriška republika": 558.21, "Čad": 960.36, "Čile": 16738.85, "Kitajska": 13343.35, "Kolumbija": 7523.21,
+    "Komori": 1442.78, "Kongo, Demokratična r.": 638.35, "Kongo": 2482.25, "Kostarika": 18587.25,
+    "Slonokoščena obala": 2722.88, "Hrvaška": 24083.45, "Kuba": 9535.21, "Ciper": 35874.24, "Češka": 29822.21,
+    "Danska": 71038.45, "Džibuti": 3312.72, "Dominika": 10453.28, "Dominikanska republika": 10825.48,
+    "Ekvador": 6074.72, "Egipt": 4444.67, "Salvador": 5373.44, "Ekvatorialna Gvineja": 6245.88, "Eritreja": 668.88,
+    "Estonija": 32428.45, "Esvatini": 5022.34, "Etiopija": 1133.88, "Fidži": 6465.74, "Finska": 54344.77,
+    "Francija": 48503.44, "Gabon": 9254.88, "Gambija": 871.34, "Gruzija": 8283.85, "Nemčija": 55212.72,
+    "Gana": 2343.77, "Grčija": 24628.25, "Grenada": 13245.88, "Gvatemala": 6333.33, "Gvineja": 1445.44,
+    "Gvineja Bissau": 1127.74, "Gvajana": 28425.25, "Haiti": 2242.32, "Vatikan": 502000.88, "Honduras": 3424.43,
+    "Madžarska": 23292.55, "Islandija": 85542.55, "Indija": 2643.32, "Indonezija": 6323.43, "Iran": 5343.12,
+    "Irak": 6573.11, "Irska": 113244.85, "Izrael": 54173.88, "Italija": 41245.82, "Jamajka": 7253.88,
+    "Japonska": 32882.88, "Jordanija": 4528.23, "Kazahstan": 15243.32, "Kenija": 2313.43, "Kiribati": 2288.63,
+    "Severna Koreja": 500, "Južna Koreja": 36243.66, "Kuvajt": 33722.72, "Kirgizija": 2029.13, "Laos": 2123.32,
+    "Latvija": 24834.85, "Libanon": 3477.72, "Lesoto": 923.32, "Liberija": 831.52, "Libija": 6528.77,
+    "Lihtenštajn": 204783.22, "Litva": 29503.22, "Luksemburg": 133742.66, "Madagaskar": 548.83, "Malavi": 723.32,
+    "Malezija": 13824.21, "Maldivi": 23572.12, "Mali": 1054.42, "Malta": 43853.22, "Marshallovi otoki": 6724.44,
+    "Mavretanija": 2333.32, "Mauritius": 11552.78, "Mehika": 14143.75, "Mikronezija": 4344.88, "Moldavija": 7573.23,
+    "Monako": 255551.44, "Mongolija": 6732.43, "Črna gora": 12243.32, "Maroko": 4122.12, "Mozambik": 648.72,
+    "Mjanmar": 1363.35, "Namibija": 4954.21, "Nauru": 13000.82, "Nepal": 1332.41, "Nizozemska": 65522.21,
+    "Nova Zelandija": 48253.12, "Nikaragva": 2842.24, "Niger": 643.21, "Nigerija": 1084.12,
+    "Severna Makedonija": 7423.88, "Norveška": 88785.45, "Oman": 22143.23, "Pakistan": 1478.77, "Palau": 15832.12,
+    "Panama": 20143.22, "Papua Nova Gvineja": 2844.75, "Paragvaj": 5455.23, "Peru": 8342.67, "Filipini": 3984.85,
+    "Poljska": 25552.57, "Portugalska": 28832.22, "Katar": 78848.33, "Romunija": 20552.22, "Rusija": 14885.82,
+    "Ruanda": 981.12, "Samoa": 4232.88, "San Marino": 55872.12, "Sao Tome in Principe": 2472.51,
+    "Savdska Arabija": 35121.66, "Senegal": 1775.22, "Srbija": 13572.21, "Sejšeli": 11833.82,
+    "Sierra Leone": 855.45, "Singapur": 92853.87, "Slovaška": 22352.87, "Slovenija": 35832.55,
+    "Salomonovi otoki": 2233.56, "Somalija": 825.21, "Južna Afrika": 6287.13, "Južni Sudan": 1085.11,
+    "Španija": 35324.77, "Šrilanka": 4355.51, "Sveti Krištof in Nevis": 23963.85, "Sveta Lucija": 14185.85,
+    "Sveti Vincencij in Grenadine": 11552.22, "Palestina": 2552.51, "Sudan": 984.62, "Surinam": 6385.73,
+    "Švedska": 57127.42, "Švica": 105958.13, "Sirija": 1253.67, "Tadžikistan": 1345.28, "Tanzanija": 1188.72,
+    "Tajska": 7833.82, "Timor-Leste": 1238.87, "Togo": 1222.38, "Tonga": 5855.92, "Trinidad in Tobago": 19733.42,
+    "Tunizija": 4183.13, "Turčija": 13852.72, "Turkmenistan": 8858.88, "Tuvalu": 6333.78, "Uganda": 1077.31,
+    "Ukrajina": 5585.82, "Združeni arabski emirati": 55273.51, "Združeno kraljestvo": 51243.37,
+    "Združene države Amerike": 85554.84, "Urugvaj": 21953.51, "Uzbekistan": 2243.78, "Vanuatu": 3452.77,
+    "Venezuela": 4212.55, "Vietnam": 4522.28, "Jemen": 632.88, "Zambija": 1187.11, "Zimbabve": 1432.23,
+    "Severni Ciper": 14500.00, "Južna Georgia in otočje": 12500.00, "Somaliland": 850.00,
+    "Ferski otoki": 65800.00, "Južnopatagonsko ledeno polje": 400.00
 };
 
 const GAME_RANKS = [
     { name: 'Bronasti I', minPoints: 0, color: '#cd7f32', reward: 0, icon: '🥉' },
-    { name: 'Bronasti II', minPoints: 5000, color: '#cd7f32', reward: 10, icon: '🥉' },
-    { name: 'Bronasti III', minPoints: 15000, color: '#cd7f32', reward: 15, icon: '🥉' },
-    { name: 'Srebrni I', minPoints: 50000, color: '#c0c0c0', reward: 25, icon: '🥈' },
-    { name: 'Srebrni II', minPoints: 125000, color: '#c0c0c0', reward: 35, icon: '🥈' },
-    { name: 'Srebrni III', minPoints: 300000, color: '#c0c0c0', reward: 50, icon: '🥈' },
-    { name: 'Zlati I', minPoints: 750000, color: '#ffd700', reward: 75, icon: '🥇' },
-    { name: 'Zlati II', minPoints: 1800000, color: '#ffd700', reward: 100, icon: '🥇' },
-    { name: 'Zlati III', minPoints: 4500000, color: '#ffd700', reward: 150, icon: '🥇' },
-    { name: 'Diamantni I', minPoints: 12000000, color: '#b9f2ff', reward: 250, icon: '💎' },
-    { name: 'Diamantni II', minPoints: 30000000, color: '#b9f2ff', reward: 350, icon: '💎' },
-    { name: 'Diamantni III', minPoints: 75000000, color: '#b9f2ff', reward: 500, icon: '💎' },
-    { name: 'Legendarni I', minPoints: 200000000, color: '#ff4500', reward: 1000, icon: '🔥' },
-    { name: 'Legendarni II', minPoints: 500000000, color: '#ff4500', reward: 1500, icon: '🔥' },
-    { name: 'Legendarni III', minPoints: 1200000000, color: '#ff4500', reward: 2500, icon: '🔥' },
-    { name: 'Neresnični I', minPoints: 4000000000, color: '#a855f7', reward: 5000, icon: '✨' },
-    { name: 'Neresnični II', minPoints: 10000000000, color: '#a855f7', reward: 10000, icon: '✨' },
-    { name: 'Neresnični III', minPoints: 25000000000, color: '#a855f7', reward: 25000, icon: '✨' },
-    { name: 'Kralj', minPoints: 100000000000, color: '#eab308', reward: 100000, icon: '👑' }
+    { name: 'Bronasti II', minPoints: 1000, color: '#cd7f32', reward: 10, icon: '🥉' },
+    { name: 'Bronasti III', minPoints: 2500, color: '#cd7f32', reward: 15, icon: '🥉' },
+    { name: 'Srebrni I', minPoints: 5000, color: '#c0c0c0', reward: 25, icon: '🥈' },
+    { name: 'Srebrni II', minPoints: 12500, color: '#c0c0c0', reward: 35, icon: '🥈' },
+    { name: 'Srebrni III', minPoints: 25000, color: '#c0c0c0', reward: 50, icon: '🥈' },
+    { name: 'Zlati I', minPoints: 50000, color: '#ffd700', reward: 75, icon: '🥇' },
+    { name: 'Zlati II', minPoints: 125000, color: '#ffd700', reward: 100, icon: '🥇' },
+    { name: 'Zlati III', minPoints: 250000, color: '#ffd700', reward: 150, icon: '🥇' },
+    { name: 'Diamantni I', minPoints: 500000, color: '#b9f2ff', reward: 250, icon: '💎' },
+    { name: 'Diamantni II', minPoints: 1250000, color: '#b9f2ff', reward: 350, icon: '💎' },
+    { name: 'Diamantni III', minPoints: 2500000, color: '#b9f2ff', reward: 500, icon: '💎' },
+    { name: 'Legendarni I', minPoints: 5000000, color: '#ff4500', reward: 1000, icon: '🔥' },
+    { name: 'Legendarni II', minPoints: 12500000, color: '#ff4500', reward: 1500, icon: '🔥' },
+    { name: 'Legendarni III', minPoints: 25000000, color: '#ff4500', reward: 2500, icon: '🔥' },
+    { name: 'Neresnični I', minPoints: 50000000, color: '#a855f7', reward: 5000, icon: '✨' },
+    { name: 'Neresnični II', minPoints: 125000000, color: '#a855f7', reward: 10000, icon: '✨' },
+    { name: 'Neresnični III', minPoints: 250000000, color: '#a855f7', reward: 25000, icon: '✨' },
+    { name: 'Kralj', minPoints: 500000000, color: '#eab308', reward: 100000, icon: '👑' }
 ];
 
 const SKIN_ITEMS = {
@@ -172,63 +220,30 @@ const BACKGROUND_ITEMS = {
 };
 const GLOBAL_UPGRADES = {
     // COMMON
-    STOCK_C: { id: 'STOCK_C', rarity: 'common', name: 'Hitrejša Zaloga I', cost: 25000, type: 'stock', value: 0.95, desc: 'Zaloga prihaja 5% hitreje' },
-    STOCK_C2: { id: 'STOCK_C2', rarity: 'common', name: 'Hitrejša Zaloga II', cost: 75000, type: 'stock', value: 0.95, desc: 'Zaloga prihaja 5% hitreje' },
-    INCOME_C: { id: 'INCOME_C', rarity: 'common', name: 'Večji Zaslužek I', cost: 125000, type: 'income', value: 0.05, desc: 'Skupni zaslužek +5%' },
-    INCOME_C2: { id: 'INCOME_C2', rarity: 'common', name: 'Večji Zaslužek II', cost: 250000, type: 'income', value: 0.05, desc: 'Skupni zaslužek +5%' },
-    ASTEROID_C: { id: 'ASTEROID_C', rarity: 'common', name: 'Mini Ščit', cost: 450000, type: 'asteroid_chance', value: 0.002, desc: 'Možnost uničenja -0.2%' },
+    STOCK_C: { id: 'STOCK_C', rarity: 'common', name: 'Hitrejša Zaloga I', cost: 2500, type: 'stock', value: 0.95, desc: 'Zaloga prihaja 5% hitreje' },
+    STOCK_C2: { id: 'STOCK_C2', rarity: 'rare', name: 'Hitrejša Zaloga II', cost: 15000, type: 'stock', value: 0.85, desc: 'Zaloga prihaja 15% hitreje' },
+    STOCK_C3: { id: 'STOCK_C3', rarity: 'epic', name: 'Hitrejša Zaloga III', cost: 60000, type: 'stock', value: 0.70, desc: 'Zaloga prihaja 30% hitreje' },
+
+    INCOME_C: { id: 'INCOME_C', rarity: 'common', name: 'Večji Zaslužek I', cost: 35000, type: 'income', value: 0.05, desc: 'Skupni zaslužek +5%' },
+    ASTEROID_C: { id: 'ASTEROID_C', rarity: 'common', name: 'Mini Ščit', cost: 4000, type: 'asteroid_chance', value: 0.05, desc: 'Možnost uničenja -5%' },
 
     // RARE
-    STOCK_R: { id: 'STOCK_R', rarity: 'rare', name: 'Hitrejša Zaloga III', cost: 1500000, type: 'stock', value: 0.9, desc: 'Zaloga prihaja 10% hitreje' },
-    STOCK_SIZE_R: { id: 'STOCK_SIZE_R', rarity: 'rare', name: 'Večja Zaloga I', cost: 2500000, type: 'stock_size', value: 5, desc: 'Zaloga +5 držav' },
-    STOCK_R2: { id: 'STOCK_R2', rarity: 'rare', name: 'Hitrejša Zaloga IV', cost: 4500000, type: 'stock', value: 0.9, desc: 'Zaloga prihaja 10% hitreje' },
-    STOCK_QUAL_R: { id: 'STOCK_QUAL_R', rarity: 'rare', name: 'Kvalitetna Zaloga I', cost: 5000000, type: 'stock_quality', value: 0.25, desc: 'Možnost za redke države +25%' },
-    ASTEROID_R: { id: 'ASTEROID_R', rarity: 'rare', name: 'Asteroidna Zaščita I', cost: 7500000, type: 'asteroid_chance', value: 0.005, desc: 'Možnost uničenja -0.5%' },
-    INCOME_R: { id: 'INCOME_R', rarity: 'rare', name: 'Redki Dobiček', cost: 15000000, type: 'income', value: 0.15, desc: 'Skupni zaslužek +15%' },
-    MULTI_LEVEL_R: { id: 'MULTI_LEVEL_R', rarity: 'rare', name: 'Dvojna Moč I', cost: 50000000, type: 'multi_level', value: 1, desc: 'VSAKIČ KO DRŽAVO KUPIŠ DOBIŠ +1 NIVO VEČ' },
+    STOCK_SIZE_R: { id: 'STOCK_SIZE_R', rarity: 'rare', name: 'Večja Zaloga I', cost: 50000, type: 'stock_size', value: 5, desc: 'Zaloga +5 držav' },
+    STOCK_QUAL_R: { id: 'STOCK_QUAL_R', rarity: 'rare', name: 'Kvalitetna Zaloga I', cost: 200000, type: 'stock_quality', value: 0.25, desc: 'Možnost za redke države +25%' },
+    INCOME_R: { id: 'INCOME_R', rarity: 'rare', name: 'Redki Dobiček', cost: 750000, type: 'income', value: 0.15, desc: 'Skupni zaslužek +15%' },
+    MULTI_LEVEL_R: { id: 'MULTI_LEVEL_R', rarity: 'rare', name: 'Dvojna Moč I', cost: 2500000, type: 'multi_level', value: 1, desc: 'VSAKIČ KO DRŽAVO KUPIŠ DOBIŠ +1 NIVO VEČ' },
+    ASTEROID_R: { id: 'ASTEROID_R', rarity: 'rare', name: 'Napredni Ščit', cost: 500000, type: 'asteroid_chance', value: 0.02, desc: 'Možnost uničenja -2% (Dodatno)' },
 
     // EPIC
-    STOCK_E: { id: 'STOCK_E', rarity: 'epic', name: 'Hitrejša Zaloga V', cost: 100000000, type: 'stock', value: 0.85, desc: 'Zaloga prihaja 15% hitreje' },
-    STOCK_SIZE_E: { id: 'STOCK_SIZE_E', rarity: 'epic', name: 'Večja Zaloga II', cost: 250000000, type: 'stock_size', value: 10, desc: 'Zaloga +10 držav' },
-    STOCK_E2: { id: 'STOCK_E2', rarity: 'epic', name: 'Hitrejša Zaloga VI', cost: 500000000, type: 'stock', value: 0.85, desc: 'Zaloga prihaja 15% hitreje' },
-    STOCK_QUAL_E: { id: 'STOCK_QUAL_E', rarity: 'epic', name: 'Kvalitetna Zaloga II', cost: 1000000000, type: 'stock_quality', value: 0.5, desc: 'Možnost za redke države +50%' },
-    INCOME_E: { id: 'INCOME_E', rarity: 'epic', name: 'Mega Zaslužek II', cost: 1200000000, type: 'income', value: 0.3, desc: 'Skupni zaslužek +30%' },
-    ASTEROID_E: { id: 'ASTEROID_E', rarity: 'epic', name: 'Epic Shielding', cost: 5000000000, type: 'asteroid_chance', value: 0.008, desc: 'Možnost uničenja -0.8%' },
-    MULTI_LEVEL_E: { id: 'MULTI_LEVEL_E', rarity: 'epic', name: 'Trojna Moč II', cost: 50000000000, type: 'multi_level', value: 2, desc: 'VSAKIČ KO DRŽAVO KUPIŠ DOBIŠ +2 NIVOJA VEČ' },
+    STOCK_SIZE_E: { id: 'STOCK_SIZE_E', rarity: 'epic', name: 'Večja Zaloga II', cost: 5000000, type: 'stock_size', value: 10, desc: 'Zaloga +10 držav' },
+    INCOME_E: { id: 'INCOME_E', rarity: 'epic', name: 'Mega Zaslužek II', cost: 15000000, type: 'income', value: 0.3, desc: 'Skupni zaslužek +30%' },
+    MULTI_LEVEL_E: { id: 'MULTI_LEVEL_E', rarity: 'epic', name: 'Trojna Moč II', cost: 45000000, type: 'multi_level', value: 2, desc: 'VSAKIČ KO DRŽAVO KUPIŠ DOBIŠ +2 NIVOJA VEČ' },
+    ASTEROID_E: { id: 'ASTEROID_E', rarity: 'epic', name: 'Plazemski Ščit', cost: 20000000, type: 'asteroid_chance', value: 0.02, desc: 'Možnost uničenja -2% (Dodatno)' },
 
-    // LEGENDARY
-    ASTEROID_L: { id: 'ASTEROID_L', rarity: 'legendary', name: 'Asteroidna Zaščita II', cost: 75000000000, type: 'asteroid_chance', value: 0.01, desc: 'Možnost uničenja -1%' },
-    STOCK_SIZE_L: { id: 'STOCK_SIZE_L', rarity: 'legendary', name: 'Mega Skladišče', cost: 750000000000, type: 'stock_size', value: 15, desc: 'Zaloga +15 držav' },
-    ASTEROID_L2: { id: 'ASTEROID_L2', rarity: 'legendary', name: 'Legendary Wall', cost: 150000000000, type: 'asteroid_chance', value: 0.005, desc: 'Možnost uničenja -0.5%' },
-    STOCK_QUAL_L: { id: 'STOCK_QUAL_L', rarity: 'legendary', name: 'Elitni Izbor', cost: 2500000000000, type: 'stock_quality', value: 1.0, desc: 'Možnost za redke države +100%' },
-    INCOME_L: { id: 'INCOME_L', rarity: 'legendary', name: 'Legendarni Zaslužek III', cost: 500000000000, type: 'income', value: 0.6, desc: 'Skupni zaslužek +60%' },
-    STOCK_L: { id: 'STOCK_L', rarity: 'legendary', name: 'Legend Speed VII', cost: 1000000000000, type: 'stock', value: 0.8, desc: 'Zaloga prihaja 20% hitreje' },
-    MULTI_LEVEL_L: { id: 'MULTI_LEVEL_L', rarity: 'legendary', name: 'Kraljevska Moč III', cost: 7500000000000, type: 'multi_level', value: 4, desc: 'VSAKIČ KO DRŽAVO KUPIŠ DOBIŠ +4 NIVOJE VEČ' },
-
-    // MYTHIC
-    STOCK_M: { id: 'STOCK_M', rarity: 'mythic', name: 'Ultra Zaloga VIII', cost: 10000000000000, type: 'stock', value: 0.75, desc: 'Zaloga prihaja 25% hitreje' },
-    ASTEROID_M: { id: 'ASTEROID_M', rarity: 'mythic', name: 'Mythic Barrier', cost: 25000000000000, type: 'asteroid_chance', value: 0.005, desc: 'Možnost uničenja -0.5%' },
-    STOCK_SIZE_M: { id: 'STOCK_SIZE_M', rarity: 'mythic', name: 'Galaktični Center', cost: 50000000000000, type: 'stock_size', value: 25, desc: 'Zaloga +25 držav' },
-    INCOME_M: { id: 'INCOME_M', rarity: 'mythic', name: 'Mitični Zaslužek IV', cost: 100000000000000, type: 'income', value: 1.25, desc: 'Skupni zaslužek +125%' },
-    STOCK_QUAL_M: { id: 'STOCK_QUAL_M', rarity: 'mythic', name: 'Mitična Selekcija', cost: 250000000000000, type: 'stock_quality', value: 2.0, desc: 'Možnost za redke države +200%' },
-    MULTI_LEVEL_M: { id: 'MULTI_LEVEL_M', rarity: 'mythic', name: 'Mitična Moč IV', cost: 500000000000000, type: 'multi_level', value: 6, desc: 'VSAKIČ KO DRŽAVO KUPIŠ DOBIŠ +6 NIVOJEV VEČ' },
-
-    // GODLY
-    RAINBOW_M: { id: 'RAINBOW_M', rarity: 'godly', name: 'Mavrični Multiplikator', cost: 500000000000000, type: 'income', value: 2.5, desc: 'Dobiček se utripičuje (+250%)' },
-    ASTEROID_G: { id: 'ASTEROID_G', rarity: 'godly', name: 'Godly Zaščita', cost: 750000000000000, type: 'asteroid_chance', value: 0.012, desc: 'Možnost uničenja -1.2%' },
-    STOCK_QUAL_G: { id: 'STOCK_QUAL_G', rarity: 'godly', name: 'Božanska Izbira', cost: 1000000000000000, type: 'stock_quality', value: 4.0, desc: 'Možnost za redke države +400%' },
-    RAINBOW_M2: { id: 'RAINBOW_M2', rarity: 'godly', name: 'Divine Multiplier', cost: 1500000000000000, type: 'income', value: 1.5, desc: 'Dobiček +150%' },
-    MULTI_LEVEL_G: { id: 'MULTI_LEVEL_G', rarity: 'godly', name: 'Božanska Moč IV', cost: 2500000000000000, type: 'multi_level', value: 8, desc: 'VSAKIČ KO DRŽAVO KUPIŠ DOBIŠ +8 NIVOJEV VEČ' },
-
-    // SECRET
-    STOCK_S: { id: 'STOCK_S', rarity: 'secret', name: 'Nadzvočna Zaloga IX', cost: 10000000000000000, type: 'stock', value: 0.5, desc: 'Zaloga se razpolovi' },
-    STOCK_SIZE_S: { id: 'STOCK_SIZE_S', rarity: 'secret', name: 'Neskončna Zaloga', cost: 25000000000000000, type: 'stock_size', value: 50, desc: 'Zaloga +50 držav' },
-    STOCK_S2: { id: 'STOCK_S2', rarity: 'secret', name: 'Črna Luknja (Zaloga)', cost: 50000000000000000, type: 'stock', value: 0.5, desc: 'Hitrost zaloge se podvoji' },
-    INCOME_S: { id: 'INCOME_S', rarity: 'secret', name: 'Skrivni Zaklad', cost: 150000000000000000, type: 'income', value: 5.0, desc: 'Zaslužek +500%' },
-
-    // OG
-    WORLD_MASTER: { id: 'WORLD_MASTER', rarity: 'og', name: 'Svetovni Mojster', cost: 500000000000000000, type: 'income', value: 9.0, desc: 'Celoten zaslužek se poveča za 10x' },
-    STOCK_QUAL_OG: { id: 'STOCK_QUAL_OG', rarity: 'og', name: 'Božanski Dar', cost: 1000000000000000000, type: 'stock_quality', value: 9.0, desc: 'Možnost za redke države +900%' }
+    // LEGENDARY+
+    STOCK_QUAL_L: { id: 'STOCK_QUAL_L', rarity: 'legendary', name: 'Elitni Izbor', cost: 120000000, type: 'stock_quality', value: 1.0, desc: 'Možnost za redke države +100%' },
+    INCOME_L: { id: 'INCOME_L', rarity: 'legendary', name: 'Legendarni Zaslužek III', cost: 400000000, type: 'income', value: 0.6, desc: 'Skupni zaslužek +60%' },
+    WORLD_MASTER: { id: 'WORLD_MASTER', rarity: 'og', name: 'Svetovni Mojster', cost: 2500000000, type: 'income', value: 9.0, desc: 'Celoten zaslužek se poveča za 10x' }
 };
 
 // Fixed assignments by Name
@@ -236,10 +251,8 @@ const GLOBAL_UPGRADES = {
 // We remove most hardcoded overrides to let Size determine Rarity.
 // Keeping specific requests or corrections.
 const FIXED_RARITIES = {
-    // Specific user override example:
-    'United Kingdom': 'LEGENDARY',
-    'Vatican': 'COMMON', // Fits size anyway
-    'Greenland': 'GODLY',
+    // Specific user requests that might override logic if needed
+    // 'Greenland': 'GODLY', // GDP logic should handle it if in GDP_DATA
 };
 
 // Satellite-style colors (Google Earth Vibe)
@@ -266,485 +279,141 @@ const REAL_COLORS = {
 
 // Slovenian Country Name Translations
 const SLOVENIAN_NAMES = {
-    'Afghanistan': 'Afganistan',
-    'Albania': 'Albanija',
-    'Algeria': 'Alžirija',
-    'Andorra': 'Andora',
-    'Angola': 'Angola',
-    'Antarctica': 'Antarktika',
-    'Antigua and Barbuda': 'Antigva in Barbuda',
-    'Argentina': 'Argentina',
-    'Armenia': 'Armenija',
-    'Australia': 'Avstralija',
-    'Austria': 'Avstrija',
-    'Azerbaijan': 'Azerbajdžan',
-    'Bahamas': 'Bahami',
-    'Bahrain': 'Bahrajn',
-    'Bangladesh': 'Bangladeš',
-    'Barbados': 'Barbados',
-    'Belarus': 'Belorusija',
-    'Belgium': 'Belgija',
-    'Belize': 'Belize',
-    'Benin': 'Benin',
-    'Bhutan': 'Butan',
-    'Bolivia': 'Bolivija',
-    'Bosnia and Herzegovina': 'Bosna in Hercegovina',
-    'Botswana': 'Bocvana',
-    'Brazil': 'Brazilija',
-    'Brunei': 'Brunej',
-    'Bulgaria': 'Bolgarija',
-    'Burkina Faso': 'Burkina Faso',
-    'Burundi': 'Burundi',
-    'Cambodia': 'Kambodža',
-    'Cameroon': 'Kamerun',
-    'Canada': 'Kanada',
-    'Cape Verde': 'Zelenortski otoki',
-    'Central African Republic': 'Srednjeafriška republika',
-    'Chad': 'Čad',
-    'Chile': 'Čile',
-    'China': 'Kitajska',
-    'Colombia': 'Kolumbija',
-    'Comoros': 'Komori',
-    'Congo': 'Kongo',
-    'Dem. Rep. Congo': 'Demokratična republika Kongo',
-    'Democratic Republic of the Congo': 'Demokratična republika Kongo',
-    'Costa Rica': 'Kostarika',
-    'Croatia': 'Hrvaška',
-    'Cuba': 'Kuba',
-    'Cyprus': 'Ciper',
-    'Czech Republic': 'Češka',
-    'Czechia': 'Češka',
-    'Denmark': 'Danska',
-    'Djibouti': 'Džibuti',
-    'Dominica': 'Dominika',
-    'Dominican Republic': 'Dominikanska republika',
-    'East Timor': 'Vzhodni Timor',
-    'Ecuador': 'Ekvador',
-    'Egypt': 'Egipt',
-    'El Salvador': 'Salvador',
-    'Equatorial Guinea': 'Ekvatorialna Gvineja',
-    'Eritrea': 'Eritreja',
-    'Estonia': 'Estonija',
-    'Ethiopia': 'Etiopija',
-    'Fiji': 'Fidži',
-    'Finland': 'Finska',
-    'France': 'Francija',
-    'Gabon': 'Gabon',
-    'Gambia': 'Gambija',
-    'Georgia': 'Gruzija',
-    'Germany': 'Nemčija',
-    'Ghana': 'Gana',
-    'Greece': 'Grčija',
-    'Greenland': 'Grenlandija',
-    'Grenada': 'Grenada',
-    'Guatemala': 'Gvatemala',
-    'Guinea': 'Gvineja',
-    'Guinea-Bissau': 'Gvineja Bissau',
-    'Guyana': 'Gvajana',
-    'Haiti': 'Haiti',
-    'Honduras': 'Honduras',
-    'Hungary': 'Madžarska',
-    'Iceland': 'Islandija',
-    'India': 'Indija',
-    'Indonesia': 'Indonezija',
-    'Iran': 'Iran',
-    'Iraq': 'Irak',
-    'Ireland': 'Irska',
-    'Israel': 'Izrael',
-    'Italy': 'Italija',
-    'Ivory Coast': 'Slonokoščena obala',
-    "Côte d'Ivoire": 'Slonokoščena obala',
-    'Jamaica': 'Jamajka',
-    'Japan': 'Japonska',
-    'Jordan': 'Jordanija',
-    'Kazakhstan': 'Kazahstan',
-    'Kenya': 'Kenija',
-    'Kiribati': 'Kiribati',
-    'North Korea': 'Severna Koreja',
-    'South Korea': 'Južna Koreja',
-    'Kosovo': 'Kosovo',
-    'Kuwait': 'Kuvajt',
-    'Kyrgyzstan': 'Kirgizistan',
-    'Laos': 'Laos',
-    'Latvia': 'Latvija',
-    'Lebanon': 'Libanon',
-    'Lesotho': 'Lesoto',
-    'Liberia': 'Liberija',
-    'Libya': 'Libija',
-    'Liechtenstein': 'Lihtenštajn',
-    'Lithuania': 'Litva',
-    'Luxembourg': 'Luksemburg',
-    'Macedonia': 'Severna Makedonija',
-    'North Macedonia': 'Severna Makedonija',
-    'Madagascar': 'Madagaskar',
-    'Malawi': 'Malavi',
-    'Malaysia': 'Malezija',
-    'Maldives': 'Maldivi',
-    'Mali': 'Mali',
-    'Malta': 'Malta',
-    'Marshall Islands': 'Marshallovi otoki',
-    'Mauritania': 'Mavretanija',
-    'Mauritius': 'Mauritius',
-    'Mexico': 'Mehika',
-    'Micronesia': 'Mikronezija',
-    'Moldova': 'Moldavija',
-    'Monaco': 'Monako',
-    'Mongolia': 'Mongolija',
-    'Montenegro': 'Črna gora',
-    'Morocco': 'Maroko',
-    'Mozambique': 'Mozambik',
-    'Myanmar': 'Mjanmar',
-    'Burma': 'Mjanmar',
-    'Namibia': 'Namibija',
-    'Nauru': 'Nauru',
-    'Nepal': 'Nepal',
-    'Netherlands': 'Nizozemska',
-    'New Zealand': 'Nova Zelandija',
-    'Nicaragua': 'Nikaragva',
-    'Niger': 'Niger',
-    'Nigeria': 'Nigerija',
-    'Norway': 'Norveška',
-    'Oman': 'Oman',
-    'Pakistan': 'Pakistan',
-    'Palau': 'Palau',
-    'Palestine': 'Palestina',
-    'Panama': 'Panama',
-    'Papua New Guinea': 'Papua Nova Gvineja',
-    'Paraguay': 'Paragvaj',
-    'Peru': 'Peru',
-    'Philippines': 'Filipini',
-    'Poland': 'Poljska',
-    'Portugal': 'Portugalska',
-    'Qatar': 'Katar',
-    'Romania': 'Romunija',
-    'Russia': 'Rusija',
-    'Russian Federation': 'Rusija',
-    'Rwanda': 'Ruanda',
-    'Saint Kitts and Nevis': 'Sveti Krištof in Nevis',
-    'Saint Lucia': 'Sveta Lucija',
-    'Saint Vincent and the Grenadines': 'Sveti Vincencij in Grenadine',
-    'Samoa': 'Samoa',
-    'San Marino': 'San Marino',
-    'Sao Tome and Principe': 'Sao Tome in Principe',
-    'Saudi Arabia': 'Savdska Arabija',
-    'Senegal': 'Senegal',
-    'Serbia': 'Srbija',
-    'Seychelles': 'Sejšeli',
-    'Sierra Leone': 'Sierra Leone',
-    'Singapore': 'Singapur',
-    'Slovakia': 'Slovaška',
-    'Slovenia': 'Slovenija',
-    'Solomon Islands': 'Salomonovi otoki',
-    'Somalia': 'Somalija',
-    'South Africa': 'Južna Afrika',
-    'South Sudan': 'Južni Sudan',
-    'Spain': 'Španija',
-    'Sri Lanka': 'Šrilanka',
-    'Sudan': 'Sudan',
-    'Suriname': 'Surinam',
-    'Swaziland': 'Esvatini',
-    'Eswatini': 'Esvatini',
-    'Sweden': 'Švedska',
-    'Switzerland': 'Švica',
-    'Syria': 'Sirija',
-    'Taiwan': 'Tajvan',
-    'Tajikistan': 'Tadžikistan',
-    'Tanzania': 'Tanzanija',
-    'Thailand': 'Tajska',
-    'Timor-Leste': 'Vzhodni Timor',
-    'Togo': 'Togo',
-    'Tonga': 'Tonga',
-    'Trinidad and Tobago': 'Trinidad in Tobago',
-    'Tunisia': 'Tunizija',
-    'Turkey': 'Turčija',
-    'Turkmenistan': 'Turkmenistan',
-    'Tuvalu': 'Tuvalu',
-    'Uganda': 'Uganda',
-    'Ukraine': 'Ukrajina',
-    'United Arab Emirates': 'Združeni arabski emirati',
-    'United Kingdom': 'Združeno kraljestvo',
-    'United States': 'Združene države Amerike',
-    'United States of America': 'Združene države Amerike',
-    'Uruguay': 'Urugvaj',
-    'Uzbekistan': 'Uzbekistan',
-    'Vanuatu': 'Vanuatu',
-    'Vatican': 'Vatikan',
-    'Vatican City': 'Vatikan',
-    'Venezuela': 'Venezuela',
-    'Vietnam': 'Vietnam',
-    'Viet Nam': 'Vietnam',
-    'Yemen': 'Jemen',
-    'Zambia': 'Zambija',
-    'Zimbabwe': 'Zimbabve',
+    'Afghanistan': 'Afganistan', 'Albania': 'Albanija', 'Algeria': 'Alžirija', 'Andorra': 'Andora',
+    'Angola': 'Angola', 'Antarctica': 'Antarktika', 'Antigua and Barbuda': 'Antigva in Barbuda',
+    'Argentina': 'Argentina', 'Armenia': 'Armenija', 'Australia': 'Avstralija', 'Austria': 'Avstrija',
+    'Azerbaijan': 'Azerbajdžan', 'Bahamas': 'Bahami', 'Bahamas, The': 'Bahami', 'Bahrain': 'Bahrajn',
+    'Bangladesh': 'Bangladeš', 'Barbados': 'Barbados', 'Belarus': 'Belorusija', 'Belgium': 'Belgija',
+    'Belize': 'Belize', 'Benin': 'Benin', 'Bhutan': 'Butan', 'Bolivia': 'Bolivija',
+    'Bosnia and Herzegovina': 'Bosna in Hercegovina', 'Botswana': 'Bocvana', 'Brazil': 'Brazilija',
+    'Brunei': 'Brunej', 'Brunei Darussalam': 'Brunej', 'Bulgaria': 'Bolgarija', 'Burkina Faso': 'Burkina Faso',
+    'Burundi': 'Burundi', 'Cabo Verde': 'Zelenortski otoki', 'Cambodia': 'Kambodža', 'Cameroon': 'Kamerun',
+    'Canada': 'Kanada', 'Central African Republic': 'Srednjeafriška republika', 'Chad': 'Čad',
+    'Chile': 'Čile', 'China': 'Kitajska', 'Colombia': 'Kolumbija', 'Comoros': 'Komori',
+    'Congo, Dem. Rep.': 'Kongo, Demokratična r.', 'Congo, Rep.': 'Kongo', 'Congo': 'Kongo',
+    'Costa Rica': 'Kostarika', 'Cote d\'Ivoire': 'Slonokoščena obala', 'Côte d\'Ivoire': 'Slonokoščena obala',
+    'Croatia': 'Hrvaška', 'Cuba': 'Kuba', 'Cyprus': 'Ciper', 'Czech Republic': 'Češka', 'Czechia': 'Češka',
+    'Denmark': 'Danska', 'Djibouti': 'Džibuti', 'Dominica': 'Dominika', 'Dominican Republic': 'Dominikanska republika',
+    'Ecuador': 'Ekvador', 'Egypt, Arab Rep.': 'Egipt', 'Egypt': 'Egipt', 'El Salvador': 'Salvador',
+    'Equatorial Guinea': 'Ekvatorialna Gvineja', 'Eritrea': 'Eritreja', 'Estonia': 'Estonija',
+    'Eswatini': 'Esvatini', 'Ethiopia': 'Etiopija', 'Fiji': 'Fidži', 'Finland': 'Finska',
+    'France': 'Francija', 'Gabon': 'Gabon', 'Gambia, The': 'Gambija', 'Gambia': 'Gambija',
+    'Georgia': 'Gruzija', 'Germany': 'Nemčija', 'Ghana': 'Gana', 'Greece': 'Grčija',
+    'Greenland': 'Grenlandija', 'Grenada': 'Grenada', 'Guatemala': 'Gvatemala', 'Guinea': 'Gvineja',
+    'Guinea-Bissau': 'Gvineja Bissau', 'Guyana': 'Gvajana', 'Haiti': 'Haiti',
+    'Holy See (Vatican City)': 'Vatikan', 'Holy See': 'Vatikan', 'Vatican': 'Vatikan', 'Vatican City': 'Vatikan',
+    'Honduras': 'Honduras', 'Hungary': 'Madžarska', 'Iceland': 'Islandija', 'India': 'Indija',
+    'Indonesia': 'Indonezija', 'Iran, Islamic Rep.': 'Iran', 'Iran': 'Iran', 'Iraq': 'Irak',
+    'Ireland': 'Irska', 'Israel': 'Izrael', 'Italy': 'Italija', 'Jamaica': 'Jamajka',
+    'Japan': 'Japonska', 'Jordan': 'Jordanija', 'Kazakhstan': 'Kazahstan', 'Kenya': 'Kenija',
+    'Kiribati': 'Kiribati', 'Korea, Dem. People\'s Rep.': 'Severna Koreja', 'North Korea': 'Severna Koreja',
+    'Korea, Rep.': 'Južna Koreja', 'South Korea': 'Južna Koreja', 'Kuwait': 'Kuvajt',
+    'Kyrgyz Republic': 'Kirgizija', 'Kyrgyzstan': 'Kirgizistan', 'Lao PDR': 'Laos', 'Laos': 'Laos',
+    'Latvia': 'Latvija', 'Lebanon': 'Libanon', 'Lesotho': 'Lesoto', 'Liberia': 'Liberija',
+    'Libya': 'Libija', 'Liechtenstein': 'Lihtenštajn', 'Lithuania': 'Litva', 'Luxembourg': 'Luksemburg',
+    'Madagascar': 'Madagaskar', 'Malawi': 'Malavi', 'Malaysia': 'Malezija', 'Maldives': 'Maldivi',
+    'Mali': 'Mali', 'Malta': 'Malta', 'Marshall Islands': 'Marshallovi otoki', 'Mauritania': 'Mavretanija',
+    'Mauritius': 'Mauritius', 'Mexico': 'Mehika', 'Micronesia, Fed. Sts.': 'Mikronezija',
+    'Micronesia': 'Mikronezija', 'Moldova': 'Moldavija', 'Monaco': 'Monako', 'Mongolia': 'Mongolija',
+    'Montenegro': 'Črna gora', 'Morocco': 'Maroko', 'Mozambique': 'Mozambik', 'Myanmar': 'Mjanmar',
+    'Namibia': 'Namibija', 'Nauru': 'Nauru', 'Nepal': 'Nepal', 'Netherlands': 'Nizozemska',
+    'New Zealand': 'Nova Zelandija', 'Nicaragua': 'Nikaragva', 'Niger': 'Niger', 'Nigeria': 'Nigerija',
+    'North Macedonia': 'Severna Makedonija', 'Norway': 'Norveška', 'Oman': 'Oman', 'Pakistan': 'Pakistan',
+    'Palau': 'Palau', 'Panama': 'Panama', 'Papua New Guinea': 'Papua Nova Gvineja', 'Paraguay': 'Paragvaj',
+    'Peru': 'Peru', 'Philippines': 'Filipini', 'Poland': 'Poljska', 'Portugal': 'Portugalska',
+    'Qatar': 'Katar', 'Romania': 'Romunija', 'Russian Federation': 'Rusija', 'Russia': 'Rusija',
+    'Rwanda': 'Ruanda', 'Samoa': 'Samoa', 'San Marino': 'San Marino', 'Sao Tome and Principe': 'Sao Tome in Principe',
+    'Saudi Arabia': 'Savdska Arabija', 'Senegal': 'Senegal', 'Serbia': 'Srbija', 'Seychelles': 'Sejšeli',
+    'Sierra Leone': 'Sierra Leone', 'Singapore': 'Singapur', 'Slovak Republic': 'Slovaška', 'Slovakia': 'Slovaška',
+    'Slovenia': 'Slovenija', 'Solomon Islands': 'Salomonovi otoki', 'Somalia': 'Somalija',
+    'South Africa': 'Južna Afrika', 'South Sudan': 'Južni Sudan', 'Spain': 'Španija', 'Sri Lanka': 'Šrilanka',
+    'St. Kitts and Nevis': 'Sveti Krištof in Nevis', 'St. Lucia': 'Sveta Lucija',
+    'St. Vincent and the Grenadines': 'Sveti Vincencij in Grenadine', 'State of Palestine': 'Palestina',
+    'Palestine': 'Palestina', 'Sudan': 'Sudan', 'Suriname': 'Surinam', 'Sweden': 'Švedska',
+    'Switzerland': 'Švica', 'Syrian Arab Republic': 'Sirija', 'Syria': 'Sirija', 'Tajikistan': 'Tadžikistan',
+    'Tanzania': 'Tanzanija', 'Thailand': 'Tajska', 'Timor-Leste': 'Vzhodni Timor', 'Togo': 'Togo',
+    'Tonga': 'Tonga', 'Trinidad and Tobago': 'Trinidad in Tobago', 'Tunisia': 'Tunizija',
+    'Turkiye': 'Turčija', 'Turkey': 'Turčija', 'Turkmenistan': 'Turkmenistan', 'Tuvalu': 'Tuvalu',
+    'Uganda': 'Uganda', 'Ukraine': 'Ukrajina', 'United Arab Emirates': 'Združeni arabski emirati',
+    'United Kingdom': 'Združeno kraljestvo', 'United States': 'Združene države Amerike', 'United States of America': 'Združene države Amerike',
+    'Uruguay': 'Urugvaj', 'Uzbekistan': 'Uzbekistan', 'Vanuatu': 'Vanuatu', 'Venezuela, RB': 'Venezuela',
+    'Venezuela': 'Venezuela', 'Viet Nam': 'Vietnam', 'Vietnam': 'Vietnam', 'Yemen, Rep.': 'Jemen',
+    'Yemen': 'Jemen', 'Zambia': 'Zambija', 'Zimbabwe': 'Zimbabve',
+    'United Republic of Tanzania': 'Tanzanija',
+    'eSwatini': 'Esvatini', 'Democratic Republic of the Congo': 'Kongo, Demokratična r.',
+    'Dem. Rep. Congo': 'Kongo, Demokratična r.', 'Somaliland': 'Somaliland',
 
     // Additional variations and "Republic of..." forms
-    'Republic of Serbia': 'Srbija',
-    'Republic of Croatia': 'Hrvaška',
-    'Republic of Slovenia': 'Slovenija',
-    'Republic of Poland': 'Poljska',
-    'Republic of Austria': 'Avstrija',
-    'Republic of Lithuania': 'Litva',
-    'Republic of Latvia': 'Latvija',
-    'Republic of Estonia': 'Estonija',
-    'Republic of Belarus': 'Belorusija',
-    'Republic of Moldova': 'Moldavija',
-    'Republic of Bulgaria': 'Bolgarija',
-    'Republic of Albania': 'Albanija',
-    'Republic of Macedonia': 'Severna Makedonija',
-    'Republic of Kosovo': 'Kosovo',
-    'Republic of Cyprus': 'Ciper',
-    'Republic of Turkey': 'Turčija',
-    'Republic of Armenia': 'Armenija',
-    'Republic of Georgia': 'Gruzija',
-    'Republic of Azerbaijan': 'Azerbajdžan',
-    'Republic of Kazakhstan': 'Kazahstan',
-    'Republic of Uzbekistan': 'Uzbekistan',
-    'Republic of Turkmenistan': 'Turkmenistan',
-    'Republic of Tajikistan': 'Tadžikistan',
-    'Republic of Kyrgyzstan': 'Kirgizistan',
-    'Republic of Afghanistan': 'Afganistan',
-    'Republic of Iraq': 'Irak',
-    'Republic of Yemen': 'Jemen',
-    'Republic of India': 'Indija',
-    'Republic of Indonesia': 'Indonezija',
-    'Republic of the Philippines': 'Filipini',
-    'Republic of Singapore': 'Singapur',
-    'Republic of Korea': 'Južna Koreja',
-    'Republic of China': 'Kitajska',
-    'People\'s Republic of China': 'Kitajska',
-    'Republic of South Africa': 'Južna Afrika',
-    'Republic of Kenya': 'Kenija',
-    'Republic of Uganda': 'Uganda',
-    'Republic of Tanzania': 'Tanzanija',
-    'Republic of Zambia': 'Zambija',
-    'Republic of Zimbabwe': 'Zimbabve',
-    'Republic of Botswana': 'Bocvana',
-    'Republic of Namibia': 'Namibija',
-    'Republic of Angola': 'Angola',
-    'Republic of Mozambique': 'Mozambik',
-    'Republic of Madagascar': 'Madagaskar',
-    'Republic of Cameroon': 'Kamerun',
-    'Republic of Ghana': 'Gana',
-    'Republic of Senegal': 'Senegal',
-    'Republic of Mali': 'Mali',
-    'Republic of Niger': 'Niger',
-    'Republic of Chad': 'Čad',
-    'Republic of Sudan': 'Sudan',
-    'Republic of Tunisia': 'Tunizija',
-    'Republic of Algeria': 'Alžirija',
-    'Republic of Peru': 'Peru',
-    'Republic of Chile': 'Čile',
-    'Republic of Argentina': 'Argentina',
-    'Republic of Paraguay': 'Paragvaj',
-    'Republic of Uruguay': 'Urugvaj',
-    'Republic of Ecuador': 'Ekvador',
-    'Republic of Colombia': 'Kolumbija',
-    'Republic of Venezuela': 'Venezuela',
-    'Republic of Panama': 'Panama',
+    'Republic of Serbia': 'Srbija', 'Republic of Croatia': 'Hrvaška', 'Republic of Slovenia': 'Slovenija',
+    'Republic of Poland': 'Poljska', 'Republic of Austria': 'Avstrija', 'Republic of Lithuania': 'Litva',
+    'Republic of Latvia': 'Latvija', 'Republic of Estonia': 'Estonija', 'Republic of Belarus': 'Belorusija',
+    'Republic of Moldova': 'Moldavija', 'Republic of Bulgaria': 'Bolgarija', 'Republic of Albania': 'Albanija',
+    'Republic of Macedonia': 'Severna Makedonija', 'Republic of Kosovo': 'Kosovo', 'Republic of Cyprus': 'Ciper',
+    'Republic of Turkey': 'Turčija', 'Republic of Armenia': 'Armenija', 'Republic of Georgia': 'Gruzija',
+    'Republic of Azerbaijan': 'Azerbajdžan', 'Republic of Kazakhstan': 'Kazahstan', 'Republic of Uzbekistan': 'Uzbekistan',
+    'Republic of Turkmenistan': 'Turkmenistan', 'Republic of Tajikistan': 'Tadžikistan', 'Republic of Kyrgyzstan': 'Kirgizistan',
+    'Republic of Afghanistan': 'Afganistan', 'Republic of Iraq': 'Irak', 'Republic of Yemen': 'Jemen',
+    'Republic of India': 'Indija', 'Republic of Indonesia': 'Indonezija', 'Republic of the Philippines': 'Filipini',
+    'Republic of Singapore': 'Singapur', 'Republic of Korea': 'Južna Koreja', 'Republic of China': 'Kitajska',
+    'People\'s Republic of China': 'Kitajska', 'Republic of South Africa': 'Južna Afrika', 'Republic of Kenya': 'Kenija',
+    'Republic of Uganda': 'Uganda', 'Republic of Tanzania': 'Tanzanija', 'Republic of Zambia': 'Zambija',
+    'Republic of Zimbabwe': 'Zimbabve', 'Republic of Botswana': 'Bocvana', 'Republic of Namibia': 'Namibija',
+    'Republic of Angola': 'Angola', 'Republic of Mozambique': 'Mozambik', 'Republic of Madagascar': 'Madagaskar',
+    'Republic of Cameroon': 'Kamerun', 'Republic of Ghana': 'Gana', 'Republic of Senegal': 'Senegal',
+    'Republic of Mali': 'Mali', 'Republic of Niger': 'Niger', 'Republic of Chad': 'Čad',
+    'Republic of Sudan': 'Sudan', 'Republic of Tunisia': 'Tunizija', 'Republic of Algeria': 'Alžirija',
+    'Republic of Peru': 'Peru', 'Republic of Chile': 'Čile', 'Republic of Argentina': 'Argentina',
+    'Republic of Paraguay': 'Paragvaj', 'Republic of Uruguay': 'Urugvaj', 'Republic of Ecuador': 'Ekvador',
+    'Republic of Colombia': 'Kolumbija', 'Republic of Venezuela': 'Venezuela', 'Republic of Panama': 'Panama',
     'Republic of Costa Rica': 'Kostarika',
-    'Republic of Nicaragua': 'Nikaragva',
-    'Republic of Honduras': 'Honduras',
-    'Republic of El Salvador': 'Salvador',
-    'Republic of Guatemala': 'Gvatemala',
-    'Federative Republic of Brazil': 'Brazilija',
-    'French Republic': 'Francija',
-    'Federal Republic of Germany': 'Nemčija',
-    'Italian Republic': 'Italija',
-    'Hellenic Republic': 'Grčija',
-    'Portuguese Republic': 'Portugalska',
-    'Kingdom of Spain': 'Španija',
-    'Kingdom of Norway': 'Norveška',
-    'Kingdom of Sweden': 'Švedska',
-    'Kingdom of Denmark': 'Danska',
-    'Kingdom of Belgium': 'Belgija',
-    'Kingdom of the Netherlands': 'Nizozemska',
-    'Kingdom of Thailand': 'Tajska',
-    'Kingdom of Saudi Arabia': 'Savdska Arabija',
-    'Kingdom of Morocco': 'Maroko',
-    'Hashemite Kingdom of Jordan': 'Jordanija',
-    'Swiss Confederation': 'Švica',
-    'Republic of Finland': 'Finska',
-    'Republic of Iceland': 'Islandija',
-    'Islamic Republic of Iran': 'Iran',
-    'Islamic Republic of Pakistan': 'Pakistan',
-    'Islamic Republic of Afghanistan': 'Afganistan',
-    'State of Libya': 'Libija',
-    'State of Palestine': 'Palestina',
-    'State of Israel': 'Izrael',
-    'State of Kuwait': 'Kuvajt',
-    'State of Qatar': 'Katar',
-    'Lao People\'s Democratic Republic': 'Laos',
-    'Socialist Republic of Vietnam': 'Vietnam',
-    'Democratic People\'s Republic of Korea': 'Severna Koreja',
-    'Democratic Socialist Republic of Sri Lanka': 'Šrilanka',
-    'Union of Myanmar': 'Mjanmar',
-    'Republic of the Union of Myanmar': 'Mjanmar',
-    'Oriental Republic of Uruguay': 'Urugvaj',
-    'Plurinational State of Bolivia': 'Bolivija',
-    'Bolivarian Republic of Venezuela': 'Venezuela',
-    'Co-operative Republic of Guyana': 'Gvajana',
-    'Republic of Suriname': 'Surinam',
-    'Gabonese Republic': 'Gabon',
-    'Togolese Republic': 'Togo',
-    'Republic of Benin': 'Benin',
-    'Republic of Guinea': 'Gvineja',
-    'Republic of Sierra Leone': 'Sierra Leone',
-    'Republic of Liberia': 'Liberija',
-    'Republic of Malawi': 'Malavi',
-    'Republic of Rwanda': 'Ruanda',
-    'Republic of Burundi': 'Burundi',
-    'Somali Republic': 'Somalija',
-    'Federal Democratic Republic of Ethiopia': 'Etiopija',
-    'State of Eritrea': 'Eritreja',
-    'Republic of Djibouti': 'Džibuti',
-    'Sultanate of Oman': 'Oman',
-    'Republic of Seychelles': 'Sejšeli',
-    'Republic of Mauritius': 'Mauritius',
-    'Islamic Republic of Mauritania': 'Mavretanija',
-    'Republic of Cabo Verde': 'Zelenortski otoki',
-    'Democratic Republic of Sao Tome and Principe': 'Sao Tome in Principe',
-    'Republic of Equatorial Guinea': 'Ekvatorialna Gvineja',
-    'Gabonese Republic': 'Gabon',
-    'Republic of the Gambia': 'Gambija',
-    'Republic of Guinea-Bissau': 'Gvineja Bissau',
-    'Republic of Haiti': 'Haiti',
-    'Dominican Republic': 'Dominikanska republika',
-    'Commonwealth of Dominica': 'Dominika',
-    'Republic of Cuba': 'Kuba',
-    'Republic of Trinidad and Tobago': 'Trinidad in Tobago',
-    'Barbados': 'Barbados',
-    'Saint Lucia': 'Sveta Lucija',
-    'Saint Vincent and the Grenadines': 'Sveti Vincencij in Grenadine',
-    'Federation of Saint Kitts and Nevis': 'Sveti Krištof in Nevis',
-    'Antigua and Barbuda': 'Antigva in Barbuda',
-    'Commonwealth of the Bahamas': 'Bahami',
-    'Jamaica': 'Jamajka',
-    'Belize': 'Belize',
-    'Republic of Fiji': 'Fidži',
-    'Independent State of Papua New Guinea': 'Papua Nova Gvineja',
-    'Solomon Islands': 'Salomonovi otoki',
-    'Republic of Vanuatu': 'Vanuatu',
-    'Independent State of Samoa': 'Samoa',
-    'Kingdom of Tonga': 'Tonga',
-    'Tuvalu': 'Tuvalu',
-    'Republic of Kiribati': 'Kiribati',
-    'Federated States of Micronesia': 'Mikronezija',
-    'Republic of the Marshall Islands': 'Marshallovi otoki',
-    'Republic of Palau': 'Palau',
-    'Republic of Nauru': 'Nauru',
-    'New Zealand': 'Nova Zelandija',
-    'Commonwealth of Australia': 'Avstralija',
-    'Republic of Maldives': 'Maldivi',
-    'Democratic Socialist Republic of Sri Lanka': 'Šrilanka',
-    'Federal Democratic Republic of Nepal': 'Nepal',
-    'Kingdom of Bhutan': 'Butan',
-    'People\'s Republic of Bangladesh': 'Bangladeš',
-    'Republic of Malta': 'Malta',
-    'Republic of San Marino': 'San Marino',
-    'Principality of Andorra': 'Andora',
-    'Principality of Monaco': 'Monako',
-    'Principality of Liechtenstein': 'Lihtenštajn',
-    'Grand Duchy of Luxembourg': 'Luksemburg',
-    'Vatican City State': 'Vatikan',
-    'Holy See': 'Vatikan',
-    'Republic of Ireland': 'Irska',
-    'United Kingdom of Great Britain and Northern Ireland': 'Združeno kraljestvo',
-    'Great Britain': 'Združeno kraljestvo',
-    'England': 'Anglija',
-    'Scotland': 'Škotska',
-    'Wales': 'Wales',
-    'Northern Ireland': 'Severna Irska',
-    'Kingdom of Lesotho': 'Lesoto',
-    'Kingdom of Eswatini': 'Esvatini',
-    'Republic of South Sudan': 'Južni Sudan',
-    'Comoros': 'Komori',
-    'Union of the Comoros': 'Komori',
-    'Republic of the Congo': 'Kongo',
-    'Congo-Brazzaville': 'Kongo',
-    'Congo-Kinshasa': 'Demokratična republika Kongo',
-    'DR Congo': 'Demokratična republika Kongo',
-    'DRC': 'Demokratična republika Kongo',
-    'Brunei Darussalam': 'Brunej',
-    'Nation of Brunei': 'Brunej',
-    'Malaysia': 'Malezija',
-    'Timor-Leste': 'Vzhodni Timor',
-    'Democratic Republic of Timor-Leste': 'Vzhodni Timor',
-    'Republic of Cabo Verde': 'Zelenortski otoki',
+    'Republic of Nicaragua': 'Nikaragva', 'Republic of Honduras': 'Honduras',
+    'Republic of El Salvador': 'Salvador', 'Republic of Guatemala': 'Gvatemala', 'Federative Republic of Brazil': 'Brazilija',
+    'French Republic': 'Francija', 'Federal Republic of Germany': 'Nemčija', 'Italian Republic': 'Italija',
+    'Hellenic Republic': 'Grčija', 'Portuguese Republic': 'Portugalska', 'Kingdom of Spain': 'Španija',
+    'Kingdom of Norway': 'Norveška', 'Kingdom of Sweden': 'Švedska', 'Kingdom of Denmark': 'Danska',
+    'Kingdom of Belgium': 'Belgija', 'Kingdom of the Netherlands': 'Nizozemska', 'Kingdom of Thailand': 'Tajska',
+    'Kingdom of Saudi Arabia': 'Savdska Arabija', 'Kingdom of Morocco': 'Maroko', 'Hashemite Kingdom of Jordan': 'Jordanija',
+    'Swiss Confederation': 'Švica', 'Republic of Finland': 'Finska', 'Republic of Iceland': 'Islandija',
+    'Islamic Republic of Iran': 'Iran', 'Islamic Republic of Pakistan': 'Pakistan', 'Islamic Republic of Afghanistan': 'Afganistan',
+    'State of Libya': 'Libija', 'State of Palestine': 'Palestina', 'State of Israel': 'Izrael',
+    'State of Kuwait': 'Kuvajt', 'State of Qatar': 'Katar', 'Lao People\'s Democratic Republic': 'Laos',
+    'Socialist Republic of Vietnam': 'Vietnam', 'Democratic People\'s Republic of Korea': 'Severna Koreja',
+    'Democratic Socialist Republic of Sri Lanka': 'Šrilanka', 'Union of Myanmar': 'Mjanmar',
+    'Republic of the Union of Myanmar': 'Mjanmar', 'Oriental Republic of Uruguay': 'Urugvaj',
+    'Plurinational State of Bolivia': 'Bolivija', 'Bolivarian Republic of Venezuela': 'Venezuela',
+    'Co-operative Republic of Guyana': 'Gvajana', 'Republic of Suriname': 'Surinam', 'Gabonese Republic': 'Gabon',
+    'Togolese Republic': 'Togo', 'Republic of Benin': 'Benin', 'Republic of Guinea': 'Gvineja',
+    'Republic of Sierra Leone': 'Sierra Leone', 'Republic of Liberia': 'Liberija', 'Republic of Malawi': 'Malavi',
+    'Republic of Rwanda': 'Ruanda', 'Republic of Burundi': 'Burundi', 'Somali Republic': 'Somalija',
+    'Federal Democratic Republic of Ethiopia': 'Etiopija', 'State of Eritrea': 'Eritreja', 'Republic of Djibouti': 'Džibuti',
+    'Sultanate of Oman': 'Oman', 'Republic of Seychelles': 'Sejšeli',
+    'Republic of Mauritius': 'Mauritius', 'Islamic Republic of Mauritania': 'Mavretanija', 'Republic of Cabo Verde': 'Zelenortski otoki',
+    'Democratic Republic of Sao Tome and Principe': 'Sao Tome in Principe', 'Republic of Equatorial Guinea': 'Ekvatorialna Gvineja',
+    'Republic of the Gambia': 'Gambija', 'Republic of Guinea-Bissau': 'Gvineja Bissau', 'Republic of Haiti': 'Haiti',
+    'Commonwealth of Dominica': 'Dominika', 'Republic of Cuba': 'Kuba', 'Republic of Trinidad and Tobago': 'Trinidad in Tobago',
+    'Federation of Saint Kitts and Nevis': 'Sveti Krištof in Nevis', 'Commonwealth of the Bahamas': 'Bahami',
+    'Independent State of Papua New Guinea': 'Papua Nova Gvineja', 'Republic of Vanuatu': 'Vanuatu',
+    'Independent State of Samoa': 'Samoa', 'Kingdom of Tonga': 'Tonga', 'Republic of Kiribati': 'Kiribati',
+    'Federated States of Micronesia': 'Mikronezija', 'Republic of the Marshall Islands': 'Marshallovi otoki',
+    'Republic of Palau': 'Palau', 'Republic of Nauru': 'Nauru', 'Commonwealth of Australia': 'Avstralija',
+    'Republic of Maldives': 'Maldivi', 'Federal Democratic Republic of Nepal': 'Nepal', 'Kingdom of Bhutan': 'Butan',
+    'People\'s Republic of Bangladesh': 'Bangladeš', 'Republic of Malta': 'Malta', 'Republic of San Marino': 'San Marino',
+    'Principality of Andorra': 'Andora', 'Principality of Monaco': 'Monako', 'Principality of Liechtenstein': 'Lihtenštajn',
+    'Grand Duchy of Luxembourg': 'Luksemburg', 'Vatican City State': 'Vatikan', 'Republic of Ireland': 'Irska',
+    'United Kingdom of Great Britain and Northern Ireland': 'Združeno kraljestvo', 'Kingdom of Lesotho': 'Lesoto',
+    'Kingdom of Eswatini': 'Esvatini', 'Republic of South Sudan': 'Južni Sudan', 'Union of the Comoros': 'Komori',
+    'Republic of the Congo': 'Kongo', 'Democratic Republic of Timor-Leste': 'Vzhodni Timor',
     'Cabo Verde': 'Zelenortski otoki',
 
     // Territories and Dependencies
-    'Northern Mariana Islands': 'Severni Marijanski otoki',
-    'Commonwealth of the Northern Mariana Islands': 'Severni Marijanski otoki',
-    'Guam': 'Guam',
-    'American Samoa': 'Ameriška Samoa',
-    'United States Virgin Islands': 'Ameriški Deviški otoki',
-    'U.S. Virgin Islands': 'Ameriški Deviški otoki',
-    'Puerto Rico': 'Portoriko',
-    'Commonwealth of Puerto Rico': 'Portoriko',
-    'Bermuda': 'Bermudi',
-    'Cayman Islands': 'Kajmanski otoki',
-    'British Virgin Islands': 'Britanski Deviški otoki',
-    'Turks and Caicos Islands': 'Otoki Turks in Caicos',
-    'Anguilla': 'Angvila',
-    'Montserrat': 'Montserrat',
-    'Falkland Islands': 'Falklandski otoki',
-    'Islas Malvinas': 'Falklandski otoki',
-    'Gibraltar': 'Gibraltar',
-    'Saint Helena': 'Sveta Helena',
-    'Ascension Island': 'Otok Ascension',
-    'Tristan da Cunha': 'Tristan da Cunha',
-    'French Guiana': 'Francoska Gvajana',
-    'Guadeloupe': 'Guadeloupe',
-    'Martinique': 'Martinik',
-    'Réunion': 'Réunion',
-    'Mayotte': 'Mayotte',
-    'French Polynesia': 'Francoska Polinezija',
-    'New Caledonia': 'Nova Kaledonija',
-    'Wallis and Futuna': 'Wallis in Futuna',
-    'Saint Pierre and Miquelon': 'Sveti Peter in Miquelon',
-    'Saint Barthélemy': 'Sveti Bartolomej',
-    'Saint Martin': 'Sveti Martin',
-    'Aruba': 'Aruba',
-    'Curaçao': 'Curaçao',
-    'Sint Maarten': 'Sint Maarten',
-    'Caribbean Netherlands': 'Karibska Nizozemska',
-    'Bonaire': 'Bonaire',
-    'Saba': 'Saba',
-    'Sint Eustatius': 'Sint Eustatius',
-    'Cook Islands': 'Cookovi otoki',
-    'Niue': 'Niue',
-    'Tokelau': 'Tokelau',
-    'Pitcairn Islands': 'Pitcairnski otoki',
-    'Norfolk Island': 'Otok Norfolk',
-    'Christmas Island': 'Božični otok',
-    'Cocos Islands': 'Kokosovi otoki',
-    'Cocos (Keeling) Islands': 'Kokosovi otoki',
-    'Heard Island and McDonald Islands': 'Heardov otok in McDonaldovi otoki',
-    'Macau': 'Macao',
-    'Macao': 'Macao',
-    'Hong Kong': 'Hongkong',
-    'Faroe Islands': 'Ferski otoki',
-    'Svalbard and Jan Mayen': 'Svalbard in Jan Mayen',
-    'Bouvet Island': 'Bouvetov otok',
+    'Northern Mariana Islands': 'Severni Marijanski otoki', 'US Virgin Islands': 'Ameriški Deviški otoki',
+    'Saint Pierre and Miquelon': 'Sveti Peter in Miquelon', 'Saint Barthelemy': 'Sveti Bartolomej',
+    'Saint Martin': 'Sveti Martin', 'Caribbean Netherlands': 'Karibska Nizozemska',
     'South Georgia and the South Sandwich Islands': 'Južna Georgia in Južni Sandwichevi otoki',
-    'French Southern and Antarctic Lands': 'Francoska južna in antarktična ozemlja',
-    'British Indian Ocean Territory': 'Britansko ozemlje v Indijskem oceanu',
-    'Åland Islands': 'Ålandski otoki',
-    'Jersey': 'Jersey',
-    'Guernsey': 'Guernsey',
-    'Isle of Man': 'Otok Man',
-    'Western Sahara': 'Zahodna Sahara',
-    'Sahrawi Arab Democratic Republic': 'Zahodna Sahara',
-    'Kosovo': 'Kosovo',
-    'Republic of Kosovo': 'Kosovo',
-    'Somaliland': 'Somaliland',
-    'Abkhazia': 'Abhazija',
-    'South Ossetia': 'Južna Osetija',
-    'Transnistria': 'Pridnjestrovje',
-    'Northern Cyprus': 'Severni Ciper',
-    'Turkish Republic of Northern Cyprus': 'Severni Ciper',
-    'Nagorno-Karabakh': 'Gorski Karabah',
-    'Artsakh': 'Arcah'
+    'South Georgia and the Islands': 'Južna Georgia in otočje',
+    'French Southern and Antarctic Lands': 'Francoska južna in antarktična ozemlja', 'British Indian Ocean Territory': 'Britansko ozemlje v Indijskem oceanu',
+    'Aland Islands': 'Ålandski otoki', 'Western Sahara': 'Zahodna Sahara', 'Sahrawi Arab Democratic Republic': 'Zahodna Sahara',
+    'Northern Cyprus': 'Severni Ciper', 'Faroe Islands': 'Ferski otoki', 'Southern Patagonian Ice Field': 'Južnopatagonsko ledeno polje'
 };
 
 function getSlovenianName(englishName) {
@@ -780,9 +449,9 @@ let state = {
     chats: {}, // friendName: [messages]
     lastRead: {}, // friendName: timestamp
     lastTick: Date.now(),
-    lastTick: Date.now(),
     challengeTimer: 600,
-    sanitationMultiplier: 1, // Increases when asteroid hits
+    sanitationMultiplier: 1, // Legacy, kept for some compatibility
+    sanitationPenalty: 0, // Accumulated 10% penalties from hits
     rankPoints: 0,
     rankCoins: 0,
     ownedSkins: ['classic'],
@@ -793,7 +462,8 @@ let state = {
     newlyReachedRanks: [], // IDs of ranks reached but rewards not yet collected
     paused: false,
     asteroidTimeRemaining: 0,
-    startingCountryClaimed: false
+    startingCountryClaimed: false,
+    purchaseCount: 0
 };
 
 let map;
@@ -968,16 +638,23 @@ async function loadCountryData() {
         const finalCountries = allCountries.slice(-198);
         const count = finalCountries.length;
 
+        // Process all final countries
         finalCountries.forEach((c, index) => {
+            // GDP Lookup
+            let gdp = GDP_DATA[c.name] || GDP_DATA[c.id] || 0;
+
+            // Fallback for missing GDP (consistent with lower end of data)
+            if (!gdp) {
+                gdp = 1000;
+            }
+
+            // Determine Rarity by GDP
             let rarityMode = 'COMMON';
-            // Area-based rarity tiers
-            if (index >= 197) rarityMode = 'OG';
-            else if (index >= 190) rarityMode = 'SECRET';
-            else if (index >= 175) rarityMode = 'GODLY';
-            else if (index >= 152) rarityMode = 'MYTHIC';
-            else if (index >= 122) rarityMode = 'LEGENDARY';
-            else if (index >= 87) rarityMode = 'EPIC';
-            else if (index >= 47) rarityMode = 'RARE';
+            if (gdp >= 120000) rarityMode = 'GODLY';
+            else if (gdp >= 60000) rarityMode = 'MYTHIC';
+            else if (gdp >= 30000) rarityMode = 'LEGENDARY';
+            else if (gdp >= 10000) rarityMode = 'EPIC';
+            else if (gdp >= 2000) rarityMode = 'RARE';
             else rarityMode = 'COMMON';
 
             // Manual Overrides
@@ -987,9 +664,8 @@ async function loadCountryData() {
 
             const rarity = RARITIES[rarityMode];
 
-            // Continuous scale: Every country has a unique price starting from 10€
-            // Factor ~1.165 scales 10€ -> ~100T over 198 countries
-            const baseCost = 10 * Math.pow(1.1655, index);
+            // Cost IS the GDP per capita
+            const baseCost = gdp;
 
             // Check if we already have progress for this country (from loadGame)
             const existing = state.countries[c.id];
@@ -1005,7 +681,7 @@ async function loadCountryData() {
                 destroyed: existing ? existing.destroyed : false,
                 inStock: false,
                 baseCost: baseCost,
-                baseIncome: baseCost / 10,
+                baseIncome: (baseCost / 100) * (rarity.multiplier || 1), // 1% ROI weighted by rarity
                 realColor: getRealColor(c.name, c.lat)
             };
         });
@@ -1026,30 +702,57 @@ async function loadCountryData() {
 
 function replenishStock() {
     // 1. Reset current stock
+    // 1. Reset current stock
     Object.values(state.countries).forEach(c => c.inStock = false);
-    // 2. Filter valid candidates (all countries can appear, even owned ones for upgrades)
-    const candidates = Object.values(state.countries);
-    if (candidates.length === 0) return;
-    // 3. Shuffle
-    candidates.sort(() => Math.random() - 0.5);
-    // 4. Select
-    let addedCount = 0;
+
+    // 2. Guaranteed Stock: All destroyed countries (to allow restoration)
+    const destroyedCountries = Object.values(state.countries).filter(c => c.destroyed);
+    destroyedCountries.forEach(c => c.inStock = true);
+
+    let addedCount = destroyedCountries.length;
+
+    // 3. Filter valid candidates for the rest of the stock
+    const allCandidates = Object.values(state.countries).filter(c => !c.destroyed);
+    if (allCandidates.length === 0 && addedCount === 0) return;
+
+    // 4. Selection parameters
     const maxStock = getEffectiveStockAmount();
     const rarityMultiplier = getEffectiveRarityMultiplier();
 
-    for (const c of candidates) {
+    // Guaranteed affordable countries (first 30 by baseCost among non-destroyed)
+    const affordableCandidates = [...allCandidates].sort((a, b) => a.baseCost - b.baseCost).slice(0, 30);
+    affordableCandidates.sort(() => Math.random() - 0.5); // Shuffle only the affordable ones
+
+    // Pick at least 10 affordable ones (or until maxStock)
+    for (const c of affordableCandidates) {
+        if (addedCount >= 10 || addedCount >= maxStock) break;
+        c.inStock = true;
+        addedCount++;
+    }
+
+    // 5. Fill remaining stock from the rest
+    const remainingCandidates = allCandidates.filter(c => !c.inStock);
+    remainingCandidates.sort(() => Math.random() - 0.5);
+
+    for (const c of remainingCandidates) {
         if (addedCount >= maxStock) break;
         if (Math.random() * 100 < (c.rarity.weight * rarityMultiplier)) {
             c.inStock = true;
             addedCount++;
         }
     }
-    // Fallback
-    if (addedCount === 0 && candidates.length > 0) {
-        for (let i = 0; i < Math.min(5, candidates.length); i++) candidates[i].inStock = true;
-        addedCount = Math.min(5, candidates.length);
+
+    // Last resort fallback
+    if (addedCount < 5 && addedCount < maxStock) {
+        remainingCandidates.forEach((c, i) => {
+            if (addedCount < maxStock && i < 10) {
+                c.inStock = true;
+                addedCount++;
+            }
+        });
     }
-    logEvent(`Nova zaloga: ${addedCount} držav!`, 'good');
+
+    logEvent(`Nova zaloga: ${addedCount} držav (vključno z uničenimi in poceni državami)!`, 'good');
     renderShop();
     renderUpgrades();
 }
@@ -1096,18 +799,18 @@ function styleFeature(feature) {
         // Apply Skin logic
         if (state.equippedSkin === 'neon') {
             const neonColors = ['#ff00ff', '#00ffff', '#39ff14', '#ffff00', '#ff0000'];
-            fillColor = neonColors[country.rarity.rank % neonColors.length];
+            fillColor = neonColors[Math.floor(country.rarity.rank) % neonColors.length];
         } else if (state.equippedSkin === 'gold') {
             fillColor = '#ffd700';
         } else if (state.equippedSkin === 'cyber') {
             const cyberColors = ['#2d004d', '#1a0033', '#004d4d', '#4d0026'];
-            fillColor = cyberColors[country.rarity.rank % cyberColors.length];
+            fillColor = cyberColors[Math.floor(country.rarity.rank) % cyberColors.length];
         } else if (state.equippedSkin === 'lava') {
             const lavaColors = ['#991b1b', '#b91c1c', '#dc2626', '#f87171', '#fbbf24'];
-            fillColor = lavaColors[country.rarity.rank % lavaColors.length];
+            fillColor = lavaColors[Math.floor(country.rarity.rank) % lavaColors.length];
         } else if (state.equippedSkin === 'matrix') {
             const greenTones = ['#052e16', '#14532d', '#166534', '#15803d', '#16a34a'];
-            fillColor = greenTones[country.rarity.rank % greenTones.length];
+            fillColor = greenTones[Math.floor(country.rarity.rank) % greenTones.length];
         } else if (state.equippedSkin === 'flags') {
             const flagColors = ['#ef4444', '#3b82f6', '#ffffff', '#22c55e', '#eab308', '#000000'];
             fillColor = flagColors[country.id.length % flagColors.length];
@@ -1116,35 +819,35 @@ function styleFeature(feature) {
             return { fillColor: fillColor, weight: 1, opacity: 0.4, color: '#93c5fd', fillOpacity: 0.3, dashArray: '3' };
         } else if (state.equippedSkin === 'nature') {
             const natureColors = ['#166534', '#15803d', '#3f6212', '#4d7c0f', '#854d0e'];
-            fillColor = natureColors[country.rarity.rank % natureColors.length];
+            fillColor = natureColors[Math.floor(country.rarity.rank) % natureColors.length];
         } else if (state.equippedSkin === 'ocean_skin') {
             const oceanSkinColors = ['#0284c7', '#0ea5e9', '#38bdf8', '#7dd3fc', '#bae6fd'];
-            fillColor = oceanSkinColors[country.rarity.rank % oceanSkinColors.length];
+            fillColor = oceanSkinColors[Math.floor(country.rarity.rank) % oceanSkinColors.length];
         } else if (state.equippedSkin === 'sky_skin') {
             const skySkinColors = ['#818cf8', '#6366f1', '#4f46e5', '#4338ca', '#3730a3'];
-            fillColor = skySkinColors[country.rarity.rank % skySkinColors.length];
+            fillColor = skySkinColors[Math.floor(country.rarity.rank) % skySkinColors.length];
         } else if (state.equippedSkin === 'diamond_skin') {
             const diamondColors = ['#b9f2ff', '#e0f2fe', '#f0f9ff', '#d1d5db', '#ffffff'];
-            fillColor = diamondColors[country.rarity.rank % diamondColors.length];
+            fillColor = diamondColors[Math.floor(country.rarity.rank) % diamondColors.length];
         } else if (state.equippedSkin === 'retro_skin') {
             const retroColors = ['#f472b6', '#db2777', '#9333ea', '#7c3aed', '#2563eb'];
-            fillColor = retroColors[country.rarity.rank % retroColors.length];
+            fillColor = retroColors[Math.floor(country.rarity.rank) % retroColors.length];
         } else if (state.equippedSkin === 'fire') {
             const fireColors = ['#991b1b', '#b91c1c', '#ea580c', '#f97316', '#fbbf24'];
-            fillColor = fireColors[country.rarity.rank % fireColors.length];
+            fillColor = fireColors[Math.floor(country.rarity.rank) % fireColors.length];
         } else if (state.equippedSkin === 'ice') {
             const iceColors = ['#0891b2', '#06b6d4', '#67e8f9', '#cffafe', '#ffffff'];
-            fillColor = iceColors[country.rarity.rank % iceColors.length];
+            fillColor = iceColors[Math.floor(country.rarity.rank) % iceColors.length];
         } else if (state.equippedSkin === 'toxic') {
             const toxicColors = ['#14532d', '#166534', '#65a30d', '#a3e635', '#bef264'];
-            fillColor = toxicColors[country.rarity.rank % toxicColors.length];
+            fillColor = toxicColors[Math.floor(country.rarity.rank) % toxicColors.length];
         } else if (state.equippedSkin === 'royal') {
             const royalColors = ['#4c1d95', '#5b21b6', '#7c3aed', '#8b5cf6', '#a78bfa'];
-            fillColor = royalColors[country.rarity.rank % royalColors.length];
+            fillColor = royalColors[Math.floor(country.rarity.rank) % royalColors.length];
             return { fillColor: fillColor, weight: 2, opacity: 1, color: '#ffd700', fillOpacity: 0.9 };
         } else if (state.equippedSkin === 'rainbow') {
             const rainbowColors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8b00ff'];
-            fillColor = rainbowColors[country.rarity.rank % rainbowColors.length];
+            fillColor = rainbowColors[Math.floor(country.rarity.rank) % rainbowColors.length];
         } else if (state.equippedSkin === 'blood_moon') {
             fillColor = '#450a0a';
             return { fillColor: fillColor, weight: 1, opacity: 1, color: '#000000', fillOpacity: 1 };
@@ -1172,16 +875,16 @@ function styleFeature(feature) {
             return { fillColor: fillColor, weight: 1, opacity: 1, color: '#ffffff', fillOpacity: 1 };
         } else if (state.equippedSkin === 'rainbow') {
             const rainbowColors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8b00ff'];
-            fillColor = rainbowColors[country.rarity.rank % rainbowColors.length];
+            fillColor = rainbowColors[Math.floor(country.rarity.rank) % rainbowColors.length];
         } else if (state.equippedSkin === 'emerald') {
             const emeraldColors = ['#064e3b', '#065f46', '#047857', '#059669', '#10b981'];
-            fillColor = emeraldColors[country.rarity.rank % emeraldColors.length];
+            fillColor = emeraldColors[Math.floor(country.rarity.rank) % emeraldColors.length];
         } else if (state.equippedSkin === 'ruby') {
             const rubyColors = ['#7f1d1d', '#991b1b', '#b91c1c', '#dc2626', '#ef4444'];
-            fillColor = rubyColors[country.rarity.rank % rubyColors.length];
+            fillColor = rubyColors[Math.floor(country.rarity.rank) % rubyColors.length];
         } else if (state.equippedSkin === 'sapphire') {
             const sapphireColors = ['#1e3a8a', '#1e40af', '#1d4ed8', '#2563eb', '#3b82f6'];
-            fillColor = sapphireColors[country.rarity.rank % sapphireColors.length];
+            fillColor = sapphireColors[Math.floor(country.rarity.rank) % sapphireColors.length];
         } else if (state.equippedSkin === 'blood_moon') {
             fillColor = '#450a0a';
             return { fillColor: fillColor, weight: 1.5, opacity: 1, color: '#000', fillOpacity: 1 };
@@ -1247,7 +950,6 @@ function setupEventListeners() {
     if (clickBtn) {
         clickBtn.addEventListener('click', () => {
             addMoney(10);
-            addRankPoints(1); // 1 point per click
         });
         // Add minimal animation
         clickBtn.addEventListener('mousedown', () => clickBtn.style.transform = 'scale(0.95)');
@@ -1313,13 +1015,7 @@ function buyCountry(id) {
             state.ownedCountries.add(id);
             state.everOwned.add(id);
             logEvent(`Kupljeno: ${country.name} (Level ${country.level})`, 'good');
-
-            // Points based on rarity rank - nerfed to make it harder
-            addRankPoints(Math.floor(country.rarity.rank * 5));
         }
-
-        // Add points for any purchase/upgrade - nerfed
-        addRankPoints(levelsGain);
 
         // Remove from stock after purchase/upgrade
         country.inStock = false;
@@ -1330,6 +1026,17 @@ function buyCountry(id) {
         renderUpgrades();
         renderCollection();
         updateUI();
+
+        // Dynamic zoom every 5th purchase
+        state.purchaseCount++;
+        if (state.purchaseCount % 5 === 0 && map && country.feature) {
+            const bounds = L.geoJSON(country.feature).getBounds();
+            map.flyToBounds(bounds, { padding: [100, 100], duration: 1.5 });
+
+            setTimeout(() => {
+                if (map) map.flyTo([30, 30], 2.2, { duration: 1.5 });
+            }, 3000);
+        }
     }
 }
 
@@ -1425,14 +1132,15 @@ function getCurrentTotalIncome() {
 }
 
 function getDestroyedIncome() {
-    let total = 0;
+    let basePenalty = 0;
     Object.values(state.countries).forEach(c => {
         if (c.destroyed) {
-            // Reduced: Use base income as basis for penalty instead of full base cost
-            total += (c.baseCost / 10);
+            // Requirement 1: Penalty equals the income it would give
+            basePenalty += getCurrentIncome(c);
         }
     });
-    return Math.floor(total * state.sanitationMultiplier);
+    // Requirement 2: Plus the accumulated permanent penalty (10% per hit)
+    return Math.floor(basePenalty + (state.sanitationPenalty || 0));
 }
 
 // Helper functions for level-based calculations
@@ -1442,7 +1150,8 @@ function getCurrentCost(country) {
 
 function getCurrentIncome(country) {
     const effectiveLevel = Math.max(1, country.level);
-    return Math.floor(country.baseIncome * Math.pow(2, effectiveLevel - 1));
+    // Each level adds 20% to the base income
+    return Math.floor(country.baseIncome * Math.pow(1.2, effectiveLevel - 1));
 }
 
 // --- Asteroid Shower Logic ---
@@ -1554,7 +1263,7 @@ function triggerAsteroidShower() {
     }, 5000);
 }
 
-function animateAsteroid(latlng, callback) {
+function animateAsteroid(target, callback) {
     const asteroid = document.createElement('div');
     asteroid.className = 'asteroid-fly';
     asteroid.innerHTML = '<div class="asteroid-head"></div><div class="asteroid-tail"></div>';
@@ -1568,13 +1277,18 @@ function animateAsteroid(latlng, callback) {
         sound.play().catch(e => console.log("Audio play failed", e));
     }
 
-    // Get pixel coordinates
-    const targetPoint = map.latLngToContainerPoint(latlng);
-    const mapBounds = document.getElementById('map').getBoundingClientRect();
-
-    // Final position relative to viewport
-    const finalX = mapBounds.left + targetPoint.x;
-    const finalY = mapBounds.top + targetPoint.y;
+    let finalX, finalY;
+    if (target.lat !== undefined) {
+        // Target is latlng
+        const targetPoint = map.latLngToContainerPoint(target);
+        const mapBounds = document.getElementById('map').getBoundingClientRect();
+        finalX = mapBounds.left + targetPoint.x;
+        finalY = mapBounds.top + targetPoint.y;
+    } else {
+        // Target is screen coords {x, y}
+        finalX = target.x;
+        finalY = target.y;
+    }
 
     // Start position: slightly off-screen top left
     const startX = -200;
@@ -1597,8 +1311,17 @@ function animateAsteroid(latlng, callback) {
     asteroid.style.top = `${finalY - 2}px`;
 
     setTimeout(() => {
-        // Impact
-        createImpactRipple(latlng);
+        // Impact ripple only for map hits
+        if (target.lat !== undefined) {
+            createImpactRipple(target);
+        } else {
+            // Screen hit (like money banner) - add some flavor
+            const targetElem = document.elementFromPoint(finalX, finalY);
+            if (targetElem) {
+                targetElem.style.animation = 'impactShake 0.5s ease-in-out';
+                setTimeout(() => targetElem.style.animation = '', 500);
+            }
+        }
 
         // Play explosion sound
         const sfxExplode = document.getElementById('sfx-explode');
@@ -1632,11 +1355,20 @@ function processAsteroidHits() {
     if (state.paused) return; // SAFETY: Never hit anything while paused
 
     const destructionChance = getEffectiveAsteroidChance();
-    const moneyLost = Math.floor(state.money / 10);
+    const moneyLost = Math.floor(state.money * 0.05); // Reduced to 5%
 
     if (moneyLost > 0) {
-        state.money -= moneyLost;
-        logEvent(`Asteroidni roj je uničil ${formatMoney(moneyLost)} denarja! (-10%)`, 'bad');
+        const moneyDisplay = document.getElementById('money-display');
+        const rect = moneyDisplay.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        animateAsteroid({ x: centerX, y: centerY }, () => {
+            state.money -= moneyLost;
+            logEvent(`Asteroidni roj je uničil ${formatMoney(moneyLost)} denarja! (-5%)`, 'bad');
+            showBreakingNews(`IZGUBA: Asteroid je uničil ${formatMoney(moneyLost)} tvojega premoženja!`);
+            updateUI();
+        });
     }
 
     const victims = [];
@@ -1670,8 +1402,9 @@ function processAsteroidHits() {
                 country.inStock = false;
                 state.ownedCountries.delete(id);
 
-                // Double the sanitation cost/penalty globally
-                state.sanitationMultiplier *= 1.2;
+                // Increase permanent sanitation penalty by 10% of the country's income
+                const hitPenalty = getCurrentIncome(country) * 0.1;
+                state.sanitationPenalty = (state.sanitationPenalty || 0) + hitPenalty;
 
                 logEvent(`Asteroid je uničil ${country.name}! (Lvl.${oldLevel} → Lvl.0)`, 'bad');
 
@@ -1755,7 +1488,11 @@ function renderShop() {
     sorted.forEach(c => {
         if (!c.inStock) return; // Only show what is in stock
         const item = document.createElement('div');
-        item.className = `country-item rarity-${c.rarity.id} ${c.owned ? 'owned' : ''}`;
+
+        // Handle destroyed state styling
+        const isDestroyed = c.destroyed;
+        const rarityId = isDestroyed ? 'destroyed-shop' : c.rarity.id;
+        item.className = `country-item rarity-${rarityId} ${c.owned ? 'owned' : ''} ${isDestroyed ? 'destroyed-in-shop' : ''}`;
 
         const currentCost = getCurrentCost(c);
         const currentIncome = getCurrentIncome(c);
@@ -1765,9 +1502,11 @@ function renderShop() {
         if (!canAfford) item.classList.add('disabled');
         item.onclick = () => { if (state.money >= currentCost) buyCountry(c.id); };
 
-        const isGodly = c.rarity.id === 'godly';
+        const isGodly = c.rarity.id === 'godly' && !isDestroyed;
         const levelBadge = `<span class="level-badge ${isGodly ? 'level-badge-godly' : ''}" style="font-size:0.75em; opacity:0.8; white-space:nowrap;">Lvl.${c.level}</span>`;
-        const actionLabel = c.owned ? "NADGRADNJA" : c.rarity.name;
+
+        // If destroyed, force label to "UNIČENA"
+        const actionLabel = isDestroyed ? "UNIČENA" : (c.owned ? "NADGRADNJA" : c.rarity.name);
 
         const isLongName = c.name.length > 20;
         const nameStyle = isLongName ? 'font-size: 0.85rem;' : '';
@@ -1780,7 +1519,7 @@ function renderShop() {
             <div class="item-left">
                 <span class="${nameClass}" style="${nameStyle}">${c.name}</span>
                 <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-                    <span class="country-rarity rarity-${c.rarity.id}"><span class="rarity-label-text">${actionLabel}</span></span>
+                    <span class="country-rarity rarity-${rarityId}"><span class="rarity-label-text">${actionLabel}</span></span>
                     ${levelBadge}
                 </div>
             </div>
@@ -1803,10 +1542,6 @@ function buyGlobalUpgrade(id) {
     state.ownedUpgrades.add(id);
 
     logEvent(`Kupljeno: ${upgrade.name}`, 'good');
-
-    // Points for global upgrades - nerfed
-    const rar = RARITIES[upgrade.rarity.toUpperCase()];
-    if (rar) addRankPoints(Math.floor(rar.rank * 10));
 
     if (upgrade.type === 'stock') {
         // startStockCycle(); // Removed - loop handles acceleration
@@ -1944,13 +1679,11 @@ function logEvent(msg, type = 'neutral') {
     if (logList.children.length > 20) logList.lastChild.remove();
 }
 function formatMoney(n) {
-    if (n < 1000) {
+    if (Math.abs(n) < 1000000) {
         return n.toLocaleString('sl-SI', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
     }
     const suffixes = ["", "K", "M", "B", "T", "QA", "QI", "SX", "SP", "OC", "NO", "DC", "UD", "DD", "TD", "QD", "QID", "SXD", "SPD", "OD", "ND", "V", "UV", "DV", "TV", "QAV", "QIV", "SXV", "SPV", "OV", "NV", "TG"];
     const tier = Math.floor(Math.log10(Math.abs(n)) / 3);
-    if (tier === 0) return n.toFixed(0) + " €";
-
     const suffix = suffixes[tier] || "e" + (tier * 3);
     const scale = Math.pow(10, tier * 3);
     const scaled = n / scale;
@@ -1973,6 +1706,7 @@ function saveGameData() {
         everOwned: Array.from(state.everOwned),
         ownedUpgrades: Array.from(state.ownedUpgrades),
         sanitationMultiplier: state.sanitationMultiplier,
+        sanitationPenalty: state.sanitationPenalty || 0,
         rankPoints: state.rankPoints,
         rankCoins: state.rankCoins,
         ownedSkins: Array.from(state.ownedSkins),
@@ -1981,8 +1715,9 @@ function saveGameData() {
         equippedBackground: state.equippedBackground,
         uncollectedRewards: state.uncollectedRewards || 0,
         newlyReachedRanks: state.newlyReachedRanks || [],
-        paused: state.paused,
+        paused: false, // Don't save paused state as true to avoid lockouts
         startingCountryClaimed: state.startingCountryClaimed,
+        purchaseCount: state.purchaseCount || 0,
         countries: {}
     };
 
@@ -2041,6 +1776,7 @@ function loadGame(username) {
         state.everOwned = new Set(data.everOwned || []);
         state.ownedUpgrades = new Set(data.ownedUpgrades || []);
         state.sanitationMultiplier = data.sanitationMultiplier || 1;
+        state.sanitationPenalty = data.sanitationPenalty || 0;
         state.rankPoints = data.rankPoints || 0;
         state.rankCoins = data.rankCoins || 0;
         state.ownedSkins = data.ownedSkins || ['classic'];
@@ -2050,6 +1786,7 @@ function loadGame(username) {
         state.uncollectedRewards = data.uncollectedRewards || 0;
         state.newlyReachedRanks = data.newlyReachedRanks || [];
         state.startingCountryClaimed = data.startingCountryClaimed || false;
+        state.purchaseCount = data.purchaseCount || 0;
 
         updateRankNotifications();
 
@@ -2096,16 +1833,18 @@ document.getElementById('play-button').addEventListener('click', async () => {
     setupZoomControls();
     if (map) map.invalidateSize();
 
-    const loaded = loadGame(name);
-
-    // 3. Load country data (this will add GeoJSON to the map)
+    // 3. Load country data FIRST (this will populate state.countries)
     if (Object.keys(state.countries).length < 50) {
         await loadCountryData();
     }
 
+    // 4. Load saved game (this will now correctly apply levels to state.countries)
+    const loaded = loadGame(name);
+    if (geoJsonLayer) geoJsonLayer.resetStyle(); // Ensure skin/owned colors apply immediately
+
     // Check if previous game expired
     if (loaded && state.challengeTimer <= 0) {
-        state.money = 0;
+        state.money = 10000; // Realistic start for GDP scale (can buy some Burundis or Indias)
         state.ownedCountries = new Set();
         state.everOwned = new Set();
         state.ownedUpgrades = new Set();
@@ -2118,11 +1857,19 @@ document.getElementById('play-button').addEventListener('click', async () => {
         state.challengeTimer = 600;
         state.stockProgress = 0;
         state.sanitationMultiplier = 1;
+        state.sanitationPenalty = 0;
         state.startingCountryClaimed = false;
+        state.purchaseCount = 0;
         logEvent(`Začenjam nov 10-minutni izziv!`, 'good');
     } else if (loaded) {
+        // Anti-stuck: If player has very little money and low income, give them enough for a cheap country
+        if (state.money < 1000 && getCurrentTotalIncome() < 10) {
+            state.money = 5000;
+            logEvent("Prejel si nujno pomoč za zagon ekonomije!", "neutral");
+        }
         logEvent(`Dobrodošel nazaj, ${name}!`, 'good');
     } else {
+        state.money = 10000; // Starting money: 10k EUR
         logEvent(`Nova igra za ${name}. Vso srečo!`, 'good');
     }
 
@@ -2227,6 +1974,25 @@ function claimStartingCountry() {
 
     switchMusicToGame();
     initGame();
+
+    // Show breaking news, log event and zoom to country
+    showBreakingNews(`Tvoja začetna država je ${country.name}!`);
+    logEvent(`Kolo sreče: Dobil si državo ${country.name}!`, 'good');
+
+    // Zoom/Mark on map
+    if (map && country.feature) {
+        setTimeout(() => {
+            const bounds = L.geoJSON(country.feature).getBounds();
+            map.flyToBounds(bounds, { padding: [100, 100], duration: 2 });
+            if (geoJsonLayer) geoJsonLayer.resetStyle();
+
+            // Zoom out after 3 seconds
+            setTimeout(() => {
+                if (map) map.flyTo([30, 30], 2.2, { duration: 2 });
+            }, 3000);
+        }, 500);
+    }
+
     saveGame();
 }
 
@@ -2694,6 +2460,7 @@ function handleSkinAction(itemId, type) {
             updateBackgroundEffect();
         }
         logEvent(`Opremljeno: ${item.name}`, 'good');
+        saveGame();
     } else {
         // Buy
         if (state.rankCoins >= item.cost) {
@@ -2974,6 +2741,7 @@ function updateChallengeTimerDisplay() {
 }
 
 function endGame(isBankrupt = false) {
+    state.challengeTimer = 0;
     if (window.gameLoopInterval) clearInterval(window.gameLoopInterval);
 
     // Stop Background Music
@@ -2990,9 +2758,10 @@ function endGame(isBankrupt = false) {
         introMusic.play().catch(e => console.log("Intro music play failed:", e));
     }
 
-    // Award points based on performance - extremely nerfed
-    const performancePoints = Math.floor(state.money / 100000000); // 1 point per 100 million
-    addRankPoints(performancePoints);
+    // Award points and coins: 1 point and 1 coin per owned, non-destroyed country
+    const countryPoints = Object.values(state.countries).filter(c => c.owned && !c.destroyed).length;
+    addRankPoints(countryPoints);
+    state.rankCoins += countryPoints;
     saveGame(); // Final save
 
     const gameOverScreen = document.getElementById('game-over-screen');
@@ -3030,7 +2799,8 @@ function endGame(isBankrupt = false) {
     const bankruptText = isBankrupt ? '<br><span style="color:#ef4444; font-weight:800;">BANKROT!</span>' : '';
     rankDisplayUI.innerHTML = `Tvoje mesto: <span style="color:var(--primary); font-size:1.5rem;">#${userRankNum}</span> <br> 
     <span style="font-size:1rem; color:var(--text-muted);">Denar: ${formatMoney(state.money)}</span> <br>
-    <span style="font-size:1rem; color:var(--success);">Rank točke: +${performancePoints}</span><br>
+    <span style="font-size:1rem; color:var(--success);">Rank točke: +${countryPoints}</span><br>
+    <span style="font-size:1rem; color:#ffd700;">Kovančki: +${countryPoints} 🪙</span><br>
     <span style="font-size:1.1rem; color:${getCurrentRank().color}; font-weight:800;">${getCurrentRank().name}</span>${bankruptText}`;
 
     // Render Top 10
