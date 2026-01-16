@@ -961,21 +961,37 @@ function setupEventListeners() {
     const tabs = document.querySelectorAll('.tab-btn');
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
+            const isMobile = window.innerWidth < 768;
+            const targetTab = tab.dataset.tab;
+
+            if (isMobile) {
+                openMobileTab(targetTab);
+                return;
+            }
+
             // Deactivate all
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
 
             // Activate current
             tab.classList.add('active');
-            const targetId = `tab-${tab.dataset.tab}`;
+            const targetId = `tab-${targetTab}`;
             const targetContent = document.getElementById(targetId);
             if (targetContent) targetContent.classList.remove('hidden');
 
-            if (tab.dataset.tab === 'collection') {
+            if (targetTab === 'collection') {
                 renderCollectionList();
             }
         });
     });
+
+    // Mobile modal close
+    const closeMobileTabBtn = document.getElementById('close-mobile-tab-btn');
+    if (closeMobileTabBtn) {
+        closeMobileTabBtn.addEventListener('click', () => {
+            document.getElementById('mobile-tab-modal').classList.add('hidden');
+        });
+    }
 
     // Pause / Resume
     const pauseBtn = document.getElementById('pause-btn');
@@ -2893,3 +2909,28 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
+function openMobileTab(tab) {
+    const modal = document.getElementById('mobile-tab-modal');
+    const title = document.getElementById('mobile-tab-title');
+    const body = document.getElementById('mobile-tab-body');
+    const targetId = `tab-${tab}`;
+    const targetContent = document.getElementById(targetId);
+
+    if (!modal || !targetContent) return;
+
+    // Set title
+    const titles = { 'shop': 'Trgovina', 'collection': 'Zbirka', 'log': 'Dnevnik', 'upgrades': 'Nadgradnje' };
+    title.textContent = titles[tab] || 'Meni';
+
+    // Before moving, make sure we trigger any renders
+    if (tab === 'collection') renderCollectionList();
+    if (tab === 'upgrades') renderUpgrades();
+    if (tab === 'shop') replenishStock();
+
+    // Show modal
+    modal.classList.remove('hidden');
+
+    // Move content to modal
+    body.innerHTML = '';
+    body.appendChild(targetContent);
+}

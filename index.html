@@ -154,6 +154,19 @@
         </div>
     </div>
 
+    <!-- Mobile Tab Content Modal -->
+    <div id="mobile-tab-modal" class="modal-overlay hidden">
+        <div class="modal-content mobile-tab-modal-content">
+            <div class="modal-header">
+                <h2 id="mobile-tab-title">Trgovina</h2>
+                <button id="close-mobile-tab-btn" class="close-btn">&times;</button>
+            </div>
+            <div id="mobile-tab-body">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+    </div>
+
     <div id="game-ui" class="hidden">
         <header>
             <div style="display:flex; align-items:center; gap:1rem;">
@@ -201,7 +214,7 @@
                 <div id="action-area" style="display:none;"></div>
 
                 <!-- Tab Navigation -->
-                <nav id="tabs">
+                <nav id="tabs-nav">
                     <button class="tab-btn active" data-tab="shop">NAKUP DRŽAV</button>
                     <button class="tab-btn" data-tab="collection">Zbirka</button>
                     <button class="tab-btn" data-tab="log">Dnevnik</button>
