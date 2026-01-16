@@ -1191,6 +1191,14 @@ function animateAsteroid(latlng, callback) {
     asteroid.innerHTML = '<div class="asteroid-head"></div><div class="asteroid-tail"></div>';
     document.body.appendChild(asteroid);
 
+    // Play fly sound (clone to allow multiple overlaps)
+    const sfxFly = document.getElementById('sfx-fly');
+    if (sfxFly) {
+        const sound = sfxFly.cloneNode();
+        sound.volume = 0.3; // Lower volume for flying
+        sound.play().catch(e => console.log("Audio play failed", e));
+    }
+
     // Get pixel coordinates
     const targetPoint = map.latLngToContainerPoint(latlng);
     const mapBounds = document.getElementById('map').getBoundingClientRect();
@@ -1222,6 +1230,15 @@ function animateAsteroid(latlng, callback) {
     setTimeout(() => {
         // Impact
         createImpactRipple(latlng);
+
+        // Play explosion sound
+        const sfxExplode = document.getElementById('sfx-explode');
+        if (sfxExplode) {
+            const sound = sfxExplode.cloneNode();
+            sound.volume = 0.6;
+            sound.play().catch(e => console.log("Audio play failed", e));
+        }
+
         asteroid.remove();
         if (callback) callback();
     }, 1500);
