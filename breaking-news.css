@@ -1,0 +1,53 @@
+/* Breaking News Banner */
+#breaking-news {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    padding: 1.5rem 3rem;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: 0 10px 40px rgba(239, 68, 68, 0.6);
+    border: 3px solid #fca5a5;
+    animation: breakingNewsSlide 0.5s ease-out, breakingNewsPulse 1s infinite ease-in-out 0.5s;
+    max-width: 90%;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+#breaking-news::before {
+    content: '🚨 BREAKING NEWS 🚨';
+    display: block;
+    font-size: 0.8em;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+}
+
+@keyframes breakingNewsSlide {
+    from {
+        bottom: -100px;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 20px;
+        opacity: 1;
+    }
+}
+
+@keyframes breakingNewsPulse {
+
+    0%,
+    100% {
+        transform: translateX(-50%) scale(1);
+    }
+
+    50% {
+        transform: translateX(-50%) scale(1.02);
+    }
+}

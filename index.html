@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="breaking-news.css">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -153,7 +154,7 @@
         </div>
     </div>
 
-    <div id="game-ui">
+    <div id="game-ui" class="hidden">
         <header>
             <div style="display:flex; align-items:center; gap:1rem;">
                 <h1>World Simulator</h1>
@@ -192,11 +193,12 @@
             </div>
             <div id="map"></div>
 
+            <!-- Breaking News Banner -->
+            <div id="breaking-news" class="hidden"></div>
+
             <div id="controls-panel">
-                <!-- Action Area -->
-                <div id="action-area">
-                    <button id="click-btn"><span class="mining-icon">⛏️</span> 10 € / KLIK</button>
-                </div>
+                <!-- Action Area REMOVED (10 EUR / KLIK) -->
+                <div id="action-area" style="display:none;"></div>
 
                 <!-- Tab Navigation -->
                 <nav id="tabs">
@@ -281,6 +283,27 @@
         <button id="resume-btn"
             style="margin-top:2rem; padding:1rem 3rem; font-size:1.5rem; font-weight:800; border-radius:12px; border:none; background:var(--success); color:white; cursor:pointer; box-shadow:0 4px 15px rgba(34,197,94,0.4);">NADALJUJ
             ▶️</button>
+    </div>
+    </div>
+
+    <!-- Starting Spinner Overlay -->
+    <div id="starting-spinner-overlay" class="modal-overlay hidden">
+        <div class="starting-spinner-content">
+            <h1 class="spinner-title">IZBERI SVOJO USODO</h1>
+            <p class="spinner-subtitle">Zavrti kolo, da dobiš svojo prvo državo!</p>
+
+            <div class="wheel-container">
+                <div id="starting-wheel" class="wheel"></div>
+                <div class="wheel-pointer"></div>
+            </div>
+
+            <button id="spin-start-btn">ZAVRTI KOLO! 🎡</button>
+            <div id="spin-result" class="hidden">
+                <h2>Čestitke! Tvoja začetna država je:</h2>
+                <div id="spin-country-card"></div>
+                <button id="claim-starting-btn">ZAČNI OSVAJATI 🌍</button>
+            </div>
+        </div>
     </div>
 
     <audio id="sfx-fly" src="meteor_fly.mp3" preload="auto"></audio>

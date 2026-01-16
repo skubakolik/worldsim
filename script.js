@@ -792,7 +792,8 @@ let state = {
     uncollectedRewards: 0,
     newlyReachedRanks: [], // IDs of ranks reached but rewards not yet collected
     paused: false,
-    asteroidTimeRemaining: 0
+    asteroidTimeRemaining: 0,
+    startingCountryClaimed: false
 };
 
 let map;
@@ -874,7 +875,6 @@ async function initGame() {
     initMap();
     setupZoomControls();
     setupEventListeners();
-    await loadCountryData();
     replenishStock();
     startGameLoop();
     scheduleAsteroidShower();
@@ -887,6 +887,7 @@ async function initGame() {
 }
 
 function initMap() {
+    if (map) return; // Already initialized
     map = L.map('map', {
         center: [30, 30], // Centered on Eurasia/Africa for desired framing
         zoom: 2.2,       // Fit world height better in the panel
@@ -902,7 +903,10 @@ function initMap() {
     });
 }
 
+let zoomControlsInitialized = false;
 function setupZoomControls() {
+    if (zoomControlsInitialized) return;
+    zoomControlsInitialized = true;
     const btnIn = document.getElementById('btn-zoom-in');
     const btnOut = document.getElementById('btn-zoom-out');
 
@@ -1012,6 +1016,7 @@ async function loadCountryData() {
         const filteredFeatures = data.features.filter(f => finalIds.has(f.id || f.properties.name || f.properties.ADMIN));
         const filteredData = { ...data, features: filteredFeatures };
 
+        if (geoJsonLayer && map) map.removeLayer(geoJsonLayer);
         geoJsonLayer = L.geoJSON(filteredData, { style: styleFeature, onEachFeature: onEachFeature }).addTo(map);
         renderShop();
     } catch (e) { console.error(e); }
@@ -1233,7 +1238,10 @@ function onEachFeature(feature, layer) {
 
 // --- Game Logic ---
 
+let eventListenersInitialized = false;
 function setupEventListeners() {
+    if (eventListenersInitialized) return;
+    eventListenersInitialized = true;
     // Click button
     const clickBtn = document.getElementById('click-btn');
     if (clickBtn) {
@@ -1347,11 +1355,27 @@ function startGameLoop() {
 
         state.money += netIncomeTick;
 
-        if (state.money <= 0) {
+        if (state.money < 0) {
             state.money = 0;
+            state.ownedCountries = new Set();
+            state.everOwned = new Set();
+            state.ownedUpgrades = new Set();
+            state.sanitationMultiplier = 1;
+            state.challengeTimer = 600;
+
+            // Reset individual country states
+            Object.values(state.countries).forEach(c => {
+                c.level = 0;
+                c.owned = false;
+                c.destroyed = false;
+                c.inStock = false;
+            });
+
             updateUI();
-            alert("BANKROT! Stroški sanacije uničenih držav so presegli vaš proračun.");
-            endGame();
+            alert("BANKROT! Stroški sanacije uničenih držav so presegli vaš proračun. Igra se bo začela znova.");
+
+            saveGame();
+            location.reload();
             return;
         }
 
@@ -1420,8 +1444,8 @@ function getDestroyedIncome() {
     let total = 0;
     Object.values(state.countries).forEach(c => {
         if (c.destroyed) {
-            // "sanacija uničene države taka kot je država stala"
-            total += c.baseCost;
+            // Reduced: Use base income as basis for penalty instead of full base cost
+            total += (c.baseCost / 10);
         }
     });
     return Math.floor(total * state.sanitationMultiplier);
@@ -1663,9 +1687,12 @@ function processAsteroidHits() {
                 state.ownedCountries.delete(id);
 
                 // Double the sanitation cost/penalty globally
-                state.sanitationMultiplier *= 2;
+                state.sanitationMultiplier *= 1.2;
 
                 logEvent(`Asteroid je uničil ${country.name}! (Lvl.${oldLevel} → Lvl.0)`, 'bad');
+
+                // Show breaking news banner
+                showBreakingNews(`Asteroid ti je uničil ${country.name}!`);
 
                 geoJsonLayer.resetStyle();
                 renderShop();
@@ -1687,6 +1714,20 @@ function processAsteroidHits() {
         updateUI();
     }
 }
+
+function showBreakingNews(message) {
+    const banner = document.getElementById('breaking-news');
+    if (!banner) return;
+
+    banner.textContent = message;
+    banner.classList.remove('hidden');
+
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        banner.classList.add('hidden');
+    }, 5000);
+}
+
 
 function updateUI() {
     moneyDisplay.innerText = formatMoney(state.money);
@@ -1957,6 +1998,7 @@ function saveGameData() {
         uncollectedRewards: state.uncollectedRewards || 0,
         newlyReachedRanks: state.newlyReachedRanks || [],
         paused: state.paused,
+        startingCountryClaimed: state.startingCountryClaimed,
         countries: {}
     };
 
@@ -2023,6 +2065,7 @@ function loadGame(username) {
         state.equippedBackground = data.equippedBackground || 'default';
         state.uncollectedRewards = data.uncollectedRewards || 0;
         state.newlyReachedRanks = data.newlyReachedRanks || [];
+        state.startingCountryClaimed = data.startingCountryClaimed || false;
 
         updateRankNotifications();
 
@@ -2048,7 +2091,7 @@ function loadGame(username) {
 
 // Initialize game when PLAY! is clicked
 // Initialize game when PLAY! is clicked
-document.getElementById('play-button').addEventListener('click', () => {
+document.getElementById('play-button').addEventListener('click', async () => {
     const nameInput = document.getElementById('username-input');
     const name = nameInput.value.trim();
 
@@ -2059,9 +2102,22 @@ document.getElementById('play-button').addEventListener('click', () => {
 
     state.username = name;
     lockUsername();
-    // Hide language switcher when starting play
+
+    // 1. Hide the start screen and show game-ui (needed for map initialization)
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('game-ui').classList.remove('hidden');
+
+    // 2. Initialize map and controls
+    initMap();
+    setupZoomControls();
+    if (map) map.invalidateSize();
 
     const loaded = loadGame(name);
+
+    // 3. Load country data (this will add GeoJSON to the map)
+    if (Object.keys(state.countries).length < 50) {
+        await loadCountryData();
+    }
 
     // Check if previous game expired
     if (loaded && state.challengeTimer <= 0) {
@@ -2069,13 +2125,16 @@ document.getElementById('play-button').addEventListener('click', () => {
         state.ownedCountries = new Set();
         state.everOwned = new Set();
         state.ownedUpgrades = new Set();
-        state.countries = {};
-        state.countries = {};
+        Object.values(state.countries).forEach(c => {
+            c.level = 0;
+            c.owned = false;
+            c.destroyed = false;
+            c.inStock = false;
+        });
         state.challengeTimer = 600;
         state.stockProgress = 0;
         state.sanitationMultiplier = 1;
-        // Reset shop stock
-        Object.values(state.countries).forEach(c => c.inStock = false);
+        state.startingCountryClaimed = false;
         logEvent(`Začenjam nov 10-minutni izziv!`, 'good');
     } else if (loaded) {
         logEvent(`Dobrodošel nazaj, ${name}!`, 'good');
@@ -2083,8 +2142,18 @@ document.getElementById('play-button').addEventListener('click', () => {
         logEvent(`Nova igra za ${name}. Vso srečo!`, 'good');
     }
 
-    document.getElementById('start-screen').classList.add('hidden');
+    if (!state.startingCountryClaimed) {
+        // Hide game-ui and show spinner
+        document.getElementById('game-ui').classList.add('hidden');
+        showStartingSpinner();
+    } else {
+        // Game UI already visible, just start music and game
+        switchMusicToGame();
+        initGame();
+    }
+});
 
+function switchMusicToGame() {
     // Stop Intro Music
     const introMusic = document.getElementById('intro-music');
     if (introMusic) {
@@ -2092,14 +2161,92 @@ document.getElementById('play-button').addEventListener('click', () => {
         introMusic.currentTime = 0;
     }
 
+    // Start Game Music
     const bgMusic = document.getElementById('bg-music');
     if (bgMusic) {
         bgMusic.volume = 0.15;
         bgMusic.play().catch(e => console.log("Music play failed:", e));
     }
+}
 
-    initGame();
+function showStartingSpinner() {
+    const overlay = document.getElementById('starting-spinner-overlay');
+    overlay.classList.remove('hidden');
+    document.getElementById('spin-start-btn').classList.remove('hidden');
+    document.getElementById('spin-result').classList.add('hidden');
+
+    // Create visual rarity wheel
+    const wheel = document.getElementById('starting-wheel');
+    wheel.style.transform = 'rotate(0deg)';
+
+    // Style wheel with blue-purple aesthetic to match the main title
+    wheel.style.background = `conic-gradient(#3b82f6, #a855f7, #6366f1, #3b82f6)`;
+    wheel.style.border = '8px solid #f59e0b'; // Gold border for premium contrast
+}
+
+let isSpinning = false;
+let selectedStartingCountry = null;
+
+document.getElementById('spin-start-btn').addEventListener('click', () => {
+    if (isSpinning) return;
+    isSpinning = true;
+
+    // Pick a country based on weights
+    const spinCountries = Object.values(state.countries).filter(c => c.rarity.rank <= 5); // Limit to non-secret/og for start?
+    const totalWeight = spinCountries.reduce((sum, c) => sum + (RARITIES[c.rarity.id.toUpperCase()]?.weight || 1), 0);
+    let random = Math.random() * totalWeight;
+    let picked = spinCountries[0];
+
+    for (const c of spinCountries) {
+        const weight = RARITIES[c.rarity.id.toUpperCase()]?.weight || 1;
+        if (random < weight) {
+            picked = c;
+            break;
+        }
+        random -= weight;
+    }
+
+    selectedStartingCountry = picked;
+
+    const wheel = document.getElementById('starting-wheel');
+    const extraSpins = 5 + Math.floor(Math.random() * 5);
+    const finalRotation = extraSpins * 360 + Math.floor(Math.random() * 360);
+
+    wheel.style.transform = `rotate(${finalRotation}deg)`;
+
+    setTimeout(() => {
+        isSpinning = false;
+        document.getElementById('spin-start-btn').classList.add('hidden');
+        document.getElementById('spin-result').classList.remove('hidden');
+        document.getElementById('spin-country-card').innerHTML = `
+            <span style="color:${picked.rarity.color}">${picked.name}</span><br>
+            <small style="font-size: 0.5em; opacity: 0.7;">${picked.rarity.name}</small>
+        `;
+
+        // Automatically start game immediately after spin (as in earlier versions)
+        claimStartingCountry();
+    }, 5000);
 });
+
+function claimStartingCountry() {
+    if (!selectedStartingCountry) return;
+
+    const country = state.countries[selectedStartingCountry.id];
+    country.owned = true;
+    country.level = 1;
+    state.ownedCountries.add(country.id);
+    state.everOwned.add(country.id);
+    state.startingCountryClaimed = true;
+
+    document.getElementById('starting-spinner-overlay').classList.add('hidden');
+    document.getElementById('game-ui').classList.remove('hidden');
+
+    switchMusicToGame();
+    initGame();
+    saveGame();
+}
+
+document.getElementById('claim-starting-btn').addEventListener('click', claimStartingCountry);
 
 const lbModal = document.getElementById('leaderboard-modal');
 const lbList = document.getElementById('leaderboard-list-container');
