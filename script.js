@@ -1357,25 +1357,9 @@ function startGameLoop() {
 
         if (state.money < 0) {
             state.money = 0;
-            state.ownedCountries = new Set();
-            state.everOwned = new Set();
-            state.ownedUpgrades = new Set();
-            state.sanitationMultiplier = 1;
-            state.challengeTimer = 600;
-
-            // Reset individual country states
-            Object.values(state.countries).forEach(c => {
-                c.level = 0;
-                c.owned = false;
-                c.destroyed = false;
-                c.inStock = false;
-            });
-
             updateUI();
-            alert("BANKROT! Stroški sanacije uničenih držav so presegli vaš proračun. Igra se bo začela znova.");
-
-            saveGame();
-            location.reload();
+            alert("BANKROT! Stroški sanacije uničenih držav so presegli vaš proračun.");
+            endGame(true); // Pass true to indicate bankruptcy
             return;
         }
 
@@ -2989,7 +2973,7 @@ function updateChallengeTimerDisplay() {
     }
 }
 
-function endGame() {
+function endGame(isBankrupt = false) {
     if (window.gameLoopInterval) clearInterval(window.gameLoopInterval);
 
     // Stop Background Music
@@ -3025,23 +3009,29 @@ function endGame() {
             try {
                 const data = JSON.parse(localStorage.getItem(key));
                 const name = key.replace('worldsim_save_', '');
-                players.push({ name: name, money: data.money || 0 });
+                const countriesOwned = data.ownedCountries ? data.ownedCountries.length : 0;
+                players.push({ name: name, money: data.money || 0, countriesOwned: countriesOwned });
             } catch (e) {
                 console.error("Error parsing save", e);
             }
         }
     }
 
-    players.sort((a, b) => b.money - a.money);
+    // Sort by money, then by countries owned as tiebreaker (for bankrupts with 0 money)
+    players.sort((a, b) => {
+        if (b.money !== a.money) return b.money - a.money;
+        return b.countriesOwned - a.countriesOwned;
+    });
 
     // Find user rank
     const userRankIndex = players.findIndex(p => p.name === state.username);
     const userRankNum = userRankIndex + 1;
 
+    const bankruptText = isBankrupt ? '<br><span style="color:#ef4444; font-weight:800;">BANKROT!</span>' : '';
     rankDisplayUI.innerHTML = `Tvoje mesto: <span style="color:var(--primary); font-size:1.5rem;">#${userRankNum}</span> <br> 
     <span style="font-size:1rem; color:var(--text-muted);">Denar: ${formatMoney(state.money)}</span> <br>
     <span style="font-size:1rem; color:var(--success);">Rank točke: +${performancePoints}</span><br>
-    <span style="font-size:1.1rem; color:${getCurrentRank().color}; font-weight:800;">${getCurrentRank().name}</span>`;
+    <span style="font-size:1.1rem; color:${getCurrentRank().color}; font-weight:800;">${getCurrentRank().name}</span>${bankruptText}`;
 
     // Render Top 10
     leaderboardDiv.innerHTML = '';
