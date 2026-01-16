@@ -1680,6 +1680,13 @@ document.getElementById('play-button').addEventListener('click', () => {
 
     document.getElementById('start-screen').classList.add('hidden');
 
+    // Stop Intro Music
+    const introMusic = document.getElementById('intro-music');
+    if (introMusic) {
+        introMusic.pause();
+        introMusic.currentTime = 0;
+    }
+
     // Play Background Music
     const bgMusic = document.getElementById('bg-music');
     if (bgMusic) {
@@ -2035,6 +2042,13 @@ function endGame() {
         bgMusic.currentTime = 0;
     }
 
+    // Play Intro Music (Game Over)
+    const introMusic = document.getElementById('intro-music');
+    if (introMusic) {
+        introMusic.currentTime = 0; // Reset to start
+        introMusic.play().catch(e => console.log("Intro music play failed:", e));
+    }
+
     saveGame(); // Final save
 
     const gameOverScreen = document.getElementById('game-over-screen');
@@ -2120,3 +2134,25 @@ function endGame() {
         };
     }
 }
+
+// Auto-start intro music on load
+window.addEventListener('load', () => {
+    const introMusic = document.getElementById('intro-music');
+    if (introMusic) {
+        // Try to play immediately (might be blocked by browser policy)
+        introMusic.play().catch(e => {
+            console.log("Auto-play blocked, waiting for interaction", e);
+            // Fallback: Play on first click anywhere if not yet playing
+            const playOnInteraction = () => {
+                // Check if map is not yet initialized (game not started)
+                if (!document.getElementById('start-screen').classList.contains('hidden')) {
+                    introMusic.play().catch(() => { });
+                }
+                document.removeEventListener('click', playOnInteraction);
+                document.removeEventListener('keydown', playOnInteraction);
+            };
+            document.addEventListener('click', playOnInteraction);
+            document.addEventListener('keydown', playOnInteraction);
+        });
+    }
+});
