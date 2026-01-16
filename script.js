@@ -1665,39 +1665,29 @@ document.getElementById('play-button').addEventListener('click', () => {
     initGame();
 });
 
-function showLeaderboard() {
-    let players = [];
+async function showLeaderboard() {
+    try {
+        const response = await fetch('/api/leaderboard');
+        const players = await response.json();
 
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key.startsWith('worldsim_save_')) {
-            try {
-                const data = JSON.parse(localStorage.getItem(key));
-                const name = key.replace('worldsim_save_', '');
-                players.push({ name: name, money: data.money });
-            } catch (e) {
-                console.error("Napaka pri branju lestvice:", e);
-            }
+        if (!players || players.length === 0) {
+            alert("Lestvica je trenutno prazna!");
+            return;
         }
+
+        // Limit to 1000 (server already does, but client can too)
+        const topPlayers = players.slice(0, 1000);
+
+        let message = "🏆 TOP 1000 IGRALCEV 🏆\n\n";
+        topPlayers.forEach((p, index) => {
+            message += `${index + 1}. ${p.name}: ${formatMoney(p.money)}\n`;
+        });
+
+        alert(message);
+    } catch (e) {
+        console.error("Napaka pri pridobivanju lestvice:", e);
+        alert("Napaka pri povezavi s strežnikom.");
     }
-
-    if (players.length === 0) {
-        alert("Lestvica je trenutno prazna!");
-        return;
-    }
-
-    // Sort by money descending
-    players.sort((a, b) => b.money - a.money);
-
-    // Limit to 1000
-    const topPlayers = players.slice(0, 1000);
-
-    let message = "🏆 TOP 1000 IGRALCEV 🏆\n\n";
-    topPlayers.forEach((p, index) => {
-        message += `${index + 1}. ${p.name}: ${formatMoney(p.money)}\n`;
-    });
-
-    // Alert might be too small for 1000, but we follow the request. 
     // Usually, 1000 entries won't fit well in an alert, but the logic is there.
     alert(message);
 }
@@ -2010,47 +2000,54 @@ function endGame() {
 
     if (!gameOverScreen) return;
 
-    // Generate Leaderboard logic
-    let players = [];
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key.startsWith('worldsim_save_')) {
-            try {
-                const data = JSON.parse(localStorage.getItem(key));
-                const name = key.replace('worldsim_save_', '');
-                players.push({ name: name, money: data.money || 0 });
-            } catch (e) {
-                console.error("Error parsing save", e);
-            }
-        }
-    }
+    // Submit score to server
+    fetch('/api/leaderboard', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: state.username,
+            money: state.money
+        })
+    })
+        .then(response => response.json())
+        .then(players => {
+            // Render Top 10 from server response
+            players.sort((a, b) => b.money - a.money);
 
-    players.sort((a, b) => b.money - a.money);
+            // Find user rank in global list
+            const userRankIndex = players.findIndex(p => p.name === state.username && p.money === state.money);
+            // Note: exact match might be tricky if multiple same scores, but good enough for now.
+            // Actually better to find index of FIRST match of score, or just trust the sort.
 
-    // Find user rank
-    const userRankIndex = players.findIndex(p => p.name === state.username);
-    const userRank = userRankIndex + 1;
+            let displayRank = userRankIndex + 1;
+            if (displayRank === 0) displayRank = players.length + 1; // Fallback
 
-    rankDisplay.innerHTML = `Tvoje mesto: <span style="color:var(--primary); font-size:1.5rem;">#${userRank}</span> <br> <span style="font-size:1rem; color:var(--text-muted);">Denar: ${formatMoney(state.money)}</span>`;
+            rankDisplay.innerHTML = `Tvoje mesto: <span style="color:var(--primary); font-size:1.5rem;">#${displayRank}</span> <br> <span style="font-size:1rem; color:var(--text-muted);">Denar: ${formatMoney(state.money)}</span>`;
 
-    // Render Top 10
-    leaderboardDiv.innerHTML = '';
-    const top10 = players.slice(0, 10);
+            leaderboardDiv.innerHTML = '';
+            const top10 = players.slice(0, 10);
 
-    top10.forEach((p, i) => {
-        const row = document.createElement('div');
-        row.className = 'leaderboard-row';
-        if (p.name === state.username) row.classList.add('highlight');
+            top10.forEach((p, i) => {
+                const row = document.createElement('div');
+                row.className = 'leaderboard-row';
+                if (p.name === state.username && p.money === state.money) row.classList.add('highlight'); // Simple check
 
-        row.innerHTML = `
-            <div style="display:flex; width:100%;">
-                <span class="rank-num">${i + 1}.</span>
-                <span class="player-name">${p.name}</span>
-                <span class="player-money">${formatMoney(p.money)}</span>
-            </div>
-        `;
-        leaderboardDiv.appendChild(row);
-    });
+                row.innerHTML = `
+                <div style="display:flex; width:100%;">
+                    <span class="rank-num">${i + 1}.</span>
+                    <span class="player-name">${p.name}</span>
+                    <span class="player-money">${formatMoney(p.money)}</span>
+                </div>
+            `;
+                leaderboardDiv.appendChild(row);
+            });
+        })
+        .catch(err => {
+            console.error("Error submitting score:", err);
+            leaderboardDiv.innerHTML = '<div style="color:red">Napaka pri shranjevanju rezultata na strežnik.</div>';
+        });
 
     // Show Screen
     gameOverScreen.classList.remove('hidden');
@@ -2077,9 +2074,13 @@ function endGame() {
             const pass = prompt("Vnesi administratorsko geslo za izbris vseh podatkov:");
             if (pass === "lukalesjak") {
                 if (confirm("Ali si prepričan? Vsi rezultati in igralci bodo trajno izbrisani!")) {
-                    localStorage.clear();
-                    alert("Vsi podatki so bili izbrisani.");
-                    location.reload();
+                    fetch('/api/admin/reset', { method: 'POST' })
+                        .then(() => {
+                            localStorage.clear(); // Clear local saves too if desired, or keep them as "offline backup"
+                            alert("Vsi podatki so bili izbrisani.");
+                            location.reload();
+                        })
+                        .catch(e => alert("Napaka pri brisanju na strežniku."));
                 }
             } else {
                 alert("Nepravilno geslo!");
