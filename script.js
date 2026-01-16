@@ -989,6 +989,12 @@ function setupEventListeners() {
     const closeMobileTabBtn = document.getElementById('close-mobile-tab-btn');
     if (closeMobileTabBtn) {
         closeMobileTabBtn.addEventListener('click', () => {
+            const modalBody = document.getElementById('mobile-tab-body');
+            const controlsPanel = document.getElementById('controls-panel');
+            if (modalBody && controlsPanel && modalBody.firstChild) {
+                // Move content back to sidebar/bottom panel
+                controlsPanel.appendChild(modalBody.firstChild);
+            }
             document.getElementById('mobile-tab-modal').classList.add('hidden');
         });
     }
@@ -2913,24 +2919,30 @@ function openMobileTab(tab) {
     const modal = document.getElementById('mobile-tab-modal');
     const title = document.getElementById('mobile-tab-title');
     const body = document.getElementById('mobile-tab-body');
+    const controlsPanel = document.getElementById('controls-panel');
     const targetId = `tab-${tab}`;
     const targetContent = document.getElementById(targetId);
 
-    if (!modal || !targetContent) return;
+    if (!modal || !targetContent || !body || !controlsPanel) return;
 
-    // Set title
+    // 1. If modal ALREADY has something, move it back to controls panel first!
+    if (body.firstChild) {
+        controlsPanel.appendChild(body.firstChild);
+    }
+
+    // 2. Set title
     const titles = { 'shop': 'Trgovina', 'collection': 'Zbirka', 'log': 'Dnevnik', 'upgrades': 'Nadgradnje' };
     title.textContent = titles[tab] || 'Meni';
 
-    // Before moving, make sure we trigger any renders
+    // 3. Renders
     if (tab === 'collection') renderCollectionList();
     if (tab === 'upgrades') renderUpgrades();
     if (tab === 'shop') replenishStock();
 
-    // Show modal
-    modal.classList.remove('hidden');
-
-    // Move content to modal
-    body.innerHTML = '';
+    // 4. Move content to modal
+    body.innerHTML = ''; // This is now safe as we moved children out
     body.appendChild(targetContent);
+
+    // 5. Show modal
+    modal.classList.remove('hidden');
 }
