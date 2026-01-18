@@ -1298,7 +1298,6 @@ function startGameLoop() {
         if (state.money < 0) {
             state.money = 0;
             updateUI();
-            alert("BANKROT! Stroški sanacije uničenih držav so presegli vaš proračun.");
             endGame(true); // Pass true to indicate bankruptcy
             return;
         }
@@ -2130,24 +2129,30 @@ function saveGameData() {
         // 1. Full Save (Private/User specific)
         db.ref('users/' + userRefId + '/save').set(saveData).catch(err => console.error("Cloud save failed:", err));
 
-        // 2. Leaderboard Entry (Public)
-        let currentRankObj = GAME_RANKS[0];
-        for (let r of GAME_RANKS) {
-            if (state.rankPoints >= r.minPoints) currentRankObj = r;
-            else break;
-        }
-
+        // 2. Leaderboard Entry (Public) - Only update if money is HIGHER than current record
         const lbRef = db.ref('leaderboard/' + userRefId);
-        lbRef.set({
-            name: state.username,
-            money: state.money,
-            rankPoints: state.rankPoints,
-            rankCoins: state.rankCoins,
-            rankName: currentRankObj.name,
-            rankIcon: currentRankObj.icon,
-            rankColor: currentRankObj.color,
-            lastUpdate: Date.now()
-        }).catch(err => console.error("Firebase sync failed:", err));
+        lbRef.once('value').then(snapshot => {
+            const existing = snapshot.val();
+            // Update if no record yet OR if current money is better OR if rank points increased
+            if (!existing || state.money > (existing.money || 0) || state.rankPoints > (existing.rankPoints || 0)) {
+                let currentRankObj = GAME_RANKS[0];
+                for (let r of GAME_RANKS) {
+                    if (state.rankPoints >= r.minPoints) currentRankObj = r;
+                    else break;
+                }
+
+                lbRef.set({
+                    name: state.username,
+                    money: Math.max(state.money, (existing ? existing.money : 0)),
+                    rankPoints: state.rankPoints,
+                    rankCoins: state.rankCoins,
+                    rankName: currentRankObj.name,
+                    rankIcon: currentRankObj.icon,
+                    rankColor: currentRankObj.color,
+                    lastUpdate: Date.now()
+                }).catch(err => console.error("Firebase sync failed:", err));
+            }
+        });
     }
 
     console.log(`Igra shranjena za ${state.username}`);
@@ -3273,6 +3278,10 @@ function endGame(isBankrupt = false) {
     state.challengeTimer = 0;
     if (window.gameLoopInterval) clearInterval(window.gameLoopInterval);
 
+    // Explicitly hide game UI
+    const gameUI = document.getElementById('game-ui');
+    if (gameUI) gameUI.classList.add('hidden');
+
     // Stop Background Music
     const bgMusic = document.getElementById('bg-music');
     if (bgMusic) {
@@ -3299,38 +3308,43 @@ function endGame(isBankrupt = false) {
 
     if (!gameOverScreen) return;
 
-    // Generate Leaderboard logic
-    let players = [];
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key.startsWith('worldsim_save_')) {
-            try {
-                const data = JSON.parse(localStorage.getItem(key));
-                const name = key.replace('worldsim_save_', '');
-                const countriesOwned = data.ownedCountries ? data.ownedCountries.length : 0;
-                players.push({ name: name, money: data.money || 0, countriesOwned: countriesOwned });
-            } catch (e) {
-                console.error("Error parsing save", e);
+    // Generate Leaderboard logic (Prioritize Global Firebase Data)
+    let players = state.globalPlayers || [];
+
+    // Fallback/Merge with local saves if global not yet loaded
+    if (players.length === 0) {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('worldsim_save_')) {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    const name = key.replace('worldsim_save_', '');
+                    players.push({ name: name, money: data.money || 0, rankPoints: data.rankPoints || 0 });
+                } catch (e) { console.error("Error parsing save", e); }
             }
         }
     }
 
-    // Sort by money, then by countries owned as tiebreaker (for bankrupts with 0 money)
-    players.sort((a, b) => {
-        if (b.money !== a.money) return b.money - a.money;
-        return b.countriesOwned - a.countriesOwned;
-    });
+    // Sort by money
+    players.sort((a, b) => (b.money || 0) - (a.money || 0));
 
     // Find user rank
     const userRankIndex = players.findIndex(p => p.name === state.username);
     const userRankNum = userRankIndex + 1;
 
-    const bankruptText = isBankrupt ? '<br><span style="color:#ef4444; font-weight:800;">BANKROT!</span>' : '';
+    const gameOverSubtitle = document.querySelector('.game-over-subtitle');
+    if (gameOverSubtitle) {
+        gameOverSubtitle.innerHTML = isBankrupt ?
+            'Stroški sanacije uničenih držav so presegli vaš proračun!' :
+            'Čas je potekel!';
+        gameOverSubtitle.style.color = isBankrupt ? '#ef4444' : 'var(--text-muted)';
+    }
+
     rankDisplayUI.innerHTML = `Tvoje mesto: <span style="color:var(--primary); font-size:1.5rem;">#${userRankNum}</span> <br> 
     <span style="font-size:1rem; color:var(--text-muted);">Denar: ${formatMoney(state.money)}</span> <br>
     <span style="font-size:1rem; color:var(--success);">Rank točke: +${countryPoints}</span><br>
     <span style="font-size:1rem; color:#ffd700;">Kovančki: +${countryPoints} 🪙</span><br>
-    <span style="font-size:1.1rem; color:${getCurrentRank().color}; font-weight:800;">${getCurrentRank().name}</span>${bankruptText}`;
+    <span style="font-size:1.1rem; color:${getCurrentRank().color}; font-weight:800;">${getCurrentRank().name}</span>`;
 
     // Render Top 10
     leaderboardDiv.innerHTML = '';
