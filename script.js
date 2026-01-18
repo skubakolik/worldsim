@@ -214,64 +214,64 @@ function createFlagPatterns() {
 }
 
 const SKIN_ITEMS = {
-    'classic': { id: 'classic', name: 'Standardno', desc: 'Standardne barve glede na redkost.', cost: 0, type: 'skin' },
-    'neon': { id: 'neon', name: 'Neon Mesto', desc: 'Svetleče in močne futuristične barve.', cost: 50, type: 'skin' },
-    'gold': { id: 'gold', name: 'Zlati Imperij', desc: 'Vse države postanejo prestižno zlate.', cost: 250, type: 'skin' },
-    'cyber': { id: 'cyber', name: 'Cyberpunk', desc: 'Temno vijolične in modre barve.', cost: 100, type: 'skin' },
-    'lava': { id: 'lava', name: 'Lava', desc: 'Države prekrite z vročo magmo.', cost: 300, type: 'skin' },
-    'matrix': { id: 'matrix', name: 'Matrica', desc: 'Hekerski videz v zeleni kodi.', cost: 200, type: 'skin' },
-    'flags': { id: 'flags', name: 'Zastave Sveta', desc: 'Barve nacionalnih zastav (najbolj priljubljeno).', cost: 50, type: 'skin' },
-    'ghost': { id: 'ghost', name: 'Duh', desc: 'Prosojne in srhljivo modre države.', cost: 150, type: 'skin' },
-    'nature': { id: 'nature', name: 'Narava', desc: 'Zeleni in rjavi toni divjine.', cost: 100, type: 'skin' },
-    'ocean_skin': { id: 'ocean_skin', name: 'Morski Svet', desc: 'Svetlo modre in turkizne barve.', cost: 250, type: 'skin' },
-    'sky_skin': { id: 'sky_skin', name: 'Nebesna Svoboda', desc: 'Barve neba ob sončnem zahodu.', cost: 350, type: 'skin' },
-    'diamond_skin': { id: 'diamond_skin', name: 'Diamantni Sij', desc: 'Države sijejo kot diamant.', cost: 1000, type: 'skin' },
-    'retro_skin': { id: 'retro_skin', name: 'Retro 80s', desc: 'Roza in turkizna arkadna estetika.', cost: 400, type: 'skin' },
-    'fire': { id: 'fire', name: 'Ognjeni Pekel', desc: 'Žareče rdeče in oranžne barve ognja.', cost: 450, type: 'skin' },
-    'ice': { id: 'ice', name: 'Ledena Doba', desc: 'Zamrznjene modre in bele države.', cost: 350, type: 'skin' },
-    'toxic': { id: 'toxic', name: 'Strupeni Odpadki', desc: 'Radioaktivno zelena in rumena.', cost: 300, type: 'skin' },
-    'royal': { id: 'royal', name: 'Kraljevska Vijolična', desc: 'Prestižna vijolična z zlatimi robovi.', cost: 500, type: 'skin' },
-    'shadow': { id: 'shadow', name: 'Senca', desc: 'Popolnoma črne države z belo obrobo.', cost: 600, type: 'skin' },
-    'rainbow': { id: 'rainbow', name: 'Mavrica', desc: 'Vesela igra vseh barv hkrati.', cost: 800, type: 'skin' },
-    'emerald': { id: 'emerald', name: 'Smaragd', desc: 'Globoki zeleni kristalni odtenki.', cost: 700, type: 'skin' },
-    'ruby': { id: 'ruby', name: 'Rubin', desc: 'Veličastni rdeči kristalni toni.', cost: 700, type: 'skin' },
-    'sapphire': { id: 'sapphire', name: 'Safir', desc: 'Globoko modri kristalni toni.', cost: 700, type: 'skin' },
-    'blood_moon': { id: 'blood_moon', name: 'Krvava Luna', desc: 'Temno rdeče z črnimi robovi.', cost: 550, type: 'skin' },
-    'spirit': { id: 'spirit', name: 'Duhovni Svet', desc: 'Svetlo modre mistične barve.', cost: 600, type: 'skin' },
-    'void': { id: 'void', name: 'Praznina', desc: 'Popolna tema s temno vijolično obrobo.', cost: 900, type: 'skin' },
-    'cyber_glow': { id: 'cyber_glow', name: 'Cyber Sij', desc: 'Neon turkizna s svetlečim učinkom.', cost: 450, type: 'skin' },
-    'obsidian': { id: 'obsidian', name: 'Obsidijan', desc: 'Popolna črnina s škrlatnim sije.', cost: 1500, type: 'skin' },
-    'crystal': { id: 'crystal', name: 'Kristalna Čistost', desc: 'Prosojne države z mavričnim odsevom.', cost: 2000, type: 'skin' },
-    'sun_god': { id: 'sun_god', name: 'Sončni Bog', desc: 'Žareča bela in rumena energija.', cost: 3000, type: 'skin' },
-    'galaxy_skin': { id: 'galaxy_skin', name: 'Galaktična Koža', desc: 'Premikajoče se barve vesolja.', cost: 5000, type: 'skin' },
-    'ethereal': { id: 'ethereal', name: 'Eterični Duh', desc: 'Skoraj nevidne, a sijoče države.', cost: 7500, type: 'skin' },
-    'warlord': { id: 'warlord', name: 'Gospodar Vojne', desc: 'Krvavo rdeče z debelo črno obrobo.', cost: 10000, type: 'skin' }
+    'classic': { id: 'classic', name: 'Standardno', desc: 'Standardne barve glede na redkost.', cost: 10, type: 'skin' },
+    'neon': { id: 'neon', name: 'Neon Mesto', desc: 'Svetleče in močne futuristične barve.', cost: 10, type: 'skin' },
+    'gold': { id: 'gold', name: 'Zlati Imperij', desc: 'Vse države postanejo prestižno zlate.', cost: 10, type: 'skin' },
+    'cyber': { id: 'cyber', name: 'Cyberpunk', desc: 'Temno vijolične in modre barve.', cost: 10, type: 'skin' },
+    'lava': { id: 'lava', name: 'Lava', desc: 'Države prekrite z vročo magmo.', cost: 10, type: 'skin' },
+    'matrix': { id: 'matrix', name: 'Matrica', desc: 'Hekerski videz v zeleni kodi.', cost: 10, type: 'skin' },
+    'flags': { id: 'flags', name: 'Zastave Sveta', desc: 'Barve nacionalnih zastav (najbolj priljubljeno).', cost: 10, type: 'skin' },
+    'ghost': { id: 'ghost', name: 'Duh', desc: 'Prosojne in srhljivo modre države.', cost: 10, type: 'skin' },
+    'nature': { id: 'nature', name: 'Narava', desc: 'Zeleni in rjavi toni divjine.', cost: 10, type: 'skin' },
+    'ocean_skin': { id: 'ocean_skin', name: 'Morski Svet', desc: 'Svetlo modre in turkizne barve.', cost: 10, type: 'skin' },
+    'sky_skin': { id: 'sky_skin', name: 'Nebesna Svoboda', desc: 'Barve neba ob sončnem zahodu.', cost: 10, type: 'skin' },
+    'diamond_skin': { id: 'diamond_skin', name: 'Diamantni Sij', desc: 'Države sijejo kot diamant.', cost: 10, type: 'skin' },
+    'retro_skin': { id: 'retro_skin', name: 'Retro 80s', desc: 'Roza in turkizna arkadna estetika.', cost: 10, type: 'skin' },
+    'fire': { id: 'fire', name: 'Ognjeni Pekel', desc: 'Žareče rdeče in oranžne barve ognja.', cost: 10, type: 'skin' },
+    'ice': { id: 'ice', name: 'Ledena Doba', desc: 'Zamrznjene modre in bele države.', cost: 10, type: 'skin' },
+    'toxic': { id: 'toxic', name: 'Strupeni Odpadki', desc: 'Radioaktivno zelena in rumena.', cost: 10, type: 'skin' },
+    'royal': { id: 'royal', name: 'Kraljevska Vijolična', desc: 'Prestižna vijolična z zlatimi robovi.', cost: 10, type: 'skin' },
+    'shadow': { id: 'shadow', name: 'Senca', desc: 'Popolnoma črne države z belo obrobo.', cost: 10, type: 'skin' },
+    'rainbow': { id: 'rainbow', name: 'Mavrica', desc: 'Vesela igra vseh barv hkrati.', cost: 10, type: 'skin' },
+    'emerald': { id: 'emerald', name: 'Smaragd', desc: 'Globoki zeleni kristalni odtenki.', cost: 10, type: 'skin' },
+    'ruby': { id: 'ruby', name: 'Rubin', desc: 'Veličastni rdeči kristalni toni.', cost: 10, type: 'skin' },
+    'sapphire': { id: 'sapphire', name: 'Safir', desc: 'Globoko modri kristalni toni.', cost: 10, type: 'skin' },
+    'blood_moon': { id: 'blood_moon', name: 'Krvava Luna', desc: 'Temno rdeče z črnimi robovi.', cost: 10, type: 'skin' },
+    'spirit': { id: 'spirit', name: 'Duhovni Svet', desc: 'Svetlo modre mistične barve.', cost: 10, type: 'skin' },
+    'void': { id: 'void', name: 'Praznina', desc: 'Popolna tema s temno vijolično obrobo.', cost: 10, type: 'skin' },
+    'cyber_glow': { id: 'cyber_glow', name: 'Cyber Sij', desc: 'Neon turkizna s svetlečim učinkom.', cost: 10, type: 'skin' },
+    'obsidian': { id: 'obsidian', name: 'Obsidijan', desc: 'Popolna črnina s škrlatnim sije.', cost: 10, type: 'skin' },
+    'crystal': { id: 'crystal', name: 'Kristalna Čistost', desc: 'Prosojne države z mavričnim odsevom.', cost: 10, type: 'skin' },
+    'sun_god': { id: 'sun_god', name: 'Sončni Bog', desc: 'Žareča bela in rumena energija.', cost: 10, type: 'skin' },
+    'galaxy_skin': { id: 'galaxy_skin', name: 'Galaktična Koža', desc: 'Premikajoče se barve vesolja.', cost: 10, type: 'skin' },
+    'ethereal': { id: 'ethereal', name: 'Eterični Duh', desc: 'Skoraj nevidne, a sijoče države.', cost: 10, type: 'skin' },
+    'warlord': { id: 'warlord', name: 'Gospodar Vojne', desc: 'Krvavo rdeče z debelo črno obrobo.', cost: 10, type: 'skin' }
 };
 
 const BACKGROUND_ITEMS = {
-    'default': { id: 'default', name: 'Standardno', desc: 'Običajno temno modro ozadje.', cost: 0, type: 'background' },
-    'space': { id: 'space', name: 'Zvezdnato nebo', desc: 'Zvezdnato nebo', cost: 150, type: 'background' },
-    'ocean': { id: 'ocean', name: 'Globok Ocean', desc: 'Temno modre globine morja.', cost: 100, type: 'background' },
-    'magma': { id: 'magma', name: 'Vulkansko', desc: 'Vroče podzemlje polno lave.', cost: 250, type: 'background' },
-    'matrix_bg': { id: 'matrix_bg', name: 'Digitalni Svet', desc: 'Zelena hakerska koda.', cost: 300, type: 'background' },
-    'desert': { id: 'desert', name: 'Puščava', desc: 'Suhi pesek in vroče sipine.', cost: 120, type: 'background' },
-    'arctic': { id: 'arctic', name: 'Arktika', desc: 'Snežno bela in ledeno modra.', cost: 140, type: 'background' },
-    'forest': { id: 'forest', name: 'Gosta Divjina', desc: 'Mirni zeleni gozdovi.', cost: 180, type: 'background' },
-    'city': { id: 'city', name: 'Nočno Mesto', desc: 'Silhuete nebotičnikov.', cost: 350, type: 'background' },
-    'retro_bg': { id: 'retro_bg', name: 'Synthwave', desc: 'Mreža in sončni zahod.', cost: 450, type: 'background' },
-    'clouds': { id: 'clouds', name: 'Oblaki', desc: 'Svetlo modro nebo s puhastimi oblaki.', cost: 200, type: 'background' },
-    'sunset': { id: 'sunset', name: 'Sončni Zahod', desc: 'Tople oranžne in vijolične barve.', cost: 250, type: 'background' },
-    'aurora': { id: 'aurora', name: 'Polarni Sij', desc: 'Čarobno zeleno in modro valovanje.', cost: 500, type: 'background' },
-    'hell': { id: 'hell', name: 'Pekelski Ogenj', desc: 'Globoko rdeče in goreče ozadje.', cost: 600, type: 'background' },
-    'galaxy': { id: 'galaxy', name: 'Galaksija', desc: 'Mistična vijolična galaksija.', cost: 550, type: 'background' },
-    'moonlight': { id: 'moonlight', name: 'Mesečina', desc: 'Mirna modra noč.', cost: 300, type: 'background' },
-    'retro_grid': { id: 'retro_grid', name: 'Retro Mreža', desc: '3D mreža v stilu 80-ih.', cost: 400, type: 'background' },
-    'deep_sea': { id: 'deep_sea', name: 'Globoko Morje', desc: 'Temni ocean z mehurčki.', cost: 350, type: 'background' },
-    'supernova': { id: 'supernova', name: 'Supernova', desc: 'Eksplozija neonskih barv.', cost: 1500, type: 'background' },
-    'dimension_x': { id: 'dimension_x', name: 'Dimenzija X', desc: 'Neznani portalni svet.', cost: 2500, type: 'background' },
-    'godly_realm': { id: 'godly_realm', name: 'Božansko Kraljestvo', desc: 'Čista svetloba in zlati sij.', cost: 5000, type: 'background' },
-    'cyber_core': { id: 'cyber_core', name: 'Cyber Jedro', desc: 'Animirano neonsko jedro.', cost: 8000, type: 'background' },
-    'infinite_nothing': { id: 'infinite_nothing', name: 'Neskončni Nič', desc: 'Globoka črnina s srebrnimi pikami.', cost: 15000, type: 'background' }
+    'default': { id: 'default', name: 'Standardno', desc: 'Običajno temno modro ozadje.', cost: 10, type: 'background' },
+    'space': { id: 'space', name: 'Zvezdnato nebo', desc: 'Zvezdnato nebo', cost: 10, type: 'background' },
+    'ocean': { id: 'ocean', name: 'Globok Ocean', desc: 'Temno modre globine morja.', cost: 10, type: 'background' },
+    'magma': { id: 'magma', name: 'Vulkansko', desc: 'Vroče podzemlje polno lave.', cost: 10, type: 'background' },
+    'matrix_bg': { id: 'matrix_bg', name: 'Digitalni Svet', desc: 'Zelena hakerska koda.', cost: 10, type: 'background' },
+    'desert': { id: 'desert', name: 'Puščava', desc: 'Suhi pesek in vroče sipine.', cost: 10, type: 'background' },
+    'arctic': { id: 'arctic', name: 'Arktika', desc: 'Snežno bela in ledeno modra.', cost: 10, type: 'background' },
+    'forest': { id: 'forest', name: 'Gosta Divjina', desc: 'Mirni zeleni gozdovi.', cost: 10, type: 'background' },
+    'city': { id: 'city', name: 'Nočno Mesto', desc: 'Silhuete nebotičnikov.', cost: 10, type: 'background' },
+    'retro_bg': { id: 'retro_bg', name: 'Synthwave', desc: 'Mreža in sončni zahod.', cost: 10, type: 'background' },
+    'clouds': { id: 'clouds', name: 'Oblaki', desc: 'Svetlo modro nebo s puhastimi oblaki.', cost: 10, type: 'background' },
+    'sunset': { id: 'sunset', name: 'Sončni Zahod', desc: 'Tople oranžne in vijolične barve.', cost: 10, type: 'background' },
+    'aurora': { id: 'aurora', name: 'Polarni Sij', desc: 'Čarobno zeleno in modro valovanje.', cost: 10, type: 'background' },
+    'hell': { id: 'hell', name: 'Pekelski Ogenj', desc: 'Globoko rdeče in goreče ozadje.', cost: 10, type: 'background' },
+    'galaxy': { id: 'galaxy', name: 'Galaksija', desc: 'Mistična vijolična galaksija.', cost: 10, type: 'background' },
+    'moonlight': { id: 'moonlight', name: 'Mesečina', desc: 'Mirna modra noč.', cost: 10, type: 'background' },
+    'retro_grid': { id: 'retro_grid', name: 'Retro Mreža', desc: '3D mreža v stilu 80-ih.', cost: 10, type: 'background' },
+    'deep_sea': { id: 'deep_sea', name: 'Globoko Morje', desc: 'Temni ocean z mehurčki.', cost: 10, type: 'background' },
+    'supernova': { id: 'supernova', name: 'Supernova', desc: 'Eksplozija neonskih barv.', cost: 10, type: 'background' },
+    'dimension_x': { id: 'dimension_x', name: 'Dimenzija X', desc: 'Neznani portalni svet.', cost: 10, type: 'background' },
+    'godly_realm': { id: 'godly_realm', name: 'Božansko Kraljestvo', desc: 'Čista svetloba in zlati sij.', cost: 10, type: 'background' },
+    'cyber_core': { id: 'cyber_core', name: 'Cyber Jedro', desc: 'Animirano neonsko jedro.', cost: 10, type: 'background' },
+    'infinite_nothing': { id: 'infinite_nothing', name: 'Neskončni Nič', desc: 'Globoka črnina s srebrnimi pikami.', cost: 10, type: 'background' }
 };
 const GLOBAL_UPGRADES = {
     // COMMON
@@ -867,7 +867,7 @@ function styleFeature(feature) {
 
     // Destroyed state - Flash Red/Yellow
     if (country && country.destroyed) {
-        return { className: 'destroyed-country', weight: 1, opacity: 1, color: '#ef4444', fillOpacity: 0.8 };
+        return { fillColor: '#050505', color: '#ff0000', weight: 2, fillOpacity: 1, opacity: 1, dashArray: '' };
     }
 
     if (country && country.owned) {
@@ -878,9 +878,10 @@ function styleFeature(feature) {
             const neonColors = ['#ff00ff', '#00ffff', '#39ff14', '#ffff00', '#ff0000'];
             fillColor = neonColors[Math.floor(country.rarity.rank) % neonColors.length];
         } else if (state.equippedSkin === 'gold') {
-            fillColor = '#ffd700';
+            const goldColors = ['#ffd700', '#e6c200', '#b8860b', '#daa520', '#fce883'];
+            fillColor = goldColors[Math.floor(country.rarity.rank) % goldColors.length];
         } else if (state.equippedSkin === 'cyber') {
-            const cyberColors = ['#2d004d', '#1a0033', '#004d4d', '#4d0026'];
+            const cyberColors = ['#2d004d', '#1a0033', '#004d4d', '#4d0026', '#330033'];
             fillColor = cyberColors[Math.floor(country.rarity.rank) % cyberColors.length];
         } else if (state.equippedSkin === 'lava') {
             const lavaColors = ['#991b1b', '#b91c1c', '#dc2626', '#f87171', '#fbbf24'];
@@ -892,7 +893,8 @@ function styleFeature(feature) {
             const flagColors = ['#ef4444', '#3b82f6', '#ffffff', '#22c55e', '#eab308', '#000000'];
             fillColor = flagColors[country.id.length % flagColors.length];
         } else if (state.equippedSkin === 'ghost') {
-            fillColor = '#60a5fa';
+            const ghostColors = ['#60a5fa', '#93c5fd', '#bfdbfe', '#dbeafe', '#eff6ff'];
+            fillColor = ghostColors[Math.floor(country.rarity.rank) % ghostColors.length];
             return { fillColor: fillColor, weight: 1, opacity: 0.4, color: '#93c5fd', fillOpacity: 0.3, dashArray: '3' };
         } else if (state.equippedSkin === 'nature') {
             const natureColors = ['#166534', '#15803d', '#3f6212', '#4d7c0f', '#854d0e'];
@@ -926,24 +928,17 @@ function styleFeature(feature) {
             const rainbowColors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8b00ff'];
             fillColor = rainbowColors[Math.floor(country.rarity.rank) % rainbowColors.length];
         } else if (state.equippedSkin === 'blood_moon') {
-            fillColor = '#450a0a';
+            const bloodColors = ['#450a0a', '#7f1d1d', '#991b1b', '#b91c1c', '#500724'];
+            fillColor = bloodColors[Math.floor(country.rarity.rank) % bloodColors.length];
             return { fillColor: fillColor, weight: 1, opacity: 1, color: '#000000', fillOpacity: 1 };
         } else if (state.equippedSkin === 'spirit') {
-            fillColor = '#ffffff';
+            const spiritColors = ['#ffffff', '#f0f9ff', '#e0f2fe', '#dbeafe', '#eff6ff'];
+            fillColor = spiritColors[Math.floor(country.rarity.rank) % spiritColors.length];
             return { fillColor: fillColor, weight: 1.5, opacity: 0.8, color: '#60a5fa', fillOpacity: 0.6, dashArray: '5,5' };
         } else if (state.equippedSkin === 'silver') {
-            fillColor = '#d1d5db';
+            const silverColors = ['#d1d5db', '#9ca3af', '#6b7280', '#e5e7eb', '#f3f4f6'];
+            fillColor = silverColors[Math.floor(country.rarity.rank) % silverColors.length];
             return { fillColor: fillColor, weight: 1, opacity: 1, color: '#9ca3af', fillOpacity: 0.9 };
-        } else if (state.equippedSkin === 'fire') {
-            const fireColors = ['#991b1b', '#b91c1c', '#ea580c', '#f97316', '#fbbf24'];
-            fillColor = fireColors[country.rarity.rank % fireColors.length];
-        } else if (state.equippedSkin === 'ice') {
-            const iceColors = ['#0891b2', '#06b6d4', '#67e8f9', '#cffafe', '#ffffff'];
-            fillColor = iceColors[country.rarity.rank % iceColors.length];
-        } else if (state.equippedSkin === 'toxic') {
-            const toxicColors = ['#14532d', '#166534', '#65a30d', '#a3e635', '#bef264'];
-            fillColor = toxicColors[country.rarity.rank % toxicColors.length];
-        } else if (state.equippedSkin === 'royal') {
             const royalColors = ['#4c1d95', '#5b21b6', '#7c3aed', '#8b5cf6', '#a78bfa'];
             fillColor = royalColors[country.rarity.rank % royalColors.length];
             return { fillColor: fillColor, weight: 2, opacity: 1, color: '#ffd700', fillOpacity: 0.9 };
@@ -997,7 +992,56 @@ function styleFeature(feature) {
 
         return { fillColor: fillColor, weight: 1, opacity: 1, color: 'white', fillOpacity: 0.9 };
     }
-    return { fillColor: '#334155', weight: 1, opacity: 1, color: '#475569', fillOpacity: 0.5 };
+
+    // Unowned Countries - Styling based on equipped skin for better immersion
+    let unownedFill = '#1e293b'; // Default standard dark blue-grey
+    let unownedStroke = '#334155';
+
+    if (state.equippedSkin === 'neon') {
+        unownedFill = '#2e1065'; // Dark Purple
+        unownedStroke = '#4c1d95';
+    } else if (state.equippedSkin === 'gold') {
+        unownedFill = '#422006'; // Dark Bronze
+        unownedStroke = '#713f12';
+    } else if (state.equippedSkin === 'cyber') {
+        unownedFill = '#0f172a'; // Deep Navy
+        unownedStroke = '#1e293b';
+    } else if (state.equippedSkin === 'lava' || state.equippedSkin === 'fire') {
+        unownedFill = '#2a0a0a'; // Dark Red/Brown
+        unownedStroke = '#450a0a';
+    } else if (state.equippedSkin === 'matrix') {
+        unownedFill = '#052005'; // Very dark green
+        unownedStroke = '#14532d';
+    } else if (state.equippedSkin === 'ghost') {
+        unownedFill = '#0f172a';
+        unownedStroke = '#1e293b';
+    } else if (state.equippedSkin === 'nature') {
+        unownedFill = '#14532d'; // Dark Green
+        unownedStroke = '#166534';
+    } else if (state.equippedSkin === 'ocean_skin') {
+        unownedFill = '#0c4a6e'; // Dark Ocean
+        unownedStroke = '#075985';
+    } else if (state.equippedSkin === 'ice') {
+        unownedFill = '#164e63'; // Dark Cyan
+        unownedStroke = '#155e75';
+    } else if (state.equippedSkin === 'royal') {
+        unownedFill = '#2e1065'; // Royal Dark
+        unownedStroke = '#5b21b6';
+    } else if (state.equippedSkin === 'blood_moon') {
+        unownedFill = '#2a0a0a';
+        unownedStroke = '#450a0a';
+    } else if (state.equippedSkin === 'sun_god') {
+        unownedFill = '#422006';
+        unownedStroke = '#a16207';
+    } else if (state.equippedSkin === 'galaxy_skin') {
+        unownedFill = '#1e1b4b'; // Deep Indigo
+        unownedStroke = '#312e81';
+    } else if (state.equippedSkin === 'void') {
+        unownedFill = '#000000';
+        unownedStroke = '#262626';
+    }
+
+    return { fillColor: unownedFill, weight: 0.5, opacity: 1, color: unownedStroke, fillOpacity: 1 };
 }
 
 function onEachFeature(feature, layer) {

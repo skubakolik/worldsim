@@ -1618,26 +1618,128 @@ h3 {
     transform: translateY(0);
 }
 
-/* Background Effects */
-.bg-space {
-    --theme-color: #000;
-    background: #000 !important;
-    position: relative;
-}
+/* --- Dynamic Background Effects --- */
 
+/* Keyframes for Unified Background Animations */
 @keyframes twinkleStars {
 
     0%,
     100% {
         opacity: 0.8;
+        transform: scale(1);
     }
 
     50% {
-        opacity: 0.3;
+        opacity: 0.4;
+        transform: scale(0.9);
     }
 }
 
-.bg-space::before {
+@keyframes ocean-flow {
+    0% {
+        background-position: 0% 0%;
+    }
+
+    100% {
+        background-position: 0% 50px;
+    }
+}
+
+@keyframes lava-flow {
+    0% {
+        background-size: 100% 100%;
+        filter: brightness(1);
+    }
+
+    50% {
+        background-size: 110% 110%;
+        filter: brightness(1.2);
+    }
+
+    100% {
+        background-size: 100% 100%;
+        filter: brightness(1);
+    }
+}
+
+@keyframes grid-scroll {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 0 50px;
+    }
+}
+
+@keyframes galaxy-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes aurora-shift {
+    0% {
+        background-position: 50% 0%;
+    }
+
+    50% {
+        background-position: 50% 100%;
+    }
+
+    100% {
+        background-position: 50% 0%;
+    }
+}
+
+@keyframes matrix-rain {
+    0% {
+        background-position: 0% 0%;
+    }
+
+    100% {
+        background-position: 0% 100%;
+    }
+}
+
+@keyframes dimension-spin {
+    from {
+        transform: rotate(0deg) scale(2);
+    }
+
+    to {
+        transform: rotate(360deg) scale(2);
+    }
+}
+
+/* Base class for all backgrounds to ensure positioning */
+body[class*="bg-"] {
+    background-attachment: fixed !important;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.5s ease;
+}
+
+/* 1. SPACE / GALAXY Themes (Twinkling) */
+.bg-space,
+.bg-galaxy,
+.bg-infinite-nothing,
+.bg-supernova,
+.bg-moonlight,
+.bg-dimension-x {
+    --theme-color: #000;
+    background-color: #000 !important;
+}
+
+/* Shared Star Field Overlay */
+.bg-space::before,
+.bg-galaxy::before,
+.bg-infinite-nothing::before,
+.bg-moonlight::before {
     content: '';
     position: fixed;
     top: 0;
@@ -1645,165 +1747,204 @@ h3 {
     width: 100%;
     height: 100%;
     background-image:
-        radial-gradient(1.5px 1.5px at 20px 30px, #fff, rgba(0, 0, 0, 0)),
-        radial-gradient(1.5px 1.5px at 150px 100px, #fff, rgba(0, 0, 0, 0)),
-        radial-gradient(2px 2px at 50px 160px, #fff, rgba(0, 0, 0, 0)),
-        radial-gradient(1px 1px at 90px 40px, #fff, rgba(0, 0, 0, 0)),
-        radial-gradient(2px 2px at 130px 250px, #fff, rgba(0, 0, 0, 0)),
-        radial-gradient(1.5px 1.5px at 160px 120px, #fff, rgba(0, 0, 0, 0));
-    background-repeat: repeat;
-    background-size: 250px 250px;
+        radial-gradient(1px 1px at 10% 20%, #fff, transparent),
+        radial-gradient(2px 2px at 40% 60%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 80% 30%, #fff, transparent),
+        radial-gradient(1px 1px at 20% 80%, #fff, transparent);
+    background-size: 400px 400px;
     opacity: 0.8;
+    animation: twinkleStars 4s infinite ease-in-out;
     pointer-events: none;
     z-index: -1;
-    animation: twinkleStars 3s infinite ease-in-out;
 }
 
-.bg-ocean {
-    --theme-color: rgb(17, 17, 132);
-    background: var(--theme-color) !important;
+/* Specific Galaxy Elements */
+.bg-galaxy::after {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(76, 29, 149, 0.4) 0%, transparent 60%);
+    animation: dimension-spin 120s infinite linear;
+    pointer-events: none;
+    z-index: -2;
 }
 
-.bg-lava {
+/* Supernova Pulse */
+.bg-supernova {
+    background: radial-gradient(circle at center, #ef4444 0%, #f59e0b 40%, #000 100%) !important;
+    animation: lava-flow 2s infinite ease-in-out;
+}
+
+/* 2. OCEAN / WATER Themes (Waves) */
+.bg-ocean,
+.bg-deep-sea {
+    --theme-color: #082f49;
+    background-color: #082f49 !important;
+    /* Subtle moving wave pattern using gradients */
+    background-image:
+        repeating-radial-gradient(circle at 50% 100%, transparent 0, transparent 20px, rgba(255, 255, 255, 0.03) 21px, rgba(255, 255, 255, 0.03) 40px),
+        linear-gradient(180deg, #0c4a6e 0%, #082f49 100%) !important;
+    background-size: 100% 200% !important;
+    animation: aurora-shift 15s infinite ease-in-out;
+}
+
+/* Bubbles/Particles for deep sea could be added via ::before */
+
+/* 3. FIRE / LAVA / HELL Themes (Flowing/Pulsing) */
+.bg-lava,
+.bg-magma,
+.bg-hell,
+.bg-fire,
+.bg-volcano {
     --theme-color: #450a0a;
-    background: radial-gradient(circle at center, #7f1d1d 0%, #450a0a 100%) !important;
+    background: radial-gradient(circle at center, #991b1b 0%, #450a0a 100%) !important;
+    animation: lava-flow 4s infinite ease-in-out;
 }
 
-.bg-matrix {
-    --theme-color: #000;
-    background: #000 !important;
-}
-
-.bg-matrix::before {
-    content: "01101010110101";
-    position: absolute;
+.bg-magma::before {
+    content: '';
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    color: #0f0;
-    font-family: monospace;
-    opacity: 0.1;
-    overflow: hidden;
-    word-break: break-all;
+    background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255, 100, 0, 0.1) 20px, rgba(255, 100, 0, 0.1) 40px);
+    background-size: 200% 200%;
+    animation: grid-scroll 10s infinite linear;
     pointer-events: none;
 }
 
-.bg-forest {
-    --theme-color: #064e3b;
-    background: linear-gradient(180deg, #14532d 0%, #064e3b 100%) !important;
-}
-
-.bg-city {
-    --theme-color: #111827;
-    background: linear-gradient(180deg, #1f2937 0%, #111827 100%) !important;
-}
-
-.bg-retro {
+/* 4. TECH / MATRIX / RETRO Themes (Scrolling) */
+.bg-matrix,
+.bg-matrix_bg {
     --theme-color: #000;
-    background: #000 !important;
+    background-color: #000 !important;
+}
+
+.bg-matrix::before,
+.bg-matrix_bg::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: 0;
+    width: 100%;
+    height: 200%;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 255, 0, 0.2) 50%, transparent 100%);
+    background-size: 100% 20px;
+    animation: matrix-rain 2s infinite linear;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.bg-retro,
+.bg-retro_grid,
+.bg-retro_bg,
+.bg-cyber_core {
+    --theme-color: #2e1065;
+    background-color: #1a0b2e !important;
     background-image:
-        linear-gradient(rgba(255, 0, 255, 0.2) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 0, 255, 0.2) 1px, transparent 1px) !important;
-    background-size: 40px 40px !important;
+        linear-gradient(rgba(236, 72, 153, 0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.3) 1px, transparent 1px) !important;
+    background-size: 50px 50px !important;
+    animation: grid-scroll 2s infinite linear;
+    perspective: 500px;
+}
+
+.bg-cyber_core {
+    background-image:
+        radial-gradient(circle at center, #06b6d4 0%, transparent 60%),
+        linear-gradient(rgba(34, 211, 238, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 211, 238, 0.2) 1px, transparent 1px) !important;
+    animation: lava-flow 2s infinite ease-in-out, grid-scroll 5s infinite linear;
+}
+
+/* 5. NATURE / ATMOSPHERE Themes (Shifting) */
+.bg-aurora {
+    --theme-color: #020617;
+    background: linear-gradient(180deg, #020617 0%, #064e3b 40%, #22c55e 80%, #020617 100%) !important;
+    background-size: 100% 300% !important;
+    animation: aurora-shift 10s infinite ease-in-out;
+}
+
+.bg-sunset {
+    --theme-color: #7c2d12;
+    background: linear-gradient(180deg, #f97316 0%, #c026d3 60%, #4a044e 100%) !important;
+    background-size: 100% 200% !important;
+    animation: aurora-shift 15s infinite alternate;
 }
 
 .bg-clouds {
     --theme-color: #38bdf8;
-    background: linear-gradient(180deg, #0ea5e9 0%, #38bdf8 100%) !important;
+    background: #bae6fd !important;
+    position: relative;
 }
 
-.bg-sunset {
-    --theme-color: #8b5cf6;
-    background: linear-gradient(180deg, #f97316 0%, #8b5cf6 100%) !important;
+.bg-clouds::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, #fff 20%, transparent 60%);
+    background-size: 300px 300px;
+    opacity: 0.6;
+    animation: grid-scroll 20s infinite linear;
+    /* Horizontal move logic needed */
+    /* Reusing grid-scroll roughly for now, but better to just have a soft gradient shift */
 }
 
-.bg-aurora {
-    --theme-color: #020617;
-    background: linear-gradient(180deg, #020617 0%, #064e3b 50%, #22c55e 100%) !important;
-}
-
-.bg-hell {
-    --theme-color: #450a0a;
-    background: radial-gradient(circle at center, #991b1b 0%, #450a0a 100%) !important;
-}
-
-.bg-galaxy {
-    --theme-color: #020617;
-    background: radial-gradient(circle at center, #2e1065 0%, #020617 100%) !important;
-}
-
-.bg-moonlight {
-    --theme-color: #020617;
-    background: linear-gradient(180deg, #1e3a8a 0%, #020617 100%) !important;
-}
-
-.bg-retro-grid {
-    --theme-color: #000;
-    background: #000 !important;
-    background-image:
-        linear-gradient(#f0f 1px, transparent 1px),
-        linear-gradient(90deg, #f0f 1px, transparent 1px) !important;
-    background-size: 50px 50px !important;
-    perspective: 500px;
-}
-
-.bg-deep-sea {
-    --theme-color: #082f49;
-    background: linear-gradient(180deg, #082f49 0%, #0c4a6e 100%) !important;
-}
-
-.bg-supernova {
-    --theme-color: #3b82f6;
-    background: radial-gradient(circle at center, #ef4444 0%, #f59e0b 50%, #3b82f6 100%) !important;
-    animation: pulseBG 10s infinite alternate;
-}
-
-@keyframes pulseBG {
-    0% {
-        filter: hue-rotate(0deg);
-    }
-
-    100% {
-        filter: hue-rotate(360deg);
-    }
+/* 6. GODLY & DIMENSION X */
+.bg-godly-realm {
+    --theme-color: #fbbf24;
+    background: radial-gradient(circle, #ffffff 0%, #fbbf24 60%, #d97706 100%) !important;
+    animation: lava-flow 3s infinite ease-in-out;
+    box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.8);
 }
 
 .bg-dimension-x {
-    --theme-color: #000;
     background: #000 !important;
-    background-image: repeating-conic-gradient(#000 0% 10%, #4c1d95 10% 20%) !important;
-    background-size: 200px 200px !important;
 }
 
-.bg-godly-realm {
-    --theme-color: #fbbf24;
-    background: radial-gradient(circle at center, #fff 0%, #fef08a 60%, #fbbf24 100%) !important;
-    box-shadow: inset 0 0 100px #fff;
+.bg-dimension-x::before {
+    content: '';
+    position: fixed;
+    top: -100%;
+    left: -100%;
+    width: 300%;
+    height: 300%;
+    background: repeating-conic-gradient(#000 0deg 15deg, #4c1d95 15deg 30deg);
+    animation: dimension-spin 30s infinite linear;
+    opacity: 0.3;
+    pointer-events: none;
 }
 
-.bg-cyber-core {
-    --theme-color: #000;
-    background: #000 !important;
-    background-image:
-        radial-gradient(circle at 50% 50%, #06b6d4 0%, transparent 50%),
-        linear-gradient(rgba(34, 211, 238, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(34, 211, 238, 0.1) 1px, transparent 1px) !important;
-    background-size: 100% 100%, 20px 20px, 20px 20px !important;
+/* 7. TERRAIN (Static or subtle) */
+.bg-forest {
+    --theme-color: #064e3b;
+    background: linear-gradient(to bottom, #14532d, #064e3b) !important;
 }
 
-.bg-infinite-nothing {
-    --theme-color: #000;
-    background: #000 !important;
-    background-image:
-        radial-gradient(1px 1px at 10% 20%, #fff, rgba(0, 0, 0, 0)),
-        radial-gradient(1px 1px at 30% 50%, #fff, rgba(0, 0, 0, 0)),
-        radial-gradient(1px 1px at 70% 80%, #fff, rgba(0, 0, 0, 0)),
-        radial-gradient(2px 2px at 40% 10%, #fff, rgba(0, 0, 0, 0)),
-        radial-gradient(2px 2px at 90% 90%, #fff, rgba(0, 0, 0, 0)) !important;
-    background-repeat: repeat !important;
-    background-size: 250px 250px !important;
+.bg-desert {
+    --theme-color: #78350f;
+    background: linear-gradient(to bottom, #d97706, #92400e) !important;
 }
+
+.bg-arctic,
+.bg-ice {
+    --theme-color: #1e3a8a;
+    background: linear-gradient(to bottom, #e0f2fe, #3b82f6) !important;
+}
+
+.bg-city {
+    --theme-color: #111827;
+    background: linear-gradient(to bottom, #1f2937, #000) !important;
+}
+
+
 
 .skin-preview-circle {
     width: 20px;
@@ -2696,4 +2837,27 @@ path.destroyed-country {
         font-size: 0.9rem;
         padding: 0.3rem 0.75rem;
     }
+}
+
+/* CSS for flashing destroyed countries */
+@keyframes destroyed-flash {
+    0% {
+        fill-opacity: 0.6;
+        fill: #ef4444;
+    }
+
+    50% {
+        fill-opacity: 0.8;
+        fill: #fb923c;
+    }
+
+    /* Red-Orange */
+    100% {
+        fill-opacity: 0.6;
+        fill: #ef4444;
+    }
+}
+
+.destroyed-country-anim {
+    animation: destroyed-flash 1.5s infinite ease-in-out !important;
 }
