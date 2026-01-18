@@ -165,7 +165,7 @@ const SKIN_ITEMS = {
     'cyber': { id: 'cyber', name: 'Cyberpunk', desc: 'Temno vijolične in modre barve.', cost: 100, type: 'skin' },
     'lava': { id: 'lava', name: 'Lava', desc: 'Države prekrite z vročo magmo.', cost: 300, type: 'skin' },
     'matrix': { id: 'matrix', name: 'Matrica', desc: 'Hekerski videz v zeleni kodi.', cost: 200, type: 'skin' },
-    'flags': { id: 'flags', name: 'Zastave Sveta', desc: 'Barve nacionalnih zastav.', cost: 500, type: 'skin' },
+    'flags': { id: 'flags', name: 'Zastave Sveta', desc: 'Barve nacionalnih zastav (najbolj priljubljeno).', cost: 50, type: 'skin' },
     'ghost': { id: 'ghost', name: 'Duh', desc: 'Prosojne in srhljivo modre države.', cost: 150, type: 'skin' },
     'nature': { id: 'nature', name: 'Narava', desc: 'Zeleni in rjavi toni divjine.', cost: 100, type: 'skin' },
     'ocean_skin': { id: 'ocean_skin', name: 'Morski Svet', desc: 'Svetlo modre in turkizne barve.', cost: 250, type: 'skin' },
