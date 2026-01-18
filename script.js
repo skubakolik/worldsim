@@ -1760,8 +1760,8 @@ function replenishStock() {
     const lockedCandidates = candidates.filter(c => isCountryLocked(c));
     const unlockedCandidates = candidates.filter(c => !isCountryLocked(c));
 
-    // 4. Fill Locked Quota (Max 10% of Total Max Stock, e.g. 3 items)
-    const maxLockedAlloc = Math.floor(maxStock * 0.1);
+    // 4. Fill Locked Quota (User requested: Only ONE locked country max)
+    const maxLockedAlloc = 1;
     let lockedAdded = 0;
 
     // Shuffle locked candidates to pick random ones
