@@ -158,6 +158,61 @@ const GAME_RANKS = [
     { name: 'Kralj', minPoints: 500000000, color: '#eab308', reward: 100000, icon: '👑' }
 ];
 
+function sanitizeId(str) {
+    return str.replace(/[^a-zA-Z0-9-_]/g, '_');
+}
+
+function createFlagPatterns() {
+    // Check if container exists
+    let svgContainer = document.getElementById('flag-patterns-container');
+    if (!svgContainer) {
+        svgContainer = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svgContainer.id = 'flag-patterns-container';
+        svgContainer.style.position = 'absolute';
+        svgContainer.style.width = '0';
+        svgContainer.style.height = '0';
+        svgContainer.style.pointerEvents = 'none';
+
+        const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+        defs.id = 'flag-patterns-defs';
+        svgContainer.appendChild(defs);
+        document.body.appendChild(svgContainer);
+    }
+
+    const defs = document.getElementById('flag-patterns-defs');
+    defs.innerHTML = ''; // Clear existing
+
+    Object.values(state.countries).forEach(c => {
+        // Construct Flag URL
+        // Prefer ISO2 for flagcdn (higher quality), fallback to flagsapi with ISO3 (feature.id)
+        let flagUrl = '';
+        if (c.iso2 && c.iso2.length === 2 && c.iso2 !== '-99') {
+            flagUrl = `https://flagcdn.com/w320/${c.iso2.toLowerCase()}.png`;
+        } else {
+            // Fallback to flagsapi for 3-letter codes
+            flagUrl = `https://flagsapi.com/${c.id}/flat/64.png`;
+        }
+
+        const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+        pattern.setAttribute('id', `flag-${sanitizeId(c.id)}`);
+        pattern.setAttribute('patternUnits', 'objectBoundingBox');
+        pattern.setAttribute('width', '1');
+        pattern.setAttribute('height', '1');
+        pattern.setAttribute('preserveAspectRatio', 'none'); // Stretch to fill
+
+        const image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+        image.setAttribute('href', flagUrl);
+        image.setAttribute('x', '0');
+        image.setAttribute('y', '0');
+        image.setAttribute('width', '1');
+        image.setAttribute('height', '1');
+        image.setAttribute('preserveAspectRatio', 'none'); // Stretch
+
+        pattern.appendChild(image);
+        defs.appendChild(pattern);
+    });
+}
+
 const SKIN_ITEMS = {
     'classic': { id: 'classic', name: 'Standardno', desc: 'Standardne barve glede na redkost.', cost: 0, type: 'skin' },
     'neon': { id: 'neon', name: 'Neon Mesto', desc: 'Svetleče in močne futuristične barve.', cost: 50, type: 'skin' },
@@ -609,6 +664,7 @@ async function loadCountryData() {
             const englishName = feature.properties.name || feature.properties.ADMIN || "Unknown";
             const name = getSlovenianName(englishName);
             const id = feature.id || englishName;
+            const iso2 = feature.properties.ISO_A2 || feature.properties.iso_a2 || feature.properties['ISO3166-1-Alpha-2'] || null;
 
             allCountries.push({ feature: feature, area: area, name: name, id: id, lat: lat });
         });
@@ -682,7 +738,9 @@ async function loadCountryData() {
                 inStock: false,
                 baseCost: baseCost,
                 baseIncome: (baseCost / 100) * (rarity.multiplier || 1), // 1% ROI weighted by rarity
-                realColor: getRealColor(c.name, c.lat)
+                baseIncome: (baseCost / 100) * (rarity.multiplier || 1), // 1% ROI weighted by rarity
+                realColor: getRealColor(c.name, c.lat),
+                iso2: c.feature.properties.ISO_A2 || c.feature.properties.iso_a2 || null
             };
         });
         // Create a set of IDs for the final 198 countries for efficient lookup
@@ -693,6 +751,7 @@ async function loadCountryData() {
         const filteredData = { ...data, features: filteredFeatures };
 
         if (geoJsonLayer && map) map.removeLayer(geoJsonLayer);
+        createFlagPatterns(); // Generate patterns
         geoJsonLayer = L.geoJSON(filteredData, { style: styleFeature, onEachFeature: onEachFeature }).addTo(map);
         renderShop();
     } catch (e) { console.error(e); }
@@ -812,8 +871,8 @@ function styleFeature(feature) {
             const greenTones = ['#052e16', '#14532d', '#166534', '#15803d', '#16a34a'];
             fillColor = greenTones[Math.floor(country.rarity.rank) % greenTones.length];
         } else if (state.equippedSkin === 'flags') {
-            const flagColors = ['#ef4444', '#3b82f6', '#ffffff', '#22c55e', '#eab308', '#000000'];
-            fillColor = flagColors[country.id.length % flagColors.length];
+            // Use the pattern
+            return { fillColor: `url(#flag-${sanitizeId(country.id)})`, weight: 1, opacity: 1, color: '#fbbf24', fillOpacity: 0.9 };
         } else if (state.equippedSkin === 'ghost') {
             fillColor = '#60a5fa';
             return { fillColor: fillColor, weight: 1, opacity: 0.4, color: '#93c5fd', fillOpacity: 0.3, dashArray: '3' };
