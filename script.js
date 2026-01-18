@@ -2336,7 +2336,7 @@ function switchMusicToGame() {
     // Start Game Music
     const bgMusic = document.getElementById('bg-music');
     if (bgMusic) {
-        bgMusic.volume = 0.15;
+        bgMusic.volume = 0.7;
         bgMusic.play().catch(e => console.log("Music play failed:", e));
     }
 }
