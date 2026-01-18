@@ -788,24 +788,13 @@ async function loadCountryData() {
 // --- Stock Logic ---
 
 function isCountryLocked(c) {
-    // If we don't own it, we can buy it (Lvl 1 permit is for upgrading to Lvl 1? 
-    // Actually Lvl 0->1 is "First Purchase". Unlock keys named "Dovoljenje za Lvl 1". 
-    // Usually means "Upgrade TO Level 1". Buying makes it Level 1.
-    // But usually first purchase is free of permits?
-    // Let's assume Permits are for UPGRADES (Owned=true).
     if (!c.owned) return false;
 
-    // Destoyed countries need to be restored. If restoration upgrades them, we might need permit.
-    // But usually restoration is priority. Let's say destroyed are never locked to prevent softlock?
-    // Or keep them locked to force strategy? User didn't specify.
-    // I will keep them lockable to be consistent with "Upgrade" logic.
-
-    const nextLevel = c.level + 1;
-    if (nextLevel <= 5) {
-        return !state.ownedUpgrades.has(`UNLOCK_LVL_${nextLevel}`);
-    } else {
-        return !state.ownedUpgrades.has('UNLOCK_LVL_5');
-    }
+    // We want Permit X to allow upgrading FROM Level X.
+    // e.g. Permit 1 allows Lvl 1 -> Lvl 2.
+    // Permit 5 allows Lvl 5 -> Lvl 6 (and beyond).
+    const levelParams = Math.min(c.level, 5);
+    return !state.ownedUpgrades.has(`UNLOCK_LVL_${levelParams}`);
 }
 
 function replenishStock() {
@@ -1720,12 +1709,10 @@ function updateShopState() {
 }
 
 function isCountryLocked(country) {
-    if (!country.owned) return false; // Only owned countries can be locked for upgrade
-    const nextLevel = country.level + 1;
-    if (nextLevel > 5) { // Assuming max level is 5, or UNLOCK_LVL_5 covers 5+
-        return !state.ownedUpgrades.has('UNLOCK_LVL_5');
-    }
-    return !state.ownedUpgrades.has(`UNLOCK_LVL_${nextLevel}`);
+    if (!country.owned) return false;
+    // Permit X allows upgrading FROM Level X.
+    const levelParams = Math.min(country.level, 5);
+    return !state.ownedUpgrades.has(`UNLOCK_LVL_${levelParams}`);
 }
 
 function replenishStock() {
@@ -1837,8 +1824,8 @@ function renderShop() {
 
         let lockedReason = null;
         if (locked) {
-            const nextLevel = c.level + 1;
-            lockedReason = (nextLevel <= 5) ? `POTREBUJEŠ DOVOLJENJE ${nextLevel}` : "POTREBUJEŠ DOVOLJENJE 5";
+            const levelParams = Math.min(c.level, 5);
+            lockedReason = `POTREBUJEŠ DOVOLJENJE ${levelParams}`;
         }
 
         // Handle destroyed state styling
