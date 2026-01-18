@@ -1260,16 +1260,8 @@ function buyCountry(id) {
         renderCollection();
         updateUI();
 
-        // Dynamic zoom every 5th purchase
+        // Removed dynamic zoom every 5th purchase as requested
         state.purchaseCount++;
-        if (state.purchaseCount % 5 === 0 && map && country.feature) {
-            const bounds = L.geoJSON(country.feature).getBounds();
-            map.flyToBounds(bounds, { padding: [100, 100], duration: 1.5 });
-
-            setTimeout(() => {
-                if (map) map.flyTo([30, 30], 2.2, { duration: 1.5 });
-            }, 3000);
-        }
     }
 }
 
