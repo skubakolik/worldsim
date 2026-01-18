@@ -3266,7 +3266,7 @@ function updateChallengeTimerDisplay() {
     }
 }
 
-function endGame(isBankrupt = false) {
+async function endGame(isBankrupt = false) {
     state.challengeTimer = 0;
     if (window.gameLoopInterval) clearInterval(window.gameLoopInterval);
 
@@ -3308,25 +3308,42 @@ function endGame(isBankrupt = false) {
 
     if (!gameOverScreen || !rankDisplayUI) return;
 
-    try {
+    // FETCH FRESH DATA FOR RANKING
+    let players = [];
+    if (firebaseConfig.apiKey !== "Vstavite-Tukaj") {
+        try {
+            const snapshot = await db.ref('leaderboard').once('value');
+            const cloudData = snapshot.val();
+            if (cloudData) players = Object.values(cloudData);
+        } catch (err) {
+            console.error("Firebase leaderboard fetch failed:", err);
+        }
+    }
 
-        // Generate Leaderboard logic (Prioritize Global Firebase Data)
-        let players = state.globalPlayers || [];
-
-        // Fallback/Merge with local saves if global not yet loaded
-        if (players.length === 0) {
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('worldsim_save_')) {
-                    try {
-                        const data = JSON.parse(localStorage.getItem(key));
-                        const name = key.replace('worldsim_save_', '');
-                        players.push({ name: name, money: data.money || 0, rankPoints: data.rankPoints || 0 });
-                    } catch (e) { console.error("Error parsing save", e); }
-                }
+    // Fallback/Merge with local saves
+    if (players.length === 0) {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('worldsim_save_')) {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    const name = key.replace('worldsim_save_', '');
+                    players.push({ name: name, money: data.money || 0, rankPoints: data.rankPoints || 0 });
+                } catch (e) { }
             }
         }
+    }
 
+    // Ensure CURRENT user is in the list with their LATEST score
+    const userIndexInList = players.findIndex(p => p.name === state.username);
+    if (userIndexInList !== -1) {
+        // Update their score in the list to current one if current is higher (or always if we want current game rank)
+        players[userIndexInList].money = Math.max(players[userIndexInList].money || 0, state.money);
+    } else {
+        players.push({ name: state.username, money: state.money, rankPoints: state.rankPoints });
+    }
+
+    try {
         // Sort by money
         players.sort((a, b) => (b.money || 0) - (a.money || 0));
 
@@ -3358,14 +3375,33 @@ function endGame(isBankrupt = false) {
             if (p.name === state.username) row.classList.add('highlight');
 
             row.innerHTML = `
-            <div style="display:flex; width:100%;">
-                <span class="rank-num">${i + 1}.</span>
-                <span class="player-name">${p.name}</span>
-                <span class="player-money">${formatMoney(p.money)}</span>
-            </div>
-        `;
+                <div style="display:flex; width:100%;">
+                    <span class="rank-num">${i + 1}.</span>
+                    <span class="player-name">${p.name}</span>
+                    <span class="player-money">${formatMoney(p.money)}</span>
+                </div>
+            `;
             leaderboardDiv.appendChild(row);
         });
+
+        // Add user if they are NOT in the Top 10
+        if (userRankNum > 10) {
+            const separator = document.createElement('div');
+            separator.style.borderTop = '1px dashed rgba(255,255,255,0.2)';
+            separator.style.margin = '4px 0';
+            leaderboardDiv.appendChild(separator);
+
+            const row = document.createElement('div');
+            row.className = 'leaderboard-row highlight';
+            row.innerHTML = `
+                <div style="display:flex; width:100%;">
+                    <span class="rank-num">${userRankNum}.</span>
+                    <span class="player-name">${state.username}</span>
+                    <span class="player-money">${formatMoney(state.money)}</span>
+                </div>
+            `;
+            leaderboardDiv.appendChild(row);
+        }
 
     } catch (err) {
         console.error("Error rendering results:", err);
