@@ -128,6 +128,8 @@ const GDP_DATA = {
     "Sveti Vincencij in Grenadine": 11552.22, "Palestina": 2552.51, "Sudan": 984.62, "Surinam": 6385.73,
     "Švedska": 57127.42, "Švica": 105958.13, "Sirija": 1253.67, "Tadžikistan": 1345.28, "Tanzanija": 1188.72,
     "Tajska": 7833.82, "Timor-Leste": 1238.87, "Togo": 1222.38, "Tonga": 5855.92, "Trinidad in Tobago": 19733.42,
+    "Tajvan": 33000.00,
+    "Tajvan, Kitajska": 33000.00,
     "Tunizija": 4183.13, "Turčija": 13852.72, "Turkmenistan": 8858.88, "Tuvalu": 6333.78, "Uganda": 1077.31,
     "Ukrajina": 5585.82, "Združeni arabski emirati": 55273.51, "Združeno kraljestvo": 51243.37,
     "Združene države Amerike": 85554.84, "Urugvaj": 21953.51, "Uzbekistan": 2243.78, "Vanuatu": 3452.77,
@@ -315,6 +317,13 @@ const GLOBAL_UPGRADES = {
     // EPIC
     MULTI_LEVEL_E: { id: 'MULTI_LEVEL_E', rarity: 'epic', name: 'Trojna Moč II', cost: 45000000, type: 'multi_level', value: 2, desc: 'VSAKIČ KO DRŽAVO KUPIŠ DOBIŠ +2 NIVOJA VEČ' },
 
+    // LEVEL UNLOCKS (Required for upgrading countries)
+    UNLOCK_LVL_1: { id: 'UNLOCK_LVL_1', rarity: 'common', name: 'Dovoljenje za Lvl 1', cost: 7500, type: 'unlock_level', value: 1, desc: 'Omogoči nadgradnjo držav na Level 1.' },
+    UNLOCK_LVL_2: { id: 'UNLOCK_LVL_2', rarity: 'rare', name: 'Dovoljenje za Lvl 2', cost: 25000, type: 'unlock_level', value: 2, desc: 'Omogoči nadgradnjo držav na Level 2.' },
+    UNLOCK_LVL_3: { id: 'UNLOCK_LVL_3', rarity: 'rare', name: 'Dovoljenje za Lvl 3', cost: 100000, type: 'unlock_level', value: 3, desc: 'Omogoči nadgradnjo držav na Level 3.' },
+    UNLOCK_LVL_4: { id: 'UNLOCK_LVL_4', rarity: 'epic', name: 'Dovoljenje za Lvl 4', cost: 500000, type: 'unlock_level', value: 4, desc: 'Omogoči nadgradnjo držav na Level 4.' },
+    UNLOCK_LVL_5: { id: 'UNLOCK_LVL_5', rarity: 'legendary', name: 'Dovoljenje za Lvl 5', cost: 2500000, type: 'unlock_level', value: 5, desc: 'Omogoči nadgradnjo držav na Level 5.' },
+
     // LEGENDARY+
     WORLD_MASTER: { id: 'WORLD_MASTER', rarity: 'og', name: 'Svetovni Mojster', cost: 2500000000, type: 'income', value: 9.0, desc: 'Celoten zaslužek se poveča za 10x' }
 };
@@ -407,6 +416,7 @@ const SLOVENIAN_NAMES = {
     'Tanzania': 'Tanzanija', 'Thailand': 'Tajska', 'Timor-Leste': 'Vzhodni Timor', 'Togo': 'Togo',
     'Tonga': 'Tonga', 'Trinidad and Tobago': 'Trinidad in Tobago', 'Tunisia': 'Tunizija',
     'Turkiye': 'Turčija', 'Turkey': 'Turčija', 'Turkmenistan': 'Turkmenistan', 'Tuvalu': 'Tuvalu',
+    'Taiwan': 'Tajvan', 'Taiwan, China': 'Tajvan',
     'Uganda': 'Uganda', 'Ukraine': 'Ukrajina', 'United Arab Emirates': 'Združeni arabski emirati',
     'United Kingdom': 'Združeno kraljestvo', 'United States': 'Združene države Amerike', 'United States of America': 'Združene države Amerike',
     'Uruguay': 'Urugvaj', 'Uzbekistan': 'Uzbekistan', 'Vanuatu': 'Vanuatu', 'Venezuela, RB': 'Venezuela',
@@ -777,59 +787,133 @@ async function loadCountryData() {
 
 // --- Stock Logic ---
 
+function isCountryLocked(c) {
+    // If we don't own it, we can buy it (Lvl 1 permit is for upgrading to Lvl 1? 
+    // Actually Lvl 0->1 is "First Purchase". Unlock keys named "Dovoljenje za Lvl 1". 
+    // Usually means "Upgrade TO Level 1". Buying makes it Level 1.
+    // But usually first purchase is free of permits?
+    // Let's assume Permits are for UPGRADES (Owned=true).
+    if (!c.owned) return false;
+
+    // Destoyed countries need to be restored. If restoration upgrades them, we might need permit.
+    // But usually restoration is priority. Let's say destroyed are never locked to prevent softlock?
+    // Or keep them locked to force strategy? User didn't specify.
+    // I will keep them lockable to be consistent with "Upgrade" logic.
+
+    const nextLevel = c.level + 1;
+    if (nextLevel <= 5) {
+        return !state.ownedUpgrades.has(`UNLOCK_LVL_${nextLevel}`);
+    } else {
+        return !state.ownedUpgrades.has('UNLOCK_LVL_5');
+    }
+}
+
 function replenishStock() {
-    // 1. Reset current stock
     // 1. Reset current stock
     Object.values(state.countries).forEach(c => c.inStock = false);
 
-    // 2. Guaranteed Stock: All destroyed countries (to allow restoration)
-    const destroyedCountries = Object.values(state.countries).filter(c => c.destroyed);
-    destroyedCountries.forEach(c => c.inStock = true);
-
-    let addedCount = destroyedCountries.length;
-
-    // 3. Filter valid candidates for the rest of the stock
-    const allCandidates = Object.values(state.countries).filter(c => !c.destroyed);
-    if (allCandidates.length === 0 && addedCount === 0) return;
-
-    // 4. Selection parameters
     const maxStock = getEffectiveStockAmount();
-    const rarityMultiplier = getEffectiveRarityMultiplier();
+    let currentStockCount = 0;
 
-    // Guaranteed affordable countries (first 30 by baseCost among non-destroyed)
-    const affordableCandidates = [...allCandidates].sort((a, b) => a.baseCost - b.baseCost).slice(0, 30);
-    affordableCandidates.sort(() => Math.random() - 0.5); // Shuffle only the affordable ones
-
-    // Pick at least 10 affordable ones (or until maxStock)
-    for (const c of affordableCandidates) {
-        if (addedCount >= 10 || addedCount >= maxStock) break;
+    // 2. Guaranteed Stock: All destroyed countries (Priority)
+    // We treat them as part of the stock quota? 
+    // Usually destroyed items appear ON TOP of normal stock or ARE the stock.
+    // Let's include them.
+    const destroyedCountries = Object.values(state.countries).filter(c => c.destroyed);
+    destroyedCountries.forEach(c => {
         c.inStock = true;
-        addedCount++;
+        currentStockCount++;
+    });
+
+    // 3. Separate Candidates
+    const candidates = Object.values(state.countries).filter(c => !c.destroyed && !c.inStock);
+    // (Excluding those we just added)
+
+    const lockedCandidates = candidates.filter(c => isCountryLocked(c));
+    const unlockedCandidates = candidates.filter(c => !isCountryLocked(c));
+
+    // 4. Fill Locked Quota (Max 10% of maxStock)
+    const maxLockedParams = Math.floor(maxStock * 0.1); // e.g. 30 * 0.1 = 3
+
+    // Shuffle locked candidates to pick random ones
+    lockedCandidates.sort(() => Math.random() - 0.5);
+
+    for (const c of lockedCandidates) {
+        if (currentStockCount >= maxStock) break; // Should unlikely happen so early
+        // Check if we already have enough locked items?
+        // We just started filling non-destroyed. 
+        // We only want to add a *few* locked ones.
+        // Let's count how many we add in this loop.
+        // Actually, we should check `lockedCandidates` added count.
+        // Let's iterate `maxLockedParams` times.
     }
 
-    // 5. Fill remaining stock from the rest
-    const remainingCandidates = allCandidates.filter(c => !c.inStock);
-    remainingCandidates.sort(() => Math.random() - 0.5);
+    let lockedAdded = 0;
+    for (const c of lockedCandidates) {
+        if (lockedAdded >= maxLockedParams) break;
+        if (currentStockCount >= maxStock) break;
+        c.inStock = true;
+        currentStockCount++;
+        lockedAdded++;
+    }
 
-    for (const c of remainingCandidates) {
-        if (addedCount >= maxStock) break;
-        if (Math.random() * 100 < (c.rarity.weight * rarityMultiplier)) {
+    // 5. Fill remaining with Unlocked Candidates
+    // Strategy: Prefer Affordable (Cheap) ones first, then Random.
+    // Sort unlocked by Cost
+    unlockedCandidates.sort((a, b) => a.baseCost - b.baseCost); // Base sort by cost
+
+    // Pick a mix: 
+    // We want to fill `stockNeeded` slots.
+    // Let's take the first N cheapest to ensure playability.
+    // But also mix in some expensive/rare ones.
+    // Let's shuffle the *list* but loosely?
+    // Actually `unlockedCandidates` includes Unowned (Cheap) and Owned-Unlocked (Upgrades).
+    // Let's just pick strictly affordable ones first to help progression?
+    // Or just shuffle?
+    // Default logic was: 30 affordable ones, pick 10. Then random.
+
+    // Let's stick to: Shuffle affordable subset.
+    const affordableSubset = unlockedCandidates.slice(0, 30);
+    affordableSubset.sort(() => Math.random() - 0.5);
+
+    // Pick from affordable
+    const slotsForAffordable = Math.min(affordableSubset.length, Math.max(5, Math.floor((maxStock - currentStockCount) * 0.6)));
+    // Fill 60% of remaining space with cheap stuff
+
+    for (const c of affordableSubset) {
+        if (!c.inStock && currentStockCount < maxStock && slotsForAffordable > 0) {
             c.inStock = true;
-            addedCount++;
+            currentStockCount++;
+            // Remove from main candidate list to avoid duplicates logic? 
+            // `c.inStock` is the flag.
         }
     }
 
-    // Last resort fallback
-    if (addedCount < 5 && addedCount < maxStock) {
-        remainingCandidates.forEach((c, i) => {
-            if (addedCount < maxStock && i < 10) {
-                c.inStock = true;
-                addedCount++;
-            }
-        });
+    // Fill the VERY rest with completely random remaining unlocked
+    const remainingUnlocked = unlockedCandidates.filter(c => !c.inStock);
+    remainingUnlocked.sort(() => Math.random() - 0.5);
+
+    for (const c of remainingUnlocked) {
+        if (currentStockCount >= maxStock) break;
+        // Use rarity weight
+        const rarityMult = getEffectiveRarityMultiplier();
+        if (Math.random() * 100 < (c.rarity.weight * rarityMult)) {
+            c.inStock = true;
+            currentStockCount++;
+        }
     }
 
-    logEvent(`Nova zaloga: ${addedCount} držav (vključno z uničenimi in poceni državami)!`, 'good');
+    // Force fill if understocked (Fallback)
+    if (currentStockCount < maxStock) {
+        const stillRemaining = unlockedCandidates.filter(c => !c.inStock);
+        for (const c of stillRemaining) {
+            if (currentStockCount >= maxStock) break;
+            c.inStock = true;
+            currentStockCount++;
+        }
+    }
+
+    logEvent(`Nova zaloga: ${currentStockCount} držav (Locked: ${lockedAdded})`, 'good');
     renderShop();
     renderUpgrades();
 }
@@ -1288,13 +1372,28 @@ function getDestroyedIncome() {
 
 // Helper functions for level-based calculations
 function getCurrentCost(country) {
-    return Math.floor(country.baseCost * Math.pow(2, country.level));
+    if (!country.owned) return country.baseCost;
+    // Upgrade Cost: "1x dražja kot lvl 0" per level
+    // Linear Scaling: Base * (Level + 1)
+    // Example: Base 1000. Lvl 0 Buy = 1000. Lvl 1 Upgrade = 2000. Lvl 2 Upgrade = 3000.
+    return Math.floor(country.baseCost * (country.level + 1));
 }
 
 function getCurrentIncome(country) {
     const effectiveLevel = Math.max(1, country.level);
-    // Each level adds 20% to the base income
-    return Math.floor(country.baseIncome * Math.pow(1.2, effectiveLevel - 1));
+    // User Request: "1x več denarja kot prejšnji level" -> Double previous.
+    // Exponential Scaling: Base * 2^(Level-1) if Level 1 is base.
+    // If owned (Lvl 1): Base. Lvl 2: 2*Base. Lvl 3: 4*Base.
+
+    // Wait, country.level starts at 0 when unowned?
+    // When bought, level becomes 1.
+    // So if Level 1 (Owned), income is Base.
+    // Level 2: 2x Base.
+    // Level 3: 4x Base.
+    if (!country.owned) return country.baseIncome;
+
+    // Use 2^(Level - 1)
+    return Math.floor(country.baseIncome * Math.pow(2, country.level - 1));
 }
 
 // --- Asteroid Shower Logic ---
@@ -1620,17 +1719,127 @@ function updateShopState() {
     }
 }
 
+function isCountryLocked(country) {
+    if (!country.owned) return false; // Only owned countries can be locked for upgrade
+    const nextLevel = country.level + 1;
+    if (nextLevel > 5) { // Assuming max level is 5, or UNLOCK_LVL_5 covers 5+
+        return !state.ownedUpgrades.has('UNLOCK_LVL_5');
+    }
+    return !state.ownedUpgrades.has(`UNLOCK_LVL_${nextLevel}`);
+}
+
+function replenishStock() {
+    // 1. Reset current stock
+    Object.values(state.countries).forEach(c => c.inStock = false);
+
+    const maxStock = getEffectiveStockAmount();
+    // Cap destroyed at maxStock just in case, though unlikely to exceed
+    let currentStockCount = 0;
+
+    // 2. Guaranteed Stock: All destroyed countries (Priority)
+    // We treat them as part of the stock quota.
+    const destroyedCountries = Object.values(state.countries).filter(c => c.destroyed);
+    destroyedCountries.forEach(c => {
+        if (currentStockCount < maxStock) {
+            c.inStock = true;
+            currentStockCount++;
+        }
+    });
+
+    if (currentStockCount >= maxStock) {
+        logEvent(`Nova zaloga: ${currentStockCount} držav (Samo uničene)!`, 'neutral');
+        renderShop();
+        renderUpgrades();
+        return;
+    }
+
+    // 3. Separate Candidates
+    const candidates = Object.values(state.countries).filter(c => !c.destroyed && !c.inStock);
+
+    // Group into Locked vs Unlocked
+    const lockedCandidates = candidates.filter(c => isCountryLocked(c));
+    const unlockedCandidates = candidates.filter(c => !isCountryLocked(c));
+
+    // 4. Fill Locked Quota (Max 10% of Total Max Stock, e.g. 3 items)
+    const maxLockedAlloc = Math.floor(maxStock * 0.1);
+    let lockedAdded = 0;
+
+    // Shuffle locked candidates to pick random ones
+    lockedCandidates.sort(() => Math.random() - 0.5);
+
+    for (const c of lockedCandidates) {
+        if (lockedAdded >= maxLockedAlloc) break;
+        if (currentStockCount >= maxStock) break;
+
+        c.inStock = true;
+        currentStockCount++;
+        lockedAdded++;
+    }
+
+    // 5. Fill remaining with Unlocked Candidates
+    // Strategy: Prefer Affordable (Cheap) ones first, then Random.
+    // Sort unlocked by Cost
+    unlockedCandidates.sort((a, b) => getCurrentCost(a) - getCurrentCost(b));
+
+    // Pick a mix:
+    // We want to fill `slotsRemaining` slots.
+    // Let's ensure at least 50% of the *remaining* slots are affordable ones.
+    const slotsRemaining = maxStock - currentStockCount;
+    if (slotsRemaining > 0) {
+        const affordableCount = Math.ceil(slotsRemaining * 0.6); // 60% affordable
+
+        // Take first N cheapest
+        const affordableSubset = unlockedCandidates.slice(0, affordableCount);
+        // Add them to stock
+        affordableSubset.forEach(c => c.inStock = true);
+
+        // Update counts
+        currentStockCount += affordableSubset.length;
+
+        // If we still need more, pick purely random from the rest
+        if (currentStockCount < maxStock) {
+            const rest = unlockedCandidates.slice(affordableCount).filter(c => !c.inStock); // Candidates we didn't pick yet
+            rest.sort(() => Math.random() - 0.5); // Shuffle
+
+            for (const c of rest) {
+                if (currentStockCount >= maxStock) break;
+                // Weighted chance or just fill? Let's just fill to ensure full shop.
+                c.inStock = true;
+                currentStockCount++;
+            }
+        }
+    }
+
+    logEvent(`Nova zaloga: ${currentStockCount} držav (Zaklenjenih: ${lockedAdded})`, 'good');
+    renderShop();
+    renderUpgrades();
+}
+
 function renderShop() {
     countryList.innerHTML = '';
+
+    // Sort Logic: Locked = Bottom, then Cost Ascending
     const sorted = Object.values(state.countries).sort((a, b) => {
-        // Sort by Rarity Rank, then Cost
-        if (a.rarity.rank !== b.rarity.rank) return a.rarity.rank - b.rarity.rank;
-        return a.baseCost - b.baseCost;
+        const lockedA = isCountryLocked(a);
+        const lockedB = isCountryLocked(b);
+
+        if (lockedA !== lockedB) return lockedA ? 1 : -1; // True (Locked) > False (Unlocked) -> Bottom
+
+        // Secondary: Cost Ascending
+        return getCurrentCost(a) - getCurrentCost(b);
     });
 
     sorted.forEach(c => {
         if (!c.inStock) return; // Only show what is in stock
+
         const item = document.createElement('div');
+        const locked = isCountryLocked(c);
+
+        let lockedReason = null;
+        if (locked) {
+            const nextLevel = c.level + 1;
+            lockedReason = (nextLevel <= 5) ? `POTREBUJEŠ DOVOLJENJE ${nextLevel}` : "POTREBUJEŠ DOVOLJENJE 5";
+        }
 
         // Handle destroyed state styling
         const isDestroyed = c.destroyed;
@@ -1642,21 +1851,33 @@ function renderShop() {
         const canAfford = state.money >= currentCost;
 
         item.dataset.cost = currentCost;
-        if (!canAfford) item.classList.add('disabled');
-        item.onclick = () => { if (state.money >= currentCost) buyCountry(c.id); };
+
+        let isDisabled = !canAfford;
+        if (lockedReason) isDisabled = true;
+
+        if (isDisabled) item.classList.add('disabled');
+
+        item.onclick = () => {
+            if (lockedReason) {
+                logEvent(`Za to nadgradnjo potrebuješ '${lockedReason}' iz trgovine!`, 'bad');
+                return;
+            }
+            if (state.money >= currentCost) buyCountry(c.id);
+        };
 
         const isGodly = c.rarity.id === 'godly' && !isDestroyed;
         const levelBadge = `<span class="level-badge ${isGodly ? 'level-badge-godly' : ''}" style="font-size:0.75em; opacity:0.8; white-space:nowrap;">Lvl.${c.level}</span>`;
 
         // If destroyed, force label to "UNIČENA"
-        const actionLabel = isDestroyed ? "UNIČENA" : (c.owned ? "NADGRADNJA" : c.rarity.name);
+        let actionLabel = isDestroyed ? "UNIČENA" : (c.owned ? "NADGRADNJA" : c.rarity.name);
+        if (lockedReason) actionLabel = "ZAKLENJENO";
 
         const isLongName = c.name.length > 20;
         const nameStyle = isLongName ? 'font-size: 0.85rem;' : '';
         const nameClass = isGodly ? 'country-name country-name-godly' : 'country-name';
 
         const incomeClass = isGodly ? 'income text-rainbow' : 'income';
-        const right = `<div class="item-right"><div class="cost" style="color:${canAfford ? '#fff' : '#ef4444'}">${formatMoney(currentCost)}</div><div class="${incomeClass}">+${formatMoney(currentIncome)}/s</div></div>`;
+        const right = `<div class="item-right"><div class="cost" style="color:${canAfford && !lockedReason ? '#fff' : '#ef4444'}">${lockedReason ? '---' : formatMoney(currentCost)}</div><div class="${incomeClass}">+${formatMoney(currentIncome)}/s</div></div>`;
 
         item.innerHTML = `
             <div class="item-left">
@@ -1739,6 +1960,12 @@ function renderUpgrades() {
         if (u.id === 'STOCK_QUALITY_III' && !state.ownedUpgrades.has('STOCK_QUALITY_II')) return;
         if (u.id === 'STOCK_QUALITY_IV' && !state.ownedUpgrades.has('STOCK_QUALITY_III')) return;
         if (u.id === 'STOCK_QUALITY_V' && !state.ownedUpgrades.has('STOCK_QUALITY_IV')) return;
+
+        // Level Unlock Sequencing
+        if (u.id === 'UNLOCK_LVL_2' && !state.ownedUpgrades.has('UNLOCK_LVL_1')) return;
+        if (u.id === 'UNLOCK_LVL_3' && !state.ownedUpgrades.has('UNLOCK_LVL_2')) return;
+        if (u.id === 'UNLOCK_LVL_4' && !state.ownedUpgrades.has('UNLOCK_LVL_3')) return;
+        if (u.id === 'UNLOCK_LVL_5' && !state.ownedUpgrades.has('UNLOCK_LVL_4')) return;
 
         const canAfford = state.money >= u.cost;
         const rar = RARITIES[u.rarity.toUpperCase()] || { color: '#fff', name: 'UNKNOWN' };
@@ -2072,6 +2299,14 @@ function switchMusicToGame() {
     }
 }
 
+
+function getWheelCountries() {
+    // Return all countries sorted by Cost (value), implying rarity/desirability
+    return Object.values(state.countries)
+        .filter(c => !c.destroyed)
+        .sort((a, b) => a.baseCost - b.baseCost);
+}
+
 function showStartingSpinner() {
     const overlay = document.getElementById('starting-spinner-overlay');
     overlay.classList.remove('hidden');
@@ -2080,11 +2315,34 @@ function showStartingSpinner() {
 
     // Create visual rarity wheel
     const wheel = document.getElementById('starting-wheel');
+    // Style wheel with blue-purple aesthetic handled in CSS now
     wheel.style.transform = 'rotate(0deg)';
 
-    // Style wheel with blue-purple aesthetic to match the main title
-    wheel.style.background = `conic-gradient(#3b82f6, #a855f7, #6366f1, #3b82f6)`;
-    wheel.style.border = '8px solid #f59e0b'; // Gold border for premium contrast
+    // Dynamic Gradient Generation
+    const wheelCountries = getWheelCountries();
+    const total = wheelCountries.length;
+    let gradientParts = [];
+
+    // Gradient Palette: Light Blue -> Dark Violet -> Deep Purple
+    // We Map index 0..total to a color interpolation
+
+    wheelCountries.forEach((c, i) => {
+        const progress = i / total;
+        let color;
+        // Interpolate color manually or use steps
+        // Simple lerp approach for RGB not robust here, let's use HSL
+        // Start: Light Blue (200, 100%, 80%)
+        // End: Deep Purple (270, 100%, 20%)
+        const h = 200 + (progress * 70); // 200 to 270
+        const l = 80 - (progress * 60);  // 80% to 20%
+        color = `hsl(${h}, 80%, ${l}%)`;
+
+        const startDeg = (i / total) * 360;
+        const endDeg = ((i + 1) / total) * 360;
+        gradientParts.push(`${color} ${startDeg}deg ${endDeg}deg`);
+    });
+
+    wheel.style.background = `conic-gradient(${gradientParts.join(', ')})`;
 }
 
 let isSpinning = false;
@@ -2094,27 +2352,46 @@ document.getElementById('spin-start-btn').addEventListener('click', () => {
     if (isSpinning) return;
     isSpinning = true;
 
-    // Pick a country based on weights
-    const spinCountries = Object.values(state.countries).filter(c => c.rarity.rank <= 5); // Limit to non-secret/og for start?
-    const totalWeight = spinCountries.reduce((sum, c) => sum + (RARITIES[c.rarity.id.toUpperCase()]?.weight || 1), 0);
-    let random = Math.random() * totalWeight;
-    let picked = spinCountries[0];
+    const wheelCountries = getWheelCountries();
+    const total = wheelCountries.length;
 
-    for (const c of spinCountries) {
-        const weight = RARITIES[c.rarity.id.toUpperCase()]?.weight || 1;
-        if (random < weight) {
+    // Pick a country based on weights (Rarity)
+    let picked = null;
+    let totalRate = 0;
+    // We pick from the same pool we displayed
+    wheelCountries.forEach(c => totalRate += (RARITIES[c.rarity.id.toUpperCase()]?.weight || 1));
+
+    let r = Math.random() * totalRate;
+    for (const c of wheelCountries) {
+        const w = RARITIES[c.rarity.id.toUpperCase()]?.weight || 1;
+        if (r < w) {
             picked = c;
             break;
         }
-        random -= weight;
+        r -= w;
     }
-
+    if (!picked) picked = wheelCountries[0];
     selectedStartingCountry = picked;
 
-    const wheel = document.getElementById('starting-wheel');
-    const extraSpins = 5 + Math.floor(Math.random() * 5);
-    const finalRotation = extraSpins * 360 + Math.floor(Math.random() * 360);
+    // Calculate rotation to land on this country
+    const index = wheelCountries.findIndex(c => c.id === picked.id);
+    const sliceDeg = 360 / total;
+    // Target is center of the slice
+    const targetAngle = (index * sliceDeg) + (sliceDeg / 2);
 
+    // Add randomness within the slice (keep it inside boundaries)
+    // +/- 40% of slice width to avoid border
+    const randomOffset = (Math.random() * 0.8 - 0.4) * sliceDeg;
+    const finalTargetAngle = targetAngle + randomOffset;
+
+    // Spin!
+    const spins = 5 + Math.floor(Math.random() * 3);
+    // Rotating clockwise means we subtract the angle to bring it to 0
+    const finalRotation = (spins * 360) + (360 - finalTargetAngle);
+
+    const wheel = document.getElementById('starting-wheel');
+    wheel.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0.2, 1)'; // Force easing style
+    // Add a tiny random offset to rotation to look organic
     wheel.style.transform = `rotate(${finalRotation}deg)`;
 
     setTimeout(() => {

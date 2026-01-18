@@ -2656,7 +2656,7 @@ path.destroyed-country {
     height: 100%;
     border-radius: 50%;
     border: 8px solid #334155;
-    background: conic-gradient(#22c55e, #3b82f6, #a855f7, #eab308, #ef4444, #22c55e);
+    /* Background generated dynamically in JS */
     position: relative;
     transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
