@@ -1369,6 +1369,7 @@ function getDestroyedIncome() {
 
 // Helper functions for level-based calculations
 function getCurrentCost(country) {
+    if (country.destroyed) return Math.floor(country.baseCost * 3);
     if (!country.owned) return country.baseCost;
     // Upgrade Cost: "1x dražja kot lvl 0" per level
     // Linear Scaling: Base * (Level + 1)
@@ -1583,8 +1584,17 @@ function createImpactRipple(latlng) {
 function processAsteroidHits() {
     if (state.paused) return; // SAFETY: Never hit anything while paused
 
-    const destructionChance = getEffectiveAsteroidChance();
-    const moneyLost = Math.floor(state.money * 0.05); // Reduced to 5%
+    // Endgame Scaling Logic
+    const timeElapsed = 600 - state.challengeTimer;
+    // Multiplier starts at 1.0 and grows based on time (up to 3x) and income (up to +2x)
+    const endgameMultiplier = 1 + (timeElapsed / 200) + Math.max(0, Math.log10(Math.max(1, getCurrentTotalIncome() / 1000)) * 0.5);
+
+    const baseChance = getEffectiveAsteroidChance();
+    const destructionChance = baseChance * endgameMultiplier;
+
+    // Decimate savings: scale from 5% up to 25% (zdesetkajo privarčevana sredstva)
+    const moneyLostPercent = Math.min(0.25, 0.05 * endgameMultiplier);
+    const moneyLost = Math.floor(state.money * moneyLostPercent);
 
     if (moneyLost > 0) {
         const moneyDisplay = document.getElementById('money-display');
@@ -1631,8 +1641,9 @@ function processAsteroidHits() {
                 country.inStock = false;
                 state.ownedCountries.delete(id);
 
-                // Increase permanent sanitation penalty by 10% of the country's income
-                const hitPenalty = getCurrentIncome(country) * 0.1;
+                // Increase permanent sanitation penalty (scales with difficulty)
+                const hitPenaltyScale = 0.1 * endgameMultiplier;
+                const hitPenalty = getCurrentIncome(country) * hitPenaltyScale;
                 state.sanitationPenalty = (state.sanitationPenalty || 0) + hitPenalty;
 
                 logEvent(`Asteroid je uničil ${country.name}! (Lvl.${oldLevel} → Lvl.0)`, 'bad');
@@ -1853,8 +1864,8 @@ function renderShop() {
         const isGodly = c.rarity.id === 'godly' && !isDestroyed;
         const levelBadge = `<span class="level-badge ${isGodly ? 'level-badge-godly' : ''}" style="font-size:0.75em; opacity:0.8; white-space:nowrap;">Lvl.${c.level}</span>`;
 
-        // If destroyed, force label to "UNIČENA"
-        let actionLabel = isDestroyed ? "UNIČENA" : (c.owned ? "NADGRADNJA" : c.rarity.name);
+        // If destroyed, force label to "SANACIJA" (3x Price)
+        let actionLabel = isDestroyed ? "SANACIJA" : (c.owned ? "NADGRADNJA" : c.rarity.name);
         if (lockedReason) actionLabel = "ZAKLENJENO";
 
         const isLongName = c.name.length > 20;
@@ -2076,12 +2087,12 @@ function formatMoney(n) {
 }
 
 // Save/Load System
-function saveGame() {
-    saveGameData();
+async function saveGame() {
+    await saveGameData();
     saveFriends();
 }
 
-function saveGameData() {
+async function saveGameData() {
     if (!state.username) return;
     const saveData = {
         money: state.money,
@@ -2099,7 +2110,7 @@ function saveGameData() {
         equippedBackground: state.equippedBackground,
         uncollectedRewards: state.uncollectedRewards || 0,
         newlyReachedRanks: state.newlyReachedRanks || [],
-        paused: false, // Don't save paused state as true to avoid lockouts
+        paused: false,
         startingCountryClaimed: state.startingCountryClaimed,
         purchaseCount: state.purchaseCount || 0,
         countries: {}
@@ -2116,15 +2127,17 @@ function saveGameData() {
 
     // Sync with Firebase (Global Highscore & Full Save)
     if (firebaseConfig.apiKey !== "Vstavite-Tukaj") {
-        const userRefId = state.username.replace(/\./g, '_');
+        try {
+            const userRefId = state.username.replace(/\./g, '_');
 
-        // 1. Full Save (Private/User specific)
-        db.ref('users/' + userRefId + '/save').set(saveData).catch(err => console.error("Cloud save failed:", err));
+            // 1. Full Save (Private/User specific)
+            await db.ref('users/' + userRefId + '/save').set(saveData);
 
-        // 2. Leaderboard Entry (Public) - Only update if money is HIGHER than current record
-        const lbRef = db.ref('leaderboard/' + userRefId);
-        lbRef.once('value').then(snapshot => {
+            // 2. Leaderboard Entry (Public) - Only update if money is HIGHER than current record
+            const lbRef = db.ref('leaderboard/' + userRefId);
+            const snapshot = await lbRef.once('value');
             const existing = snapshot.val();
+
             // Update if no record yet OR if current money is better OR if rank points increased
             if (!existing || state.money > (existing.money || 0) || state.rankPoints > (existing.rankPoints || 0)) {
                 let currentRankObj = GAME_RANKS[0];
@@ -2133,7 +2146,7 @@ function saveGameData() {
                     else break;
                 }
 
-                lbRef.set({
+                await lbRef.set({
                     name: state.username,
                     money: Math.max(state.money, (existing ? existing.money : 0)),
                     rankPoints: state.rankPoints,
@@ -2142,9 +2155,11 @@ function saveGameData() {
                     rankIcon: currentRankObj.icon,
                     rankColor: currentRankObj.color,
                     lastUpdate: Date.now()
-                }).catch(err => console.error("Firebase sync failed:", err));
+                });
             }
-        });
+        } catch (err) {
+            console.error("Firebase sync error:", err);
+        }
     }
 
     console.log(`Igra shranjena za ${state.username}`);
@@ -3298,7 +3313,7 @@ async function endGame(isBankrupt = false) {
     try {
         addRankPoints(countryPoints);
         state.rankCoins += countryPoints;
-        saveGame(); // Final save
+        await saveGame(); // NOW AWAITED
     } catch (e) {
         console.error("Error in post-game processing:", e);
     }
@@ -3334,22 +3349,36 @@ async function endGame(isBankrupt = false) {
         }
     }
 
-    // Ensure CURRENT user is in the list with their LATEST score
-    const userIndexInList = players.findIndex(p => p.name === state.username);
+    // Ensure CURRENT user is in the list with their CURRENT game score for ranking
+    let userIndexInList = players.findIndex(p => p.name === state.username);
+    if (userIndexInList === -1) {
+        // Try case-insensitive fallback
+        userIndexInList = players.findIndex(p => p.name && p.name.toLowerCase() === state.username.toLowerCase());
+    }
+
     if (userIndexInList !== -1) {
-        // Update their score in the list to current one if current is higher (or always if we want current game rank)
-        players[userIndexInList].money = Math.max(players[userIndexInList].money || 0, state.money);
+        // For the end-game screen, we show the rank achieved in THIS game
+        players[userIndexInList].money = state.money;
     } else {
         players.push({ name: state.username, money: state.money, rankPoints: state.rankPoints });
     }
 
     try {
-        // Sort by money
-        players.sort((a, b) => (b.money || 0) - (a.money || 0));
+        // Ensure all money values are Numbers for correct sorting
+        players.forEach(p => { if (typeof p.money !== 'number') p.money = Number(p.money) || 0; });
 
-        // Find user rank
-        const userRankIndex = players.findIndex(p => p.name === state.username);
-        const userRankNum = userRankIndex + 1;
+        // Sort by money descending
+        players.sort((a, b) => b.money - a.money);
+
+        // Find user rank again
+        let userRankIndex = players.findIndex(p => p.name === state.username);
+        if (userRankIndex === -1) {
+            userRankIndex = players.findIndex(p => p.name && p.name.toLowerCase() === state.username.toLowerCase());
+        }
+
+        const userRankNum = userRankIndex !== -1 ? userRankIndex + 1 : 1; // Default to 1 if still not found (shouldn't happen)
+
+        console.log("EndGame Debug - Player:", state.username, "Money:", state.money, "Rank Index:", userRankIndex);
 
         const gameOverSubtitle = document.querySelector('.game-over-subtitle');
         if (gameOverSubtitle) {
