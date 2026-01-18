@@ -275,29 +275,47 @@ const BACKGROUND_ITEMS = {
 };
 const GLOBAL_UPGRADES = {
     // COMMON
-    STOCK_C: { id: 'STOCK_C', rarity: 'common', name: 'Hitrejša Zaloga I', cost: 2500, type: 'stock', value: 0.95, desc: 'Zaloga prihaja 5% hitreje' },
-    STOCK_C2: { id: 'STOCK_C2', rarity: 'rare', name: 'Hitrejša Zaloga II', cost: 15000, type: 'stock', value: 0.85, desc: 'Zaloga prihaja 15% hitreje' },
-    STOCK_C3: { id: 'STOCK_C3', rarity: 'epic', name: 'Hitrejša Zaloga III', cost: 60000, type: 'stock', value: 0.70, desc: 'Zaloga prihaja 30% hitreje' },
+    // STOCK SPEED (Custom 5 Tiers)
+    STOCK_SPEED_I: { id: 'STOCK_SPEED_I', rarity: 'common', name: 'Hitrejša Zaloga I', cost: 1000, type: 'stock', value: 0.90, desc: 'Zaloga prihaja 10% hitreje' },
+    STOCK_SPEED_II: { id: 'STOCK_SPEED_II', rarity: 'common', name: 'Hitrejša Zaloga II', cost: 2000, type: 'stock', value: 0.80, desc: 'Zaloga prihaja 20% hitreje' },
+    STOCK_SPEED_III: { id: 'STOCK_SPEED_III', rarity: 'common', name: 'Hitrejša Zaloga III', cost: 5000, type: 'stock', value: 0.70, desc: 'Zaloga prihaja 30% hitreje' },
+    STOCK_SPEED_IV: { id: 'STOCK_SPEED_IV', rarity: 'rare', name: 'Hitrejša Zaloga IV', cost: 10000, type: 'stock', value: 0.60, desc: 'Zaloga prihaja 40% hitreje' },
+    STOCK_SPEED_V: { id: 'STOCK_SPEED_V', rarity: 'rare', name: 'Hitrejša Zaloga V', cost: 20000, type: 'stock', value: 0.50, desc: 'Zaloga prihaja 50% hitreje' },
 
-    INCOME_C: { id: 'INCOME_C', rarity: 'common', name: 'Večji Zaslužek I', cost: 35000, type: 'income', value: 0.05, desc: 'Skupni zaslužek +5%' },
-    ASTEROID_C: { id: 'ASTEROID_C', rarity: 'common', name: 'Mini Ščit', cost: 4000, type: 'asteroid_chance', value: 0.05, desc: 'Možnost uničenja -5%' },
+    // INCOME BOOST (Custom 5 Tiers)
+    INCOME_SPEED_I: { id: 'INCOME_SPEED_I', rarity: 'common', name: 'Večji Zaslužek I', cost: 5000, type: 'income', value: 0.05, desc: 'Skupni zaslužek +5%' },
+    INCOME_SPEED_II: { id: 'INCOME_SPEED_II', rarity: 'common', name: 'Večji Zaslužek II', cost: 15000, type: 'income', value: 0.15, desc: 'Skupni zaslužek +15%' },
+    INCOME_SPEED_III: { id: 'INCOME_SPEED_III', rarity: 'rare', name: 'Večji Zaslužek III', cost: 35000, type: 'income', value: 0.25, desc: 'Skupni zaslužek +25%' },
+    INCOME_SPEED_IV: { id: 'INCOME_SPEED_IV', rarity: 'rare', name: 'Večji Zaslužek IV', cost: 60000, type: 'income', value: 0.35, desc: 'Skupni zaslužek +35%' },
+    INCOME_SPEED_V: { id: 'INCOME_SPEED_V', rarity: 'epic', name: 'Večji Zaslužek V', cost: 100000, type: 'income', value: 0.50, desc: 'Skupni zaslužek +50%' },
 
-    // RARE
-    STOCK_SIZE_R: { id: 'STOCK_SIZE_R', rarity: 'rare', name: 'Večja Zaloga I', cost: 50000, type: 'stock_size', value: 5, desc: 'Zaloga +5 držav' },
-    STOCK_QUAL_R: { id: 'STOCK_QUAL_R', rarity: 'rare', name: 'Kvalitetna Zaloga I', cost: 200000, type: 'stock_quality', value: 0.25, desc: 'Možnost za redke države +25%' },
-    INCOME_R: { id: 'INCOME_R', rarity: 'rare', name: 'Redki Dobiček', cost: 750000, type: 'income', value: 0.15, desc: 'Skupni zaslužek +15%' },
+    // ROCKET SHIELD (Custom 5 Tiers)
+    SHIELD_I: { id: 'SHIELD_I', rarity: 'common', name: 'Raketni Ščit I', cost: 5000, type: 'asteroid_chance', value: 0.05, desc: 'Možnost uničenja -5%' },
+    SHIELD_II: { id: 'SHIELD_II', rarity: 'common', name: 'Raketni Ščit II', cost: 15000, type: 'asteroid_chance', value: 0.03, desc: 'Možnost uničenja -3% (Dodatno)' },
+    SHIELD_III: { id: 'SHIELD_III', rarity: 'rare', name: 'Raketni Ščit III', cost: 35000, type: 'asteroid_chance', value: 0.04, desc: 'Možnost uničenja -4% (Dodatno)' },
+    SHIELD_IV: { id: 'SHIELD_IV', rarity: 'rare', name: 'Raketni Ščit IV', cost: 60000, type: 'asteroid_chance', value: 0.04, desc: 'Možnost uničenja -4% (Dodatno)' },
+    SHIELD_V: { id: 'SHIELD_V', rarity: 'epic', name: 'Raketni Ščit V', cost: 100000, type: 'asteroid_chance', value: 0.04, desc: 'Možnost uničenja -4% (Dodatno)' },
+
+    // STOCK SIZE (Custom 5 Tiers)
+    STOCK_SIZE_I: { id: 'STOCK_SIZE_I', rarity: 'common', name: 'Večja Zaloga I', cost: 5000, type: 'stock_size', value: 5, desc: 'Zaloga +5 držav' },
+    STOCK_SIZE_II: { id: 'STOCK_SIZE_II', rarity: 'common', name: 'Večja Zaloga II', cost: 15000, type: 'stock_size', value: 5, desc: 'Zaloga +5 držav (Dodatno)' },
+    STOCK_SIZE_III: { id: 'STOCK_SIZE_III', rarity: 'rare', name: 'Večja Zaloga III', cost: 35000, type: 'stock_size', value: 5, desc: 'Zaloga +5 držav (Dodatno)' },
+    STOCK_SIZE_IV: { id: 'STOCK_SIZE_IV', rarity: 'rare', name: 'Večja Zaloga IV', cost: 60000, type: 'stock_size', value: 5, desc: 'Zaloga +5 držav (Dodatno)' },
+    STOCK_SIZE_V: { id: 'STOCK_SIZE_V', rarity: 'epic', name: 'Večja Zaloga V', cost: 100000, type: 'stock_size', value: 5, desc: 'Zaloga +5 držav (Dodatno)' },
+
+    // STOCK QUALITY (Custom 5 Tiers)
+    STOCK_QUALITY_I: { id: 'STOCK_QUALITY_I', rarity: 'common', name: 'Kvalitetna Zaloga I', cost: 10000, type: 'stock_quality', value: 0.10, desc: 'Možnost za redke +10%' },
+    STOCK_QUALITY_II: { id: 'STOCK_QUALITY_II', rarity: 'rare', name: 'Kvalitetna Zaloga II', cost: 25000, type: 'stock_quality', value: 0.10, desc: 'Možnost za redke +10% (Dodatno)' },
+    STOCK_QUALITY_III: { id: 'STOCK_QUALITY_III', rarity: 'rare', name: 'Kvalitetna Zaloga III', cost: 45000, type: 'stock_quality', value: 0.10, desc: 'Možnost za redke +10% (Dodatno)' },
+    STOCK_QUALITY_IV: { id: 'STOCK_QUALITY_IV', rarity: 'rare', name: 'Kvalitetna Zaloga IV', cost: 70000, type: 'stock_quality', value: 0.10, desc: 'Možnost za redke +10% (Dodatno)' },
+    STOCK_QUALITY_V: { id: 'STOCK_QUALITY_V', rarity: 'epic', name: 'Kvalitetna Zaloga V', cost: 100000, type: 'stock_quality', value: 0.10, desc: 'Možnost za redke +10% (Dodatno)' },
+
     MULTI_LEVEL_R: { id: 'MULTI_LEVEL_R', rarity: 'rare', name: 'Dvojna Moč I', cost: 2500000, type: 'multi_level', value: 1, desc: 'VSAKIČ KO DRŽAVO KUPIŠ DOBIŠ +1 NIVO VEČ' },
-    ASTEROID_R: { id: 'ASTEROID_R', rarity: 'rare', name: 'Napredni Ščit', cost: 500000, type: 'asteroid_chance', value: 0.02, desc: 'Možnost uničenja -2% (Dodatno)' },
 
     // EPIC
-    STOCK_SIZE_E: { id: 'STOCK_SIZE_E', rarity: 'epic', name: 'Večja Zaloga II', cost: 5000000, type: 'stock_size', value: 10, desc: 'Zaloga +10 držav' },
-    INCOME_E: { id: 'INCOME_E', rarity: 'epic', name: 'Mega Zaslužek II', cost: 15000000, type: 'income', value: 0.3, desc: 'Skupni zaslužek +30%' },
     MULTI_LEVEL_E: { id: 'MULTI_LEVEL_E', rarity: 'epic', name: 'Trojna Moč II', cost: 45000000, type: 'multi_level', value: 2, desc: 'VSAKIČ KO DRŽAVO KUPIŠ DOBIŠ +2 NIVOJA VEČ' },
-    ASTEROID_E: { id: 'ASTEROID_E', rarity: 'epic', name: 'Plazemski Ščit', cost: 20000000, type: 'asteroid_chance', value: 0.02, desc: 'Možnost uničenja -2% (Dodatno)' },
 
     // LEGENDARY+
-    STOCK_QUAL_L: { id: 'STOCK_QUAL_L', rarity: 'legendary', name: 'Elitni Izbor', cost: 120000000, type: 'stock_quality', value: 1.0, desc: 'Možnost za redke države +100%' },
-    INCOME_L: { id: 'INCOME_L', rarity: 'legendary', name: 'Legendarni Zaslužek III', cost: 400000000, type: 'income', value: 0.6, desc: 'Skupni zaslužek +60%' },
     WORLD_MASTER: { id: 'WORLD_MASTER', rarity: 'og', name: 'Svetovni Mojster', cost: 2500000000, type: 'income', value: 9.0, desc: 'Celoten zaslužek se poveča za 10x' }
 };
 
@@ -751,7 +769,7 @@ async function loadCountryData() {
         const filteredData = { ...data, features: filteredFeatures };
 
         if (geoJsonLayer && map) map.removeLayer(geoJsonLayer);
-        createFlagPatterns(); // Generate patterns
+        // createFlagPatterns(); // Removed as requested to revert to colors
         geoJsonLayer = L.geoJSON(filteredData, { style: styleFeature, onEachFeature: onEachFeature }).addTo(map);
         renderShop();
     } catch (e) { console.error(e); }
@@ -871,8 +889,8 @@ function styleFeature(feature) {
             const greenTones = ['#052e16', '#14532d', '#166534', '#15803d', '#16a34a'];
             fillColor = greenTones[Math.floor(country.rarity.rank) % greenTones.length];
         } else if (state.equippedSkin === 'flags') {
-            // Use the pattern
-            return { fillColor: `url(#flag-${sanitizeId(country.id)})`, weight: 1, opacity: 1, color: '#fbbf24', fillOpacity: 0.9 };
+            const flagColors = ['#ef4444', '#3b82f6', '#ffffff', '#22c55e', '#eab308', '#000000'];
+            fillColor = flagColors[country.id.length % flagColors.length];
         } else if (state.equippedSkin === 'ghost') {
             fillColor = '#60a5fa';
             return { fillColor: fillColor, weight: 1, opacity: 0.4, color: '#93c5fd', fillOpacity: 0.3, dashArray: '3' };
@@ -1637,26 +1655,55 @@ function renderUpgrades() {
     if (!upgradeList) return;
     upgradeList.innerHTML = '';
 
-    // 1. Render Global Upgrades first (sorted by rarity rank)
+    // 1. Render Global Upgrades first (sorted by cost)
     const sortedGlobals = Object.values(GLOBAL_UPGRADES).sort((a, b) => {
-        const rankA = RARITIES[a.rarity.toUpperCase()]?.rank || 0;
-        const rankB = RARITIES[b.rarity.toUpperCase()]?.rank || 0;
-        if (rankA !== rankB) return rankA - rankB;
         return a.cost - b.cost;
     });
 
     sortedGlobals.forEach(u => {
         const isOwned = state.ownedUpgrades.has(u.id);
+
+        // Hide owned upgrades immediately as requested
+        if (isOwned) return;
+
+        // Special Sequential Logic for Stock Speed Upgrades
+        if (u.id === 'STOCK_SPEED_II' && !state.ownedUpgrades.has('STOCK_SPEED_I')) return;
+        if (u.id === 'STOCK_SPEED_III' && !state.ownedUpgrades.has('STOCK_SPEED_II')) return;
+        if (u.id === 'STOCK_SPEED_IV' && !state.ownedUpgrades.has('STOCK_SPEED_III')) return;
+        if (u.id === 'STOCK_SPEED_V' && !state.ownedUpgrades.has('STOCK_SPEED_IV')) return;
+
+        // Special Sequential Logic for Income Speed Upgrades
+        if (u.id === 'INCOME_SPEED_II' && !state.ownedUpgrades.has('INCOME_SPEED_I')) return;
+        if (u.id === 'INCOME_SPEED_III' && !state.ownedUpgrades.has('INCOME_SPEED_II')) return;
+        if (u.id === 'INCOME_SPEED_IV' && !state.ownedUpgrades.has('INCOME_SPEED_III')) return;
+        if (u.id === 'INCOME_SPEED_V' && !state.ownedUpgrades.has('INCOME_SPEED_IV')) return;
+
+        // Special Sequential Logic for Rocket Shield Upgrades
+        if (u.id === 'SHIELD_II' && !state.ownedUpgrades.has('SHIELD_I')) return;
+        if (u.id === 'SHIELD_III' && !state.ownedUpgrades.has('SHIELD_II')) return;
+        if (u.id === 'SHIELD_IV' && !state.ownedUpgrades.has('SHIELD_III')) return;
+        if (u.id === 'SHIELD_V' && !state.ownedUpgrades.has('SHIELD_IV')) return;
+
+        // Special Sequential Logic for Stock Size Upgrades
+        if (u.id === 'STOCK_SIZE_II' && !state.ownedUpgrades.has('STOCK_SIZE_I')) return;
+        if (u.id === 'STOCK_SIZE_III' && !state.ownedUpgrades.has('STOCK_SIZE_II')) return;
+        if (u.id === 'STOCK_SIZE_IV' && !state.ownedUpgrades.has('STOCK_SIZE_III')) return;
+        if (u.id === 'STOCK_SIZE_V' && !state.ownedUpgrades.has('STOCK_SIZE_IV')) return;
+
+        // Special Sequential Logic for Stock Quality Upgrades
+        if (u.id === 'STOCK_QUALITY_II' && !state.ownedUpgrades.has('STOCK_QUALITY_I')) return;
+        if (u.id === 'STOCK_QUALITY_III' && !state.ownedUpgrades.has('STOCK_QUALITY_II')) return;
+        if (u.id === 'STOCK_QUALITY_IV' && !state.ownedUpgrades.has('STOCK_QUALITY_III')) return;
+        if (u.id === 'STOCK_QUALITY_V' && !state.ownedUpgrades.has('STOCK_QUALITY_IV')) return;
+
         const canAfford = state.money >= u.cost;
         const rar = RARITIES[u.rarity.toUpperCase()] || { color: '#fff', name: 'UNKNOWN' };
 
         const item = document.createElement('div');
-        item.className = `country-item upgrade-item-global rarity-${u.rarity} ${isOwned ? 'owned' : ''}`;
+        item.className = `country-item upgrade-item-global rarity-${u.rarity}`;
 
-        if (!isOwned) {
-            item.dataset.cost = u.cost;
-            item.onclick = () => buyGlobalUpgrade(u.id);
-        }
+        item.dataset.cost = u.cost;
+        item.onclick = () => buyGlobalUpgrade(u.id);
 
         const isGodly = u.rarity === 'godly';
         const nameClass = isGodly ? 'text-rainbow' : '';
@@ -1670,8 +1717,8 @@ function renderUpgrades() {
 
         const right = `
             <div class="item-right">
-                <div class="cost" style="color:${isOwned ? 'var(--primary)' : (canAfford ? '#fff' : '#ef4444')}">
-                    ${isOwned ? "KUPLJENO" : formatMoney(u.cost)}
+                <div class="cost" style="color:${canAfford ? '#fff' : '#ef4444'}">
+                    ${formatMoney(u.cost)}
                 </div>
             </div>
         `;
