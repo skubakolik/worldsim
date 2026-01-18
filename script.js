@@ -3297,76 +3297,88 @@ function endGame(isBankrupt = false) {
     }
 
     // Award points and coins: 1 point and 1 coin per owned, non-destroyed country
-    const countryPoints = Object.values(state.countries).filter(c => c.owned && !c.destroyed).length;
-    addRankPoints(countryPoints);
-    state.rankCoins += countryPoints;
-    saveGame(); // Final save
+    const countryPoints = Object.values(state.countries || {}).filter(c => c && c.owned && !c.destroyed).length;
 
+    // Show Screen FIRST so user sees something even if data processing lags
     const gameOverScreen = document.getElementById('game-over-screen');
-    const rankDisplayUI = document.getElementById('user-rank-display'); // Renamed to avoid confusion with globals
+    if (gameOverScreen) gameOverScreen.classList.remove('hidden');
+
+    try {
+        addRankPoints(countryPoints);
+        state.rankCoins += countryPoints;
+        saveGame(); // Final save
+    } catch (e) {
+        console.error("Error in post-game processing:", e);
+    }
+
+    const rankDisplayUI = document.getElementById('user-rank-display');
     const leaderboardDiv = document.getElementById('game-over-leaderboard');
 
-    if (!gameOverScreen) return;
+    if (!gameOverScreen || !rankDisplayUI) return;
 
-    // Generate Leaderboard logic (Prioritize Global Firebase Data)
-    let players = state.globalPlayers || [];
+    try {
 
-    // Fallback/Merge with local saves if global not yet loaded
-    if (players.length === 0) {
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key.startsWith('worldsim_save_')) {
-                try {
-                    const data = JSON.parse(localStorage.getItem(key));
-                    const name = key.replace('worldsim_save_', '');
-                    players.push({ name: name, money: data.money || 0, rankPoints: data.rankPoints || 0 });
-                } catch (e) { console.error("Error parsing save", e); }
+        // Generate Leaderboard logic (Prioritize Global Firebase Data)
+        let players = state.globalPlayers || [];
+
+        // Fallback/Merge with local saves if global not yet loaded
+        if (players.length === 0) {
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('worldsim_save_')) {
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        const name = key.replace('worldsim_save_', '');
+                        players.push({ name: name, money: data.money || 0, rankPoints: data.rankPoints || 0 });
+                    } catch (e) { console.error("Error parsing save", e); }
+                }
             }
         }
-    }
 
-    // Sort by money
-    players.sort((a, b) => (b.money || 0) - (a.money || 0));
+        // Sort by money
+        players.sort((a, b) => (b.money || 0) - (a.money || 0));
 
-    // Find user rank
-    const userRankIndex = players.findIndex(p => p.name === state.username);
-    const userRankNum = userRankIndex + 1;
+        // Find user rank
+        const userRankIndex = players.findIndex(p => p.name === state.username);
+        const userRankNum = userRankIndex + 1;
 
-    const gameOverSubtitle = document.querySelector('.game-over-subtitle');
-    if (gameOverSubtitle) {
-        gameOverSubtitle.innerHTML = isBankrupt ?
-            'Stroški sanacije uničenih držav so presegli vaš proračun!' :
-            'Čas je potekel!';
-        gameOverSubtitle.style.color = isBankrupt ? '#ef4444' : 'var(--text-muted)';
-    }
+        const gameOverSubtitle = document.querySelector('.game-over-subtitle');
+        if (gameOverSubtitle) {
+            gameOverSubtitle.innerHTML = isBankrupt ?
+                'Stroški sanacije uničenih držav so presegli vaš proračun!' :
+                'Čas je potekel!';
+            gameOverSubtitle.style.color = isBankrupt ? '#ef4444' : 'var(--text-muted)';
+        }
 
-    rankDisplayUI.innerHTML = `Tvoje mesto: <span style="color:var(--primary); font-size:1.5rem;">#${userRankNum}</span> <br> 
+        rankDisplayUI.innerHTML = `Tvoje mesto: <span style="color:var(--primary); font-size:1.5rem;">#${userRankNum}</span> <br> 
     <span style="font-size:1rem; color:var(--text-muted);">Denar: ${formatMoney(state.money)}</span> <br>
     <span style="font-size:1rem; color:var(--success);">Rank točke: +${countryPoints}</span><br>
     <span style="font-size:1rem; color:#ffd700;">Kovančki: +${countryPoints} 🪙</span><br>
     <span style="font-size:1.1rem; color:${getCurrentRank().color}; font-weight:800;">${getCurrentRank().name}</span>`;
 
-    // Render Top 10
-    leaderboardDiv.innerHTML = '';
-    const top10 = players.slice(0, 10);
+        // Render Top 10
+        leaderboardDiv.innerHTML = '';
+        const top10 = players.slice(0, 10);
 
-    top10.forEach((p, i) => {
-        const row = document.createElement('div');
-        row.className = 'leaderboard-row';
-        if (p.name === state.username) row.classList.add('highlight');
+        top10.forEach((p, i) => {
+            const row = document.createElement('div');
+            row.className = 'leaderboard-row';
+            if (p.name === state.username) row.classList.add('highlight');
 
-        row.innerHTML = `
+            row.innerHTML = `
             <div style="display:flex; width:100%;">
                 <span class="rank-num">${i + 1}.</span>
                 <span class="player-name">${p.name}</span>
                 <span class="player-money">${formatMoney(p.money)}</span>
             </div>
         `;
-        leaderboardDiv.appendChild(row);
-    });
+            leaderboardDiv.appendChild(row);
+        });
 
-    // Show Screen
-    gameOverScreen.classList.remove('hidden');
+    } catch (err) {
+        console.error("Error rendering results:", err);
+        rankDisplayUI.innerHTML = `Prišlo je do napake pri prikazu rezultatov, a tvoj napredek je shranjen.`;
+    }
 
     // Setup Restart Button
     const restartBtn = document.getElementById('restart-btn');
