@@ -1,3 +1,20 @@
+// Firebase Configuration (Vstavite svoje podatke iz Firebase konzole!)
+const firebaseConfig = {
+    apiKey: "AIzaSyD8yRyrSX-9_HxgOSR_5CiwVq8jAjWLgNU",
+    authDomain: "worldsim-luka.firebaseapp.com",
+    databaseURL: "https://worldsim-luka-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "worldsim-luka",
+    storageBucket: "worldsim-luka.firebasestorage.app",
+    messagingSenderId: "688055877481",
+    appId: "1:688055877481:web:63f8a4eff9a66b624b47f8"
+};
+
+// Initialize Firebase
+if (firebaseConfig.apiKey !== "Vstavite-Tukaj") {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.database();
+
 // Game Configuration
 const CONFIG = {
     asteroidIntervalMin: 60000, // 1 minute
@@ -1369,20 +1386,10 @@ function getCurrentCost(country) {
 }
 
 function getCurrentIncome(country) {
-    const effectiveLevel = Math.max(1, country.level);
-    // User Request: "1x več denarja kot prejšnji level" -> Double previous.
-    // Exponential Scaling: Base * 2^(Level-1) if Level 1 is base.
-    // If owned (Lvl 1): Base. Lvl 2: 2*Base. Lvl 3: 4*Base.
-
-    // Wait, country.level starts at 0 when unowned?
-    // When bought, level becomes 1.
-    // So if Level 1 (Owned), income is Base.
-    // Level 2: 2x Base.
-    // Level 3: 4x Base.
     if (!country.owned) return country.baseIncome;
-
-    // Use 2^(Level - 1)
-    return Math.floor(country.baseIncome * Math.pow(2, country.level - 1));
+    // Linear scaling: Each level adds 1x the base income.
+    // Lvl 1 = 1 * Base, Lvl 2 = 2 * Base, Lvl 3 = 3 * Base...
+    return Math.floor(country.baseIncome * country.level);
 }
 
 // --- Asteroid Shower Logic ---
@@ -2115,6 +2122,18 @@ function saveGameData() {
     });
 
     localStorage.setItem(`worldsim_save_${state.username}`, JSON.stringify(saveData));
+
+    // Sync with Firebase (Global Highscore)
+    if (firebaseConfig.apiKey !== "Vstavite-Tukaj") {
+        const lbRef = db.ref('leaderboard/' + state.username.replace(/\./g, '_'));
+        lbRef.set({
+            name: state.username,
+            money: state.money,
+            rankPoints: state.rankPoints,
+            lastUpdate: Date.now()
+        }).catch(err => console.error("Firebase sync failed:", err));
+    }
+
     console.log(`Igra shranjena za ${state.username}`);
 }
 
@@ -2440,7 +2459,19 @@ let currentLbType = 'rank';
 
 function showLeaderboard() {
     lbModal.classList.remove('hidden');
-    renderLeaderboard();
+
+    // Fetch global data if firebase initialized
+    if (firebaseConfig.apiKey !== "Vstavite-Tukaj") {
+        db.ref('leaderboard').once('value').then(snapshot => {
+            const data = snapshot.val();
+            if (data) {
+                state.globalPlayers = Object.values(data);
+                renderLeaderboard();
+            }
+        });
+    } else {
+        renderLeaderboard();
+    }
 }
 
 function closeLeaderboard() {
@@ -2448,12 +2479,14 @@ function closeLeaderboard() {
 }
 
 function renderLeaderboard() {
-    const players = getAllPlayers();
+    // If firebase is configured, it will be handled by syncHighscoresWithFirebase
+    // Let's use a local copy of global players
+    const players = state.globalPlayers || getAllPlayers();
 
     if (currentLbType === 'money') {
         players.sort((a, b) => b.money - a.money);
     } else {
-        players.sort((a, b) => b.rankPoints - a.rankPoints);
+        players.sort((a, b) => (b.rankPoints || 0) - (a.rankPoints || 0));
     }
 
     const top100 = players.slice(0, 100);
