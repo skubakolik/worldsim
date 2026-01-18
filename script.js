@@ -195,7 +195,7 @@ const SKIN_ITEMS = {
 
 const BACKGROUND_ITEMS = {
     'default': { id: 'default', name: 'Standardno', desc: 'Običajno temno modro ozadje.', cost: 0, type: 'background' },
-    'space': { id: 'space', name: 'Vesolje', desc: 'Zvezdnato nebo in galaksije.', cost: 150, type: 'background' },
+    'space': { id: 'space', name: 'Zvezdnato nebo', desc: 'Zvezdnato nebo', cost: 150, type: 'background' },
     'ocean': { id: 'ocean', name: 'Globok Ocean', desc: 'Temno modre globine morja.', cost: 100, type: 'background' },
     'magma': { id: 'magma', name: 'Vulkansko', desc: 'Vroče podzemlje polno lave.', cost: 250, type: 'background' },
     'matrix_bg': { id: 'matrix_bg', name: 'Digitalni Svet', desc: 'Zelena hakerska koda.', cost: 300, type: 'background' },
@@ -2488,7 +2488,15 @@ function handleSkinAction(itemId, type) {
         if (state.rankCoins >= item.cost) {
             state.rankCoins -= item.cost;
             owned.push(itemId);
-            logEvent(`Nakup uspešen: ${item.name}`, 'good');
+
+            // Auto-equip on purchase
+            if (type === 'skin') state.equippedSkin = itemId;
+            else {
+                state.equippedBackground = itemId;
+                updateBackgroundEffect();
+            }
+
+            logEvent(`Nakup uspešen in opremljeno: ${item.name}`, 'good');
             saveGame();
         } else {
             alert("Nimaš dovolj kovančkov!");
@@ -2738,7 +2746,12 @@ function showCountryInfo(name, country) {
 
 function updateChallengeTimerDisplay() {
     const display = document.getElementById('challenge-timer-display');
-    if (!display) return;
+    const timerText = document.getElementById('challenge-timer-text');
+    const nameDisplay = document.getElementById('player-name-header');
+    if (!display || !timerText) return;
+
+    // Show name
+    if (nameDisplay) nameDisplay.textContent = (state.username ? state.username + ',' : '');
 
     // Safety check
     if (state.challengeTimer < 0) state.challengeTimer = 0;
@@ -2747,7 +2760,7 @@ function updateChallengeTimerDisplay() {
     const seconds = Math.floor(state.challengeTimer % 60);
     const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-    display.textContent = `Osvoji svet: ${timeStr}`;
+    timerText.textContent = `osvoji svet: ${timeStr}`;
 
     // Visual warning
     if (state.challengeTimer <= 60) {
