@@ -2092,6 +2092,16 @@ body[class*="bg-"] {
     opacity: 0.8;
 }
 
+.lb-coins-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #eab308;
+    /* Gold color matching var(--accent) */
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .lb-right {
     text-align: right;
 }

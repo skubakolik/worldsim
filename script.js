@@ -2123,13 +2123,29 @@ function saveGameData() {
 
     localStorage.setItem(`worldsim_save_${state.username}`, JSON.stringify(saveData));
 
-    // Sync with Firebase (Global Highscore)
+    // Sync with Firebase (Global Highscore & Full Save)
     if (firebaseConfig.apiKey !== "Vstavite-Tukaj") {
-        const lbRef = db.ref('leaderboard/' + state.username.replace(/\./g, '_'));
+        const userRefId = state.username.replace(/\./g, '_');
+
+        // 1. Full Save (Private/User specific)
+        db.ref('users/' + userRefId + '/save').set(saveData).catch(err => console.error("Cloud save failed:", err));
+
+        // 2. Leaderboard Entry (Public)
+        let currentRankObj = GAME_RANKS[0];
+        for (let r of GAME_RANKS) {
+            if (state.rankPoints >= r.minPoints) currentRankObj = r;
+            else break;
+        }
+
+        const lbRef = db.ref('leaderboard/' + userRefId);
         lbRef.set({
             name: state.username,
             money: state.money,
             rankPoints: state.rankPoints,
+            rankCoins: state.rankCoins,
+            rankName: currentRankObj.name,
+            rankIcon: currentRankObj.icon,
+            rankColor: currentRankObj.color,
             lastUpdate: Date.now()
         }).catch(err => console.error("Firebase sync failed:", err));
     }
@@ -2146,17 +2162,23 @@ function saveFriends() {
         lastRead: state.lastRead
     };
     localStorage.setItem(`worldsim_friends_${state.username}`, JSON.stringify(friendsData));
+
+    // Sync with Firebase (Social / Friends)
+    if (firebaseConfig.apiKey !== "Vstavite-Tukaj") {
+        const userRefId = state.username.replace(/\./g, '_');
+        db.ref('users/' + userRefId + '/social').set(friendsData).catch(err => console.error("Cloud social save failed:", err));
+    }
 }
 
-function loadFriends(username) {
-    const rawFriends = localStorage.getItem(`worldsim_friends_${username}`);
-    if (rawFriends) {
+function loadFriends(username, cloudSocial = null) {
+    const dataObj = cloudSocial || JSON.parse(localStorage.getItem(`worldsim_friends_${username}`) || 'null');
+
+    if (dataObj) {
         try {
-            const fData = JSON.parse(rawFriends);
-            state.friends = fData.friends || [];
-            state.pendingRequests = fData.pendingRequests || [];
-            state.chats = fData.chats || {};
-            state.lastRead = fData.lastRead || {};
+            state.friends = dataObj.friends || [];
+            state.pendingRequests = dataObj.pendingRequests || [];
+            state.chats = dataObj.chats || {};
+            state.lastRead = dataObj.lastRead || {};
             updateNotifications();
             return true;
         } catch (e) {
@@ -2166,14 +2188,14 @@ function loadFriends(username) {
     return false;
 }
 
-function loadGame(username) {
-    const raw = localStorage.getItem(`worldsim_save_${username}`);
-    loadFriends(username);
+function loadGame(username, cloudData = null, cloudSocial = null) {
+    const dataObj = cloudData || JSON.parse(localStorage.getItem(`worldsim_save_${username}`) || 'null');
+    loadFriends(username, cloudSocial);
 
-    if (!raw) return false;
+    if (!dataObj) return false;
 
     try {
-        const data = JSON.parse(raw);
+        const data = dataObj;
         state.username = username;
         state.money = data.money || 0;
         state.challengeTimer = (typeof data.challengeTimer === 'number') ? data.challengeTimer : 600;
@@ -2243,8 +2265,22 @@ document.getElementById('play-button').addEventListener('click', async () => {
         await loadCountryData();
     }
 
-    // 4. Load saved game (this will now correctly apply levels to state.countries)
-    const loaded = loadGame(name);
+    // 4. Load saved game (Cloud prioritized)
+    let cloudData = null;
+    let cloudSocial = null;
+    if (firebaseConfig.apiKey !== "Vstavite-Tukaj") {
+        try {
+            const userRefId = name.replace(/\./g, '_');
+            const dataSnap = await db.ref('users/' + userRefId + '/save').once('value');
+            cloudData = dataSnap.val();
+            const socialSnap = await db.ref('users/' + userRefId + '/social').once('value');
+            cloudSocial = socialSnap.val();
+        } catch (err) {
+            console.error("Cloud load failed:", err);
+        }
+    }
+
+    const loaded = loadGame(name, cloudData, cloudSocial);
     if (geoJsonLayer) geoJsonLayer.resetStyle(); // Ensure skin/owned colors apply immediately
 
     // Check if previous game expired
@@ -2497,10 +2533,20 @@ function renderLeaderboard() {
         item.className = 'lb-item';
         if (p.name === state.username) item.classList.add('is-user');
 
-        let rankObj = GAME_RANKS[0];
-        for (let r of GAME_RANKS) {
-            if (p.rankPoints >= r.minPoints) rankObj = r;
-            else break;
+        // Identify rank (Try to use data from DB, otherwise calculate)
+        let rName = p.rankName;
+        let rIcon = p.rankIcon;
+        let rColor = p.rankColor;
+
+        if (!rName || !rIcon) {
+            let rankObj = GAME_RANKS[0];
+            for (let r of GAME_RANKS) {
+                if ((p.rankPoints || 0) >= r.minPoints) rankObj = r;
+                else break;
+            }
+            rName = rankObj.name;
+            rIcon = rankObj.icon;
+            rColor = rankObj.color;
         }
 
         const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
@@ -2508,17 +2554,18 @@ function renderLeaderboard() {
         item.innerHTML = `
             <div class="lb-left">
                 <div class="lb-medal">${medal}</div>
-                <div class="lb-avatar">${rankObj.icon}</div>
+                <div class="lb-avatar">${rIcon}</div>
                 <div class="lb-info">
                     <div class="lb-name-row">
                         <span class="lb-name">${p.name}</span>
                         ${p.name === state.username ? '<span class="lb-badge">Ti</span>' : ''}
                     </div>
-                    <div class="lb-rank-label" style="color:${rankObj.color}">${rankObj.name}</div>
+                    <div class="lb-rank-label" style="color:${rColor}">${rName}</div>
+                    <div class="lb-coins-label">🪙 ${(p.rankCoins || 0).toLocaleString()}</div>
                 </div>
             </div>
             <div class="lb-right">
-                <div class="lb-value">${currentLbType === 'money' ? formatMoney(p.money) : p.rankPoints.toLocaleString() + ' pts'}</div>
+                <div class="lb-value">${currentLbType === 'money' ? formatMoney(p.money || 0) : (p.rankPoints || 0).toLocaleString() + ' pts'}</div>
             </div>
         `;
         lbList.appendChild(item);
