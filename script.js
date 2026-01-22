@@ -1676,7 +1676,8 @@ function processAsteroidHits() {
 
     const upgradesToDestroy = [];
     state.ownedUpgrades.forEach(id => {
-        if (Math.random() < 0.1) {
+        // 10% chance to destroy generic upgrades
+        if (Math.random() < 0.10) {
             upgradesToDestroy.push(id);
         }
     });
@@ -1706,7 +1707,7 @@ function processAsteroidHits() {
                 logEvent(`Asteroid je uničil ${country.name}! (Lvl.${oldLevel} → Lvl.0)`, 'bad');
 
                 // Show breaking news banner
-                showBreakingNews(`Asteroid ti je uničil ${country.name}!`);
+                showBreakingNews(`Opustošena država: ${country.name}`);
 
                 geoJsonLayer.resetStyle();
                 renderShop();
@@ -1720,7 +1721,7 @@ function processAsteroidHits() {
     upgradesToDestroy.forEach(id => {
         const upgrade = GLOBAL_UPGRADES[id];
         state.ownedUpgrades.delete(id);
-        logEvent(`Asteroid je uničil nadgradnjo: ${upgrade.name}!`, 'bad');
+        logEvent(`Pozor ${upgrade.name} ni več na voljo`, 'bad');
     });
 
     if (upgradesToDestroy.length > 0 || moneyLost > 0) {
