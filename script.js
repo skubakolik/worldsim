@@ -63,6 +63,16 @@ function getEffectiveAsteroidChance() {
     return Math.max(0.001, CONFIG.asteroidChance - reduction);
 }
 
+function getProtectedCountriesCount() {
+    let protected = 0;
+    Object.values(GLOBAL_UPGRADES).forEach(u => {
+        if (state.ownedUpgrades.has(u.id) && u.type === 'shield_protection') {
+            protected += u.value;
+        }
+    });
+    return protected;
+}
+
 function getEffectiveStockAmount() {
     let bonus = 0;
     Object.values(GLOBAL_UPGRADES).forEach(u => {
@@ -308,12 +318,12 @@ const GLOBAL_UPGRADES = {
     INCOME_SPEED_IV: { id: 'INCOME_SPEED_IV', rarity: 'rare', name: 'Večji Zaslužek IV', cost: 60000, type: 'income', value: 0.35, desc: 'Skupni zaslužek +35%' },
     INCOME_SPEED_V: { id: 'INCOME_SPEED_V', rarity: 'epic', name: 'Večji Zaslužek V', cost: 100000, type: 'income', value: 0.50, desc: 'Skupni zaslužek +50%' },
 
-    // ROCKET SHIELD (Custom 5 Tiers)
-    SHIELD_I: { id: 'SHIELD_I', rarity: 'common', name: 'Raketni Ščit I', cost: 5000, type: 'asteroid_chance', value: 0.05, desc: 'Možnost uničenja -5%' },
-    SHIELD_II: { id: 'SHIELD_II', rarity: 'common', name: 'Raketni Ščit II', cost: 15000, type: 'asteroid_chance', value: 0.03, desc: 'Možnost uničenja -3% (Dodatno)' },
-    SHIELD_III: { id: 'SHIELD_III', rarity: 'rare', name: 'Raketni Ščit III', cost: 35000, type: 'asteroid_chance', value: 0.04, desc: 'Možnost uničenja -4% (Dodatno)' },
-    SHIELD_IV: { id: 'SHIELD_IV', rarity: 'rare', name: 'Raketni Ščit IV', cost: 60000, type: 'asteroid_chance', value: 0.04, desc: 'Možnost uničenja -4% (Dodatno)' },
-    SHIELD_V: { id: 'SHIELD_V', rarity: 'epic', name: 'Raketni Ščit V', cost: 100000, type: 'asteroid_chance', value: 0.04, desc: 'Možnost uničenja -4% (Dodatno)' },
+    // ROCKET SHIELD (Custom 5 Tiers) - Protects countries from destruction
+    SHIELD_I: { id: 'SHIELD_I', rarity: 'common', name: 'Raketni Ščit I', cost: 2000, type: 'shield_protection', value: 2, desc: 'Zaščiti 2 državi pred asteroidi' },
+    SHIELD_II: { id: 'SHIELD_II', rarity: 'common', name: 'Raketni Ščit II', cost: 10000, type: 'shield_protection', value: 2, desc: 'Zaščiti dodatni 2 državi (skupaj 4)' },
+    SHIELD_III: { id: 'SHIELD_III', rarity: 'rare', name: 'Raketni Ščit III', cost: 25000, type: 'shield_protection', value: 2, desc: 'Zaščiti dodatni 2 državi (skupaj 6)' },
+    SHIELD_IV: { id: 'SHIELD_IV', rarity: 'rare', name: 'Raketni Ščit IV', cost: 50000, type: 'shield_protection', value: 2, desc: 'Zaščiti dodatni 2 državi (skupaj 8)' },
+    SHIELD_V: { id: 'SHIELD_V', rarity: 'epic', name: 'Raketni Ščit V', cost: 100000, type: 'shield_protection', value: 2, desc: 'Zaščiti dodatni 2 državi (skupaj 10)' },
 
     // STOCK SIZE (Custom 5 Tiers)
     STOCK_SIZE_I: { id: 'STOCK_SIZE_I', rarity: 'common', name: 'Večja Zaloga I', cost: 5000, type: 'stock_size', value: 5, desc: 'Zaloga +5 držav' },
@@ -1479,6 +1489,9 @@ function updateAsteroidTimer() {
 }
 
 function triggerAsteroidShower() {
+    // Clear previous breaking news
+    clearBreakingNews();
+
     asteroidOverlay.classList.add('active');
     logEvent("ASTEROIDNI ROJ SE JE ZAČEL!", "bad");
 
@@ -1610,12 +1623,56 @@ function processAsteroidHits() {
         });
     }
 
+    // Get protected countries count from shield upgrades
+    const protectedCount = getProtectedCountriesCount();
+
+    // Sort owned countries by income (ascending) to find middle-tier countries
+    const ownedCountriesArray = Array.from(state.ownedCountries).map(id => state.countries[id]);
+    ownedCountriesArray.sort((a, b) => getCurrentIncome(a) - getCurrentIncome(b));
+
+    // Create set of protected country IDs (middle-tier countries with average value)
+    const protectedCountries = new Set();
+    if (protectedCount > 0 && ownedCountriesArray.length > 0) {
+        // Calculate the middle range to protect
+        const totalCountries = ownedCountriesArray.length;
+        const actualProtected = Math.min(protectedCount, totalCountries);
+        const middleStart = Math.floor((totalCountries - actualProtected) / 2);
+        const middleEnd = middleStart + actualProtected;
+
+        for (let i = middleStart; i < middleEnd; i++) {
+            protectedCountries.add(ownedCountriesArray[i].id);
+        }
+
+        // Show protected countries in GREEN shield ticker
+        showShieldTicker(protectedCountries);
+
+        logEvent(`Raketni ščit aktiviran: ${protectedCountries.size} držav je zaščitenih!`, 'good');
+    }
+
     const victims = [];
+    const shieldedCountries = []; // Track which countries were actually saved by shield
+
     state.ownedCountries.forEach(id => {
-        if (Math.random() < destructionChance) {
+        const wouldBeHit = Math.random() < destructionChance;
+
+        // Skip if country is protected by shield
+        if (protectedCountries.has(id)) {
+            // Only add to shielded list if it would have been hit
+            if (wouldBeHit) {
+                shieldedCountries.push(id);
+            }
+            return;
+        }
+
+        if (wouldBeHit) {
             victims.push(id);
         }
     });
+
+    // Additional log if shield actually saved countries from destruction
+    if (shieldedCountries.length > 0) {
+        logEvent(`Raketni ščit je rešil ${shieldedCountries.length} držav pred uničenjem!`, 'good');
+    }
 
     const upgradesToDestroy = [];
     state.ownedUpgrades.forEach(id => {
@@ -1672,18 +1729,133 @@ function processAsteroidHits() {
     }
 }
 
-function showBreakingNews(message) {
-    const banner = document.getElementById('breaking-news');
-    if (!banner) return;
+// Breaking News Ticker System
+let newsQueue = [];
+let tickerVisible = false;
 
-    banner.textContent = message;
-    banner.classList.remove('hidden');
-
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-        banner.classList.add('hidden');
-    }, 5000);
+function clearBreakingNews() {
+    // Clear all previous news (called at start of new asteroid attack)
+    newsQueue = [];
+    updateNewsTicker();
 }
+
+function showBreakingNews(message) {
+    // Add message to queue
+    newsQueue.push(message);
+
+    // Update ticker content
+    updateNewsTicker();
+
+    // Show ticker if hidden
+    const ticker = document.getElementById('breaking-news-ticker');
+    if (ticker && !tickerVisible) {
+        ticker.classList.remove('hidden');
+        tickerVisible = true;
+    }
+
+    // Keep ticker visible for at least 30 seconds after last news
+    clearTimeout(window.tickerHideTimer);
+    window.tickerHideTimer = setTimeout(() => {
+        if (ticker) {
+            ticker.classList.add('hidden');
+            tickerVisible = false;
+        }
+    }, 30000);
+}
+
+function updateNewsTicker() {
+    const tickerContent = document.getElementById('ticker-content');
+    if (!tickerContent) return;
+
+    // If no news, hide ticker
+    if (newsQueue.length === 0) {
+        const ticker = document.getElementById('breaking-news-ticker');
+        if (ticker) {
+            ticker.classList.add('hidden');
+            tickerVisible = false;
+        }
+        return;
+    }
+
+    // Build ticker HTML with all news items
+    let html = '';
+    newsQueue.forEach((news, index) => {
+        html += `<span class="ticker-item">${news}</span>`;
+        if (index < newsQueue.length - 1) {
+            html += '<span class="ticker-separator"></span>';
+        }
+    });
+
+    // Duplicate content for seamless loop
+    tickerContent.innerHTML = html + html;
+}
+
+// Shield Ticker System (Green) - Shows protected countries
+let shieldTickerVisible = false;
+
+function showShieldTicker(protectedCountries) {
+    const ticker = document.getElementById('shield-ticker');
+    const tickerContent = document.getElementById('shield-ticker-content');
+    if (!ticker || !tickerContent) return;
+
+    // Build ticker HTML with protected countries
+    let html = '';
+    const countriesArray = Array.from(protectedCountries);
+    countriesArray.forEach((id, index) => {
+        const country = state.countries[id];
+        html += `<span class="ticker-item">${country.name} 🛡️</span>`;
+        if (index < countriesArray.length - 1) {
+            html += '<span class="ticker-separator"></span>';
+        }
+    });
+
+    // Duplicate content for seamless loop
+    tickerContent.innerHTML = html + html;
+
+    // Show ticker
+    ticker.classList.remove('hidden');
+    shieldTickerVisible = true;
+
+    // Hide after 10 seconds (before attack starts)
+    clearTimeout(window.shieldTickerHideTimer);
+    window.shieldTickerHideTimer = setTimeout(() => {
+        ticker.classList.add('hidden');
+        shieldTickerVisible = false;
+    }, 10000);
+}
+
+function hideShieldTicker() {
+    const ticker = document.getElementById('shield-ticker');
+    if (ticker) {
+        ticker.classList.add('hidden');
+        shieldTickerVisible = false;
+    }
+}
+
+// Show good news in green ticker (for positive events like getting first country)
+function showGoodNews(message) {
+    const ticker = document.getElementById('shield-ticker');
+    const tickerContent = document.getElementById('shield-ticker-content');
+    if (!ticker || !tickerContent) return;
+
+    // Build ticker HTML with message
+    let html = `<span class="ticker-item">${message}</span>`;
+
+    // Duplicate content for seamless loop
+    tickerContent.innerHTML = html + html;
+
+    // Show ticker
+    ticker.classList.remove('hidden');
+    shieldTickerVisible = true;
+
+    // Hide after 15 seconds
+    clearTimeout(window.shieldTickerHideTimer);
+    window.shieldTickerHideTimer = setTimeout(() => {
+        ticker.classList.add('hidden');
+        shieldTickerVisible = false;
+    }, 15000);
+}
+
 
 
 function updateUI() {
@@ -2478,8 +2650,8 @@ function claimStartingCountry() {
     switchMusicToGame();
     initGame();
 
-    // Show breaking news, log event and zoom to country
-    showBreakingNews(`Tvoja začetna država je ${country.name}!`);
+    // Show in GREEN ticker for positive news
+    showGoodNews(`Tvoja začetna država je ${country.name}! 🎉`);
     logEvent(`Kolo sreče: Dobil si državo ${country.name}!`, 'good');
 
     // Zoom/Mark on map
