@@ -1722,6 +1722,7 @@ function processAsteroidHits() {
         const upgrade = GLOBAL_UPGRADES[id];
         state.ownedUpgrades.delete(id);
         logEvent(`Pozor ${upgrade.name} ni več na voljo`, 'bad');
+        showBreakingNews(`Pozor ${upgrade.name} ni več na voljo`);
     });
 
     if (upgradesToDestroy.length > 0 || moneyLost > 0) {
