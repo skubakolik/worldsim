@@ -320,10 +320,10 @@ const GLOBAL_UPGRADES = {
 
     // ROCKET SHIELD (Custom 5 Tiers) - Protects countries from destruction
     SHIELD_I: { id: 'SHIELD_I', rarity: 'common', name: 'Raketni Ščit I', cost: 2000, type: 'shield_protection', value: 2, desc: 'Zaščiti 2 državi pred asteroidi' },
-    SHIELD_II: { id: 'SHIELD_II', rarity: 'common', name: 'Raketni Ščit II', cost: 10000, type: 'shield_protection', value: 2, desc: 'Zaščiti dodatni 2 državi (skupaj 4)' },
-    SHIELD_III: { id: 'SHIELD_III', rarity: 'rare', name: 'Raketni Ščit III', cost: 25000, type: 'shield_protection', value: 2, desc: 'Zaščiti dodatni 2 državi (skupaj 6)' },
-    SHIELD_IV: { id: 'SHIELD_IV', rarity: 'rare', name: 'Raketni Ščit IV', cost: 50000, type: 'shield_protection', value: 2, desc: 'Zaščiti dodatni 2 državi (skupaj 8)' },
-    SHIELD_V: { id: 'SHIELD_V', rarity: 'epic', name: 'Raketni Ščit V', cost: 100000, type: 'shield_protection', value: 2, desc: 'Zaščiti dodatni 2 državi (skupaj 10)' },
+    SHIELD_II: { id: 'SHIELD_II', rarity: 'common', name: 'Raketni Ščit II', cost: 8000, type: 'shield_protection', value: 2, desc: 'Zaščiti dodatni 2 državi (skupaj 4)' },
+    SHIELD_III: { id: 'SHIELD_III', rarity: 'rare', name: 'Raketni Ščit III', cost: 18000, type: 'shield_protection', value: 2, desc: 'Zaščiti dodatni 2 državi (skupaj 6)' },
+    SHIELD_IV: { id: 'SHIELD_IV', rarity: 'rare', name: 'Raketni Ščit IV', cost: 32000, type: 'shield_protection', value: 2, desc: 'Zaščiti dodatni 2 državi (skupaj 8)' },
+    SHIELD_V: { id: 'SHIELD_V', rarity: 'epic', name: 'Raketni Ščit V', cost: 50000, type: 'shield_protection', value: 2, desc: 'Zaščiti dodatni 2 državi (skupaj 10)' },
 
     // STOCK SIZE (Custom 5 Tiers)
     STOCK_SIZE_I: { id: 'STOCK_SIZE_I', rarity: 'common', name: 'Večja Zaloga I', cost: 5000, type: 'stock_size', value: 5, desc: 'Zaloga +5 držav' },
@@ -1676,6 +1676,12 @@ function processAsteroidHits() {
 
     const upgradesToDestroy = [];
     state.ownedUpgrades.forEach(id => {
+        // Check if upgrade is of type shield_protection
+        const upgrade = GLOBAL_UPGRADES[id];
+        if (upgrade && upgrade.type === 'shield_protection') {
+            return; // Shield upgrades cannot be destroyed
+        }
+
         // 10% chance to destroy generic upgrades
         if (Math.random() < 0.10) {
             upgradesToDestroy.push(id);
