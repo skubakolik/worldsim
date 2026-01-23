@@ -1922,15 +1922,18 @@ function updateNewsTicker() {
     tickerContent.innerHTML = html;
 
     // Calculate dynamic duration for constant speed
-    // Speed: 80 pixels per second (SLOWER as requested, previously 150)
-    const SPEED_PPS = 80;
+    // Speed: 60 pixels per second (Slow and readable)
+    const SPEED_PPS = 60;
 
-    // Force layout to get width
-    const contentWidth = tickerContent.scrollWidth;
-    const viewportWidth = window.innerWidth;
+    // Force layout to get exact width
+    // scrollWidth ALREADY INCLUDES the padding-left: 100% (which matches viewport width)
+    // The animation translateX(-100%) moves the element by its TOTAL width.
+    // Therefore, distance to travel is exactly equal to scrollWidth.
+    const distance = tickerContent.scrollWidth;
 
-    // Distance to travel = viewport + content (since we start pushed by padding-left: 100%)
-    const distance = viewportWidth + contentWidth;
+    // Safety check for 0 width
+    if (distance <= 0) return;
+
     const duration = distance / SPEED_PPS;
 
     tickerContent.style.animationDuration = `${duration}s`;
