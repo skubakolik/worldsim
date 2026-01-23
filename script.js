@@ -1498,11 +1498,14 @@ function triggerAsteroidShower() {
     window.asteroidShowerTimer = setTimeout(() => {
         asteroidOverlay.classList.remove('active');
         window.asteroidShowerTimer = null;
-        if (!state.paused) processAsteroidHits();
+        if (!state.paused) {
+            // Start new cycle first to establish nextAsteroidTime for the ticker
+            startAsteroidTimer();
+            processAsteroidHits();
+        } else {
+            startAsteroidTimer();
+        }
         logEvent("Asteroidni roj se je končal.", "neutral");
-
-        // Start new cycle
-        startAsteroidTimer();
     }, 5000);
 }
 
@@ -1609,7 +1612,13 @@ function processAsteroidHits() {
     const moneyLostPercent = Math.min(0.25, 0.05 * endgameMultiplier);
     const moneyLost = Math.floor(state.money * moneyLostPercent);
 
+    // --- BATCH NEWS GATHERING ---
+    const cycleNews = [];
+
+    // 1. Money Loss
     if (moneyLost > 0) {
+        cycleNews.push(`IZGUBA: Asteroid je uničil ${formatMoney(moneyLost)} tvojega premoženja!`);
+
         const moneyDisplay = document.getElementById('money-display');
         const rect = moneyDisplay.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
@@ -1618,7 +1627,7 @@ function processAsteroidHits() {
         animateAsteroid({ x: centerX, y: centerY }, () => {
             state.money -= moneyLost;
             logEvent(`Asteroidni roj je uničil ${formatMoney(moneyLost)} denarja! (-5%)`, 'bad');
-            showBreakingNews(`IZGUBA: Asteroid je uničil ${formatMoney(moneyLost)} tvojega premoženja!`);
+            // News already pushed
             updateUI();
         });
     }
@@ -1674,6 +1683,7 @@ function processAsteroidHits() {
         logEvent(`Raketni ščit je rešil ${shieldedCountries.length} držav pred uničenjem!`, 'good');
     }
 
+    // 2. Upgrades Destruction
     const upgradesToDestroy = [];
     state.ownedUpgrades.forEach(id => {
         // Check if upgrade is of type shield_protection
@@ -1687,6 +1697,47 @@ function processAsteroidHits() {
             upgradesToDestroy.push(id);
         }
     });
+
+    upgradesToDestroy.forEach(id => {
+        const upgrade = GLOBAL_UPGRADES[id];
+        cycleNews.push(`Pozor ${upgrade.name} ni več na voljo`);
+        // Actual deletion happens below
+    });
+
+    // 3. Country Destruction News (Add to batch)
+    victims.forEach(id => {
+        const country = state.countries[id];
+        cycleNews.push(`Opustošena država: ${country.name}`);
+    });
+
+    // --- PUSH ALL NEWS TO TICKER ---
+    if (cycleNews.length > 0) {
+        newsQueue.push(...cycleNews);
+        updateNewsTicker();
+
+        // Ensure visible
+        const ticker = document.getElementById('breaking-news-ticker');
+        if (ticker && !tickerVisible) {
+            ticker.classList.remove('hidden');
+            tickerVisible = true;
+        }
+
+        // Timer Logic (matches showBreakingNews but manual trigger)
+        clearTimeout(window.tickerHideTimer);
+        let hideDelay = 30000;
+        if (typeof nextAsteroidTime !== 'undefined' && nextAsteroidTime > Date.now()) {
+            const timeUntilNext = nextAsteroidTime - Date.now();
+            const calculated = timeUntilNext - 15000;
+            if (calculated > 1000) hideDelay = calculated;
+        }
+
+        window.tickerHideTimer = setTimeout(() => {
+            if (ticker) {
+                ticker.classList.add('hidden');
+                tickerVisible = false;
+            }
+        }, hideDelay);
+    }
 
     // Staggered animations for countries
     victims.forEach((id, index) => {
@@ -1712,8 +1763,7 @@ function processAsteroidHits() {
 
                 logEvent(`Asteroid je uničil ${country.name}! (Lvl.${oldLevel} → Lvl.0)`, 'bad');
 
-                // Show breaking news banner
-                showBreakingNews(`Opustošena država: ${country.name}`);
+                // News handled in batch above
 
                 geoJsonLayer.resetStyle();
                 renderShop();
@@ -1723,12 +1773,12 @@ function processAsteroidHits() {
         }, index * 400); // 400ms delay between asteroids
     });
 
-    // Upgrades destruction (immediate or could be animated too, but countries are priority)
+    // Upgrades destruction (immediate state update)
     upgradesToDestroy.forEach(id => {
         const upgrade = GLOBAL_UPGRADES[id];
         state.ownedUpgrades.delete(id);
         logEvent(`Pozor ${upgrade.name} ni več na voljo`, 'bad');
-        showBreakingNews(`Pozor ${upgrade.name} ni več na voljo`);
+        // News handled in batch above
     });
 
     if (upgradesToDestroy.length > 0 || moneyLost > 0) {
@@ -1761,14 +1811,26 @@ function showBreakingNews(message) {
         tickerVisible = true;
     }
 
-    // Keep ticker visible for at least 30 seconds after last news
+    // Keep ticker visible based on asteroid cycle if possible
     clearTimeout(window.tickerHideTimer);
+
+    let hideDelay = 30000;
+
+    // Try to sync with asteroid cycle (15s buffer before next)
+    if (typeof nextAsteroidTime !== 'undefined' && nextAsteroidTime > Date.now()) {
+        const timeUntilNext = nextAsteroidTime - Date.now();
+        const calculated = timeUntilNext - 15000;
+        if (calculated > 1000) {
+            hideDelay = calculated;
+        }
+    }
+
     window.tickerHideTimer = setTimeout(() => {
         if (ticker) {
             ticker.classList.add('hidden');
             tickerVisible = false;
         }
-    }, 30000);
+    }, hideDelay);
 }
 
 function updateNewsTicker() {
