@@ -1711,32 +1711,69 @@ function processAsteroidHits() {
     });
 
     // --- PUSH ALL NEWS TO TICKER ---
+    // --- PUSH ALL NEWS TO TICKER ---
     if (cycleNews.length > 0) {
         newsQueue.push(...cycleNews);
-        updateNewsTicker();
 
-        // Ensure visible
-        const ticker = document.getElementById('breaking-news-ticker');
-        if (ticker && !tickerVisible) {
-            ticker.classList.remove('hidden');
-            tickerVisible = true;
+        // --- DELAY SHOWING TICKER UNTIL AFTER ATTACK ---
+        // Calculate when the last asteroid finishes
+        // Stagger is 400ms per victim. Animation is 1500ms.
+        // If money hit, it's 1 asteroid (1500ms).
+        // If victims, last one starts at (victims.length - 1) * 400.
+        // Ends at start + 1500.
+
+        let maxDelay = 0;
+
+        if (victims.length > 0) {
+            maxDelay = (victims.length * 400) + 1500;
+        } else if (moneyLost > 0) {
+            maxDelay = 1500;
         }
 
-        // Timer Logic (matches showBreakingNews but manual trigger)
-        clearTimeout(window.tickerHideTimer);
-        let hideDelay = 30000;
-        if (typeof nextAsteroidTime !== 'undefined' && nextAsteroidTime > Date.now()) {
-            const timeUntilNext = nextAsteroidTime - Date.now();
-            const calculated = timeUntilNext - 15000;
-            if (calculated > 1000) hideDelay = calculated;
-        }
+        // Add a small buffer (e.g. 1s)
+        maxDelay += 1000;
 
-        window.tickerHideTimer = setTimeout(() => {
+        // Schedule Ticker Appearance
+        setTimeout(() => {
+            const ticker = document.getElementById('breaking-news-ticker');
+            // Ensure dynamic speed is set
+            updateNewsTicker();
+
             if (ticker) {
-                ticker.classList.add('hidden');
-                tickerVisible = false;
+                ticker.classList.remove('hidden');
+                tickerVisible = true;
             }
-        }, hideDelay);
+
+            // Timer Logic (hide 15s before NEXT asteroid)
+            clearTimeout(window.tickerHideTimer);
+            let hideDelay = 30000; // default 30s open
+            if (typeof nextAsteroidTime !== 'undefined' && nextAsteroidTime > Date.now()) {
+                const timeUntilNext = nextAsteroidTime - Date.now();
+                // Show until 15s before next
+                const calculated = timeUntilNext - 15000;
+                if (calculated > 1000) hideDelay = calculated;
+            }
+
+            // Adjust hideDelay by elapsed time or just set it from "now"
+            // hideDelay is relative to now. But this runs in FUTURE.
+            // nextAsteroidTime is absolute. 
+            // So logic must be recalculated here OR simply subtract maxDelay?
+            // Safer to use absolute time check.
+
+            if (typeof nextAsteroidTime !== 'undefined' && nextAsteroidTime > Date.now()) {
+                const timeUntilNext = nextAsteroidTime - Date.now();
+                const calculated = timeUntilNext - 15000;
+                if (calculated > 1000) hideDelay = calculated;
+            }
+
+            window.tickerHideTimer = setTimeout(() => {
+                if (ticker) {
+                    ticker.classList.add('hidden');
+                    tickerVisible = false;
+                }
+            }, hideDelay);
+
+        }, maxDelay);
     }
 
     // Staggered animations for countries
@@ -1857,7 +1894,26 @@ function updateNewsTicker() {
     });
 
     // Duplicate content for seamless loop
-    tickerContent.innerHTML = html + html;
+    tickerContent.innerHTML = html;
+
+    // Calculate dynamic duration for constant speed
+    // Speed: 150 pixels per second (faster than before)
+    const SPEED_PPS = 150;
+
+    // Force layout to get width
+    const contentWidth = tickerContent.scrollWidth;
+    const viewportWidth = window.innerWidth;
+
+    // Distance to travel = viewport + content
+    const distance = viewportWidth + contentWidth;
+    const duration = distance / SPEED_PPS;
+
+    tickerContent.style.animationDuration = `${duration}s`;
+
+    // Ensure animation is running
+    tickerContent.style.animationName = 'none';
+    tickerContent.offsetHeight; /* trigger reflow */
+    tickerContent.style.animationName = 'tickerScroll';
 }
 
 // Shield Ticker System (Green) - Shows protected countries
