@@ -1226,6 +1226,26 @@ function setupEventListeners() {
 
     const resumeBtn = document.getElementById('resume-btn');
     if (resumeBtn) resumeBtn.addEventListener('click', togglePause);
+
+    /* Help Modal Logic */
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const closeHelpBtn = document.getElementById('close-help-btn');
+
+    if (helpBtn && helpModal && closeHelpBtn) {
+        helpBtn.addEventListener('click', () => {
+            helpModal.classList.remove('hidden');
+        });
+        closeHelpBtn.addEventListener('click', () => {
+            helpModal.classList.add('hidden');
+        });
+        // Click outside to close
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.classList.add('hidden');
+            }
+        });
+    }
 }
 
 function addMoney(amount) {
@@ -3834,3 +3854,25 @@ function openMobileTab(tab) {
     // 5. Show modal
     modal.classList.remove('hidden');
 }
+// Initialize help modal functionality immediately when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    /* Help Modal Logic */
+    const helpBtn = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const closeHelpBtn = document.getElementById('close-help-btn');
+
+    if (helpBtn && helpModal && closeHelpBtn) {
+        helpBtn.addEventListener('click', () => {
+            helpModal.classList.remove('hidden');
+        });
+        closeHelpBtn.addEventListener('click', () => {
+            helpModal.classList.add('hidden');
+        });
+        // Click outside to close
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.classList.add('hidden');
+            }
+        });
+    }
+});

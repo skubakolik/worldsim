@@ -10,6 +10,7 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="breaking-news.css">
+    <link rel="stylesheet" href="help.css">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,6 +59,7 @@
                 </button>
                 <input type="text" id="username-input" placeholder="Tvoje ime..." maxlength="15">
                 <button id="leaderboard-btn">🏆</button>
+                <button id="help-btn">❓</button>
             </div>
             <button id="play-button">IGRAJ!</button>
         </div>
@@ -154,7 +156,6 @@
         </div>
     </div>
 
-    <!-- Mobile Tab Content Modal -->
     <div id="mobile-tab-modal" class="modal-overlay hidden">
         <div class="modal-content mobile-tab-modal-content">
             <div class="modal-header">
@@ -163,6 +164,44 @@
             </div>
             <div id="mobile-tab-body">
                 <!-- Content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal-overlay hidden">
+        <div class="modal-content help-container">
+            <div class="modal-header">
+                <h2>❓ Navodila za igro</h2>
+                <button id="close-help-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="help-content">
+                <div class="help-section">
+                    <h3>🏆 CILJ IGRE</h3>
+                    <p>Postani <strong>Globalni Vladar</strong>! Kupuj države, služi denar in se vzpenjaj po lestvici
+                        rankov.</p>
+                </div>
+                <div class="help-section">
+                    <h3>🌍 DRŽAVE</h3>
+                    <p>Vsaka država prinaša prihodek (€/s). Redkejše države (npr. ZDA, Francija) so dražje, a prinašajo
+                        veliko več denarja. Nadgrajuj jih in povečaj zaslužek!</p>
+                </div>
+                <div class="help-section">
+                    <h3>🛍️ TRGOVINA</h3>
+                    <p>Kupuj <strong>Globalne nadgradnje</strong>, da pospešiš zalogo, povečaš zaslužek ali zaščitiš
+                        države.</p>
+                </div>
+                <div class="help-section">
+                    <h3>☄️ NEVARNOST</h3>
+                    <p>Pazi na <strong>asteroide</strong>! Redno uničujejo tvoje države in brišejo nadgradnje. Kupuj
+                        "Raketni Ščit" za zaščito!</p>
+                </div>
+                <div class="help-section">
+                    <h3>👑 RANKI & KOVANČKI</h3>
+                    <p>Zbiraj točke z nakupi in dosegaj nove ranke. <strong>NOVO:</strong> Za vsako obdržano državo na
+                        koncu igre prejmeš <strong>kovančke 🪙</strong>, s katerimi lahko kupuješ nova ozadja in barvne
+                        preoblek v trgovini preoblek!</p>
+                </div>
             </div>
         </div>
     </div>
