@@ -1913,27 +1913,48 @@ function updateNewsTicker() {
         }
     });
 
-    // Duplicate content for seamless loop
+    // Duplicate content once to ensure seamless flow for the 2 loops if needed, 
+    // BUT user said "loops 2x". A standard CSS marquee (from right 100% to left -100%)
+    // usually requires `padding-left: 100%` which we have.
+    // One iteration moves it from right edge to left edge fully.
+    // "Zavrti naj se samo 2x" -> Animation iteration count = 2.
+
     tickerContent.innerHTML = html;
 
     // Calculate dynamic duration for constant speed
-    // Speed: 150 pixels per second (faster than before)
-    const SPEED_PPS = 150;
+    // Speed: 80 pixels per second (SLOWER as requested, previously 150)
+    const SPEED_PPS = 80;
 
     // Force layout to get width
     const contentWidth = tickerContent.scrollWidth;
     const viewportWidth = window.innerWidth;
 
-    // Distance to travel = viewport + content
+    // Distance to travel = viewport + content (since we start pushed by padding-left: 100%)
     const distance = viewportWidth + contentWidth;
     const duration = distance / SPEED_PPS;
 
     tickerContent.style.animationDuration = `${duration}s`;
+    tickerContent.style.animationIterationCount = '2'; // Loop exactly 2 times
+    tickerContent.style.animationTimingFunction = 'linear'; // Ensure linear
 
     // Ensure animation is running
     tickerContent.style.animationName = 'none';
     tickerContent.offsetHeight; /* trigger reflow */
     tickerContent.style.animationName = 'tickerScroll';
+
+    // Auto-hide after animation ends (2 loops)
+    const onAnimationEnd = () => {
+        const ticker = document.getElementById('breaking-news-ticker');
+        if (ticker) {
+            ticker.classList.add('hidden');
+            tickerVisible = false;
+        }
+        tickerContent.removeEventListener('animationend', onAnimationEnd);
+    };
+
+    // Remove previous listener to avoid stacking
+    tickerContent.removeEventListener('animationend', onAnimationEnd);
+    tickerContent.addEventListener('animationend', onAnimationEnd);
 }
 
 // Shield Ticker System (Green) - Shows protected countries
